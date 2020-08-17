@@ -34,13 +34,13 @@ import java.util.Optional;
 
 public class CancelCommand extends GaiaCommand {
 
-    public CancelCommand() {
-        super("cancel", "/gaia cancel [name]", "Cancel the revert task of the specified arena or if no name is given, the arena you are currently in.", new String[]{"abort"});
-    }
+	public CancelCommand() {
+		super("cancel", "/gaia cancel [name]", "Cancel the revert task of the specified arena or if no name is given, the arena you are currently in.", new String[]{ "abort" });
+	}
 
-    @Override
-    public boolean execute(final CommandSender sender, final List<String> args) {
-        if (!hasPermission(sender) || !correctLength(sender, args.size(), 0, 1)) return false;
+	@Override
+	public boolean execute(final CommandSender sender, final List<String> args) {
+		if (!hasPermission(sender) || !correctLength(sender, args.size(), 0, 1)) return false;
 
 		final Arena arena;
 		if (args.size() == 0) {
@@ -55,7 +55,7 @@ public class CancelCommand extends GaiaCommand {
 				return false;
 			}
 		} else {
-        	final String arenaName = Util.sanitizeInput(args.get(0));
+			final String arenaName = Util.sanitizeInput(args.get(0));
 			if (arenaName.length() < 3 || !ArenaManager.arenaExists(arenaName)) {
 				CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.RED + "Could not find arena " + ChatColor.GOLD + arenaName);
 				return false;
@@ -73,6 +73,6 @@ public class CancelCommand extends GaiaCommand {
 
 	@Override
 	public boolean completeArenaNames() {
-    	return true;
+		return true;
 	}
 }

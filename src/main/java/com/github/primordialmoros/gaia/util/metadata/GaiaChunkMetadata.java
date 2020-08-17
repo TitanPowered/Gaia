@@ -40,7 +40,7 @@ public class GaiaChunkMetadata {
 
 
 	public static boolean isValidMetadata(GaiaChunkMetadata m) {
-		if (m.path == null  || m.hash == null || m.min == null || m.max == null) return false;
+		if (m.path == null || m.hash == null || m.min == null || m.max == null) return false;
 		if (!m.path.endsWith(GaiaIO.DATA_SUFFIX)) return false;
 		return m.hash.length() == 32;
 	}

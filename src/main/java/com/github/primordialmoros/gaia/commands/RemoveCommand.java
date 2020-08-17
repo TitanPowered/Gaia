@@ -30,12 +30,12 @@ import java.util.List;
 
 public class RemoveCommand extends GaiaCommand {
 
-    public RemoveCommand() {
-        super("remove", "/gaia remove <name>", "Remove an existing arena", new String[] {"rm", "delete", "del"});
-    }
+	public RemoveCommand() {
+		super("remove", "/gaia remove <name>", "Remove an existing arena", new String[]{ "rm", "delete", "del" });
+	}
 
-    @Override
-    public boolean execute(final CommandSender sender, final List<String> args) {
+	@Override
+	public boolean execute(final CommandSender sender, final List<String> args) {
 		if (!hasPermission(sender) || !correctLength(sender, args.size(), 1, 1)) return false;
 
 		final String arenaName = Util.sanitizeInput(args.get(0));
@@ -45,7 +45,7 @@ public class RemoveCommand extends GaiaCommand {
 		}
 		ArenaManager.removeArena(arenaName);
 		return true;
-    }
+	}
 
 	@Override
 	public boolean completeArenaNames() {

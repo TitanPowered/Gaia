@@ -94,7 +94,7 @@ public class ArenaManager {
 					l.cancel();
 				}
 			}
-		}, 1,1);
+		}, 1, 1);
 	}
 
 	public static Optional<Arena> getArenaAtPoint(final UUID id, final GaiaVector l) {
@@ -157,7 +157,7 @@ public class ArenaManager {
 						l.cancel();
 					}
 				}
-			}, 1,1);
+			}, 1, 1);
 			addArena(arena);
 			return true;
 		} catch (IncompleteRegionException e) {

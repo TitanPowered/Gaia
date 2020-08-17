@@ -30,25 +30,26 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.logging.Logger;
 
 public class Gaia extends JavaPlugin {
+
 	public static final String PREFIX = ChatColor.DARK_GRAY + "[" + ChatColor.DARK_AQUA + "Gaia" + ChatColor.DARK_GRAY + "] ";
 
 	private static Gaia plugin;
-    private static String author;
-    private static String version;
-    private static Logger log;
+	private static String author;
+	private static String version;
+	private static Logger log;
 
-    @Override
-    public void onEnable() {
+	@Override
+	public void onEnable() {
 		PaperLib.suggestPaper(this);
-        plugin = this;
-        log = getLogger();
-        version = getDescription().getVersion();
-        author = getDescription().getAuthors().get(0);
+		plugin = this;
+		log = getLogger();
+		version = getDescription().getVersion();
+		author = getDescription().getAuthors().get(0);
 
-        new ConfigManager();
+		new ConfigManager();
 
-        boolean debug = getConfig().getBoolean("Debug");
-        if (debug) getLog().info("Debugging is enabled");
+		boolean debug = getConfig().getBoolean("Debug");
+		if (debug) getLog().info("Debugging is enabled");
 		if (!GaiaIO.createInstance(getDataFolder().getPath(), debug)) {
 			Gaia.getLog().severe("Could not create Arenas folder! Aborting plugin load.");
 			Gaia.getPlugin().setEnabled(false);
@@ -56,15 +57,15 @@ public class Gaia extends JavaPlugin {
 		}
 		Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), GaiaIO.getInstance()::loadAllArenas);
 		GaiaCommand.registerCommands();
-    }
+	}
 
 	@Override
 	public void onDisable() {
 		getServer().getScheduler().cancelTasks(this);
 	}
 
-    public static Gaia getPlugin() {
-    	return plugin;
+	public static Gaia getPlugin() {
+		return plugin;
 	}
 
 	public static String getAuthor() {

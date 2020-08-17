@@ -75,7 +75,7 @@ public final class GaiaIO {
 	private final boolean debug;
 	private final Gson gson;
 
-    private GaiaIO(Path arenaDir, boolean debug) {
+	private GaiaIO(Path arenaDir, boolean debug) {
 		this.arenaDir = arenaDir;
 		this.debug = debug;
 		gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(GaiaVector.class, new GaiaAdapter()).create();
@@ -99,8 +99,8 @@ public final class GaiaIO {
 	}
 
 	public boolean arenaFileExists(String name) {
-    	Path file = Paths.get(arenaDir.toString(), name + ARENA_SUFFIX);
-    	return Files.exists(file);
+		Path file = Paths.get(arenaDir.toString(), name + ARENA_SUFFIX);
+		return Files.exists(file);
 	}
 
 	public boolean createArenaFiles(String name) {
@@ -131,7 +131,7 @@ public final class GaiaIO {
 	}
 
 	private boolean isJson(Path path) {
-    	return path.getFileName().toString().endsWith(ARENA_SUFFIX);
+		return path.getFileName().toString().endsWith(ARENA_SUFFIX);
 	}
 
 	private boolean isData(Path path) {
@@ -161,7 +161,7 @@ public final class GaiaIO {
 	}
 
 	private void loadArena(Path path) {
-    	final long time = System.currentTimeMillis();
+		final long time = System.currentTimeMillis();
 		try (JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8))) {
 			GaiaMetadata meta = gson.fromJson(reader, GaiaMetadata.class);
 			if (meta == null) return;
@@ -193,7 +193,7 @@ public final class GaiaIO {
 	}
 
 	public boolean saveArena(Arena arena) {
-    	GaiaMetadata meta = new GaiaMetadata(arena);
+		GaiaMetadata meta = new GaiaMetadata(arena);
 		final File file = Paths.get(arenaDir.toString(), meta.name + ARENA_SUFFIX).toFile();
 		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
 			List<GaiaChunkMetadata> chunkMeta = new ArrayList<>(meta.amount);
@@ -271,6 +271,6 @@ public final class GaiaIO {
 		} catch (IOException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
-    	return "";
+		return "";
 	}
 }

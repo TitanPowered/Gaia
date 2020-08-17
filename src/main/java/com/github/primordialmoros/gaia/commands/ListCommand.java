@@ -36,12 +36,12 @@ import java.util.List;
 public class ListCommand extends GaiaCommand {
 	private static final int AMOUNT_PER_PAGE = 12;
 
-    public ListCommand() {
-        super("list", "/gaia list <page>", "Show a list of all arenas", new String[]{"l", "ls"});
-    }
+	public ListCommand() {
+		super("list", "/gaia list <page>", "Show a list of all arenas", new String[]{ "l", "ls" });
+	}
 
-    @Override
-    public boolean execute(final CommandSender sender, final List<String> args) {
+	@Override
+	public boolean execute(final CommandSender sender, final List<String> args) {
 		if (!hasPermission(sender) || !correctLength(sender, args.size(), 0, 1)) return false;
 
 		int count = ArenaManager.getArenaCount();
@@ -71,5 +71,5 @@ public class ListCommand extends GaiaCommand {
 		ArenaManager.getAllArenas().stream().sorted(Comparator.comparing(Arena::getName)).skip(skip).limit(AMOUNT_PER_PAGE).map(Arena::getInfo).forEach(info -> CoreMethods.sendMessage(sender, info));
 		CoreMethods.sendMessage(sender, ChatColor.DARK_AQUA + Util.generateLine(44));
 		return true;
-    }
+	}
 }

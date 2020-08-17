@@ -34,12 +34,12 @@ import java.util.Optional;
 
 public class InfoCommand extends GaiaCommand {
 
-    public InfoCommand() {
-        super("info", "/gaia info [name]", "View info about the specified arena or if no name is given, the arena you are currently in.", new String[] {"i"});
-    }
+	public InfoCommand() {
+		super("info", "/gaia info [name]", "View info about the specified arena or if no name is given, the arena you are currently in.", new String[]{ "i" });
+	}
 
-    @Override
-    public boolean execute(final CommandSender sender, final List<String> args) {
+	@Override
+	public boolean execute(final CommandSender sender, final List<String> args) {
 		if (!hasPermission(sender) || !correctLength(sender, args.size(), 0, 1)) return false;
 
 		final Arena arena;

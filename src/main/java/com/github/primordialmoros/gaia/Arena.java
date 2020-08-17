@@ -38,25 +38,25 @@ public class Arena {
 	private final String name;
 	private final World world;
 	private final GaiaRegion region;
-    private final TextComponent info;
+	private final TextComponent info;
 
 	private final List<GaiaChunkRegion> subRegions;
 
 	private boolean reverting;
 	private boolean finalized;
 
-    public Arena(final String name, final World world, final GaiaRegion region) {
+	public Arena(final String name, final World world, final GaiaRegion region) {
 		this.world = world;
-        this.name = name.toLowerCase();
-        this.region = region;
+		this.name = name.toLowerCase();
+		this.region = region;
 		info = createInfo(this);
 		subRegions = new ArrayList<>();
 		finalized = false;
 		reverting = false;
-    }
+	}
 
 	public void addSubRegion(final GaiaChunkRegion chunk) {
-    	subRegions.add(chunk);
+		subRegions.add(chunk);
 	}
 
 	public boolean finalizeArena() {
@@ -67,7 +67,7 @@ public class Arena {
 	}
 
 	public List<GaiaChunkRegion> getSubRegions() {
-    	return subRegions;
+		return subRegions;
 	}
 
 	public String getName() {
@@ -94,22 +94,23 @@ public class Arena {
 		return info;
 	}
 
-    public boolean isReverting() {
-        return reverting;
-    }
+	public boolean isReverting() {
+		return reverting;
+	}
 
 	/**
 	 * Attempt to start or stop the reverting of the arena
+	 *
 	 * @param value whether it should start reverting or not
 	 * @return false if arena hasn't been fully analyzed or is already in the desired state, true otherwise
 	 */
 	public boolean setReverting(boolean value) {
-    	if (!finalized || reverting == value) return false;
-    	reverting = value;
+		if (!finalized || reverting == value) return false;
+		reverting = value;
 		return true;
 	}
 
-    public static TextComponent createInfo(final Arena arena) {
+	public static TextComponent createInfo(final Arena arena) {
 		final int volume = arena.getRegion().getVolume();
 		final TextComponent createdInfo = new TextComponent(ChatColor.DARK_GRAY + "> " + arena.getFormattedName() + ChatColor.DARK_AQUA + " (" + Util.getSizeDescription(volume) + ")");
 		final String infoDetails = ChatColor.DARK_AQUA + "Name: " + ChatColor.GREEN + arena.getName() + "\n" +

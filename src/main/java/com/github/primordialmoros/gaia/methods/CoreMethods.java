@@ -54,8 +54,8 @@ public class CoreMethods {
 	}
 
 	public static boolean splitIntoChunkRegions(final Arena arena) {
-    	final int minX = arena.getRegion().getMinimumPoint().getX();
-    	final int maxX = arena.getRegion().getMaximumPoint().getX();
+		final int minX = arena.getRegion().getMinimumPoint().getX();
+		final int maxX = arena.getRegion().getMaximumPoint().getX();
 		final int minY = arena.getRegion().getMinimumPoint().getY();
 		final int maxY = arena.getRegion().getMaximumPoint().getY();
 		final int minZ = arena.getRegion().getMinimumPoint().getZ();
@@ -64,16 +64,16 @@ public class CoreMethods {
 		int tempX, tempZ;
 		GaiaVector v1, v2;
 		for (int x = minX >> 4; x <= maxX >> 4; ++x) {
-			tempX = x*16;
-    		for (int z = minZ >> 4; z <= maxZ >> 4; ++z) {
-				tempZ = z*16;
+			tempX = x * 16;
+			for (int z = minZ >> 4; z <= maxZ >> 4; ++z) {
+				tempZ = z * 16;
 				v1 = GaiaVector.atXZClamped(tempX, minY, tempZ, minX, maxX, minZ, maxZ);
-    			v2 = GaiaVector.atXZClamped(tempX + 15, maxY, tempZ + 15, minX, maxX, minZ, maxZ);
+				v2 = GaiaVector.atXZClamped(tempX + 15, maxY, tempZ + 15, minX, maxX, minZ, maxZ);
 				final GaiaChunkRegion chunkRegion = new GaiaChunkRegion(new GaiaRegion(v1, v2));
 				arena.addSubRegion(chunkRegion);
 				GaiaChunkRegion.analyzeChunk(chunkRegion, arena.getWorld());
-    		}
-    	}
+			}
+		}
 		return arena.getSubRegions().size() > 0;
 	}
 

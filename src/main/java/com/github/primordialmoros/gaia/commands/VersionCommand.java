@@ -28,16 +28,16 @@ import java.util.List;
 
 public class VersionCommand extends GaiaCommand {
 
-    public VersionCommand() {
-        super("version", "/gaia version", "View version info about Gaia", new String[] {"v" , "ver"});
-    }
+	public VersionCommand() {
+		super("version", "/gaia version", "View version info about Gaia", new String[]{ "v", "ver" });
+	}
 
-    @Override
-    public boolean execute(final CommandSender sender, final List<String> args) {
+	@Override
+	public boolean execute(final CommandSender sender, final List<String> args) {
 		if (!hasPermission(sender) || !correctLength(sender, args.size(), 0, 0)) return false;
 
 		CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.DARK_AQUA + "Version: " + ChatColor.GREEN + Gaia.getVersion());
 		CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.DARK_AQUA + "Developed by: " + ChatColor.GREEN + Gaia.getAuthor());
 		return true;
-    }
+	}
 }

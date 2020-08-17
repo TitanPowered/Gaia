@@ -74,6 +74,7 @@ public class GaiaChunkRegion {
 	 * Attempts to load the chunk and analyze blocks based on passed info.
 	 * It will analyze up to a maximum amount of blocks per tick as defined in passed info.
 	 * If there are more blocks left to analyze it will continue in the next tick.
+	 *
 	 * @param info the object containing the info
 	 */
 	private void analyze(final GaiaRunnableInfo info, final BlockData[][][] bd) {
@@ -99,6 +100,7 @@ public class GaiaChunkRegion {
 	 * Attempts to load the chunk and revert blocks based on passed info.
 	 * It will revert up to a maximum amount of blocks per tick as defined in passed info.
 	 * If there are more blocks left to revert it will continue in the next tick.
+	 *
 	 * @param info the object containing the info
 	 */
 	private void revert(final GaiaRunnableInfo info) {
@@ -106,7 +108,7 @@ public class GaiaChunkRegion {
 		PaperLib.getChunkAtAsync(info.world, chunkX, chunkZ).thenAccept(result -> {
 			GaiaVector relative, real;
 			int counter = 0;
-			while(++counter <= info.maxTransactions && info.it.hasNext()) {
+			while (++counter <= info.maxTransactions && info.it.hasNext()) {
 				relative = info.it.next();
 				real = chunk.getMinimumPoint().add(relative);
 				info.world.getBlockAt(real.getX(), real.getY(), real.getZ()).setBlockData(getGaiaData().getDataAt(relative));

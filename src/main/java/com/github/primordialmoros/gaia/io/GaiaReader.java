@@ -46,6 +46,7 @@ public class GaiaReader implements Closeable {
 
 	/**
 	 * Create a new instance.
+	 *
 	 * @param inputStream the input stream to read from
 	 */
 	public GaiaReader(NBTInputStream inputStream) {

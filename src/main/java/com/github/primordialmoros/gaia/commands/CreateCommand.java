@@ -31,12 +31,12 @@ import java.util.List;
 
 public class CreateCommand extends GaiaCommand {
 
-    public CreateCommand() {
-        super("create", "/arena create <name>", "Create a new arena", new String[]{"c", "new", "n"});
-    }
+	public CreateCommand() {
+		super("create", "/arena create <name>", "Create a new arena", new String[]{ "c", "new", "n" });
+	}
 
-    @Override
-    public boolean execute(final CommandSender sender, final List<String> args) {
+	@Override
+	public boolean execute(final CommandSender sender, final List<String> args) {
 		if (!hasPermission(sender) || !correctLength(sender, args.size(), 1, 1) || !isPlayer(sender)) return false;
 
 		final String arenaName = Util.sanitizeInput(args.get(0));
@@ -50,5 +50,5 @@ public class CreateCommand extends GaiaCommand {
 		}
 		final Player player = (Player) sender;
 		return ArenaManager.createArena(player, arenaName, player.getWorld());
-    }
+	}
 }

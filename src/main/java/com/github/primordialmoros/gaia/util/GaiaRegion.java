@@ -27,8 +27,10 @@ public final class GaiaRegion {
 	private final GaiaVector minPoint, maxPoint, diff;
 
 	public GaiaRegion(final GaiaVector pos1, final GaiaVector pos2) {
-		if (!GaiaVector.isValidVector(pos1)) throw new IllegalArgumentException("Location exceeds coordinate limits: " + pos1);
-		if (!GaiaVector.isValidVector(pos2)) throw new IllegalArgumentException("Location exceeds coordinate limits: " + pos2);
+		if (!GaiaVector.isValidVector(pos1))
+			throw new IllegalArgumentException("Location exceeds coordinate limits: " + pos1);
+		if (!GaiaVector.isValidVector(pos2))
+			throw new IllegalArgumentException("Location exceeds coordinate limits: " + pos2);
 
 		minPoint = pos1.getMinimum(pos2);
 		maxPoint = pos2.getMaximum(pos2);

@@ -31,6 +31,7 @@ public class Util {
 
 	/**
 	 * Strip input of all non alpha-numeric values and limit to 32 characters long
+	 *
 	 * @param input the input string to sanitize
 	 * @return the sanitized output string
 	 */
@@ -57,7 +58,7 @@ public class Util {
 		return paging;
 	}
 
-    public static String capitalize(final String input) {
+	public static String capitalize(final String input) {
 		if (input.length() < 2) return input.toUpperCase();
 		return input.substring(0, 1).toUpperCase() + input.substring(1);
 	}

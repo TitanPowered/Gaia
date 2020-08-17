@@ -32,12 +32,12 @@ import java.util.List;
 
 public class RevertCommand extends GaiaCommand {
 
-    public RevertCommand() {
-        super("revert", "/arena revert <name>", "Reset the specified arena", new String[] {"rev", "reset", "res", "r"});
-    }
+	public RevertCommand() {
+		super("revert", "/arena revert <name>", "Reset the specified arena", new String[]{ "rev", "reset", "res", "r" });
+	}
 
-    @Override
-    public boolean execute(final CommandSender sender, final List<String> args) {
+	@Override
+	public boolean execute(final CommandSender sender, final List<String> args) {
 		if (!hasPermission(sender) || !correctLength(sender, args.size(), 1, 1)) return false;
 
 		final String arenaName = Util.sanitizeInput(args.get(0));
@@ -62,7 +62,7 @@ public class RevertCommand extends GaiaCommand {
 			}
 		}
 		return false;
-    }
+	}
 
 	@Override
 	public boolean completeArenaNames() {
