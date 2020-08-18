@@ -45,23 +45,22 @@ public class RevertCommand extends GaiaCommand {
 			CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.RED + "Could not find arena " + ChatColor.GOLD + arenaName);
 			return false;
 		}
-		final Arena arenaToRevert = ArenaManager.getArena(arenaName);
-		if (arenaToRevert.setReverting(true)) {
-			CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.GREEN + "Reverting " + arenaToRevert.getFormattedName());
-			final GaiaConsumerInfo info = new GaiaConsumerInfo(sender,
-				Gaia.PREFIX + ChatColor.GREEN + "Finished reverting " + arenaToRevert.getFormattedName(),
-				Gaia.PREFIX + ChatColor.GREEN + "Cancelled reverting " + arenaToRevert.getFormattedName()
-			);
-			ArenaManager.revertArena(arenaToRevert, info);
-			return true;
-		} else {
-			if (arenaToRevert.isReverting()) {
-				CoreMethods.sendMessage(sender, Gaia.PREFIX + arenaToRevert.getFormattedName() + ChatColor.YELLOW + " is currently being reverted!");
-			} else {
-				CoreMethods.sendMessage(sender, Gaia.PREFIX + arenaToRevert.getFormattedName() + ChatColor.YELLOW + " is not fully analyzed yet!");
-			}
+		final Arena arena = ArenaManager.getArena(arenaName);
+		if (!arena.isFinalized()) {
+			CoreMethods.sendMessage(sender, Gaia.PREFIX + arena.getFormattedName() + ChatColor.YELLOW + " is not fully analyzed yet!");
+			return false;
 		}
-		return false;
+		if (arena.isReverting()) {
+			CoreMethods.sendMessage(sender, Gaia.PREFIX + arena.getFormattedName() + ChatColor.YELLOW + " is currently being reverted!");
+			return false;
+		}
+		CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.GREEN + "Reverting " + arena.getFormattedName());
+		final GaiaConsumerInfo info = new GaiaConsumerInfo(sender,
+			Gaia.PREFIX + ChatColor.GREEN + "Finished reverting " + arena.getFormattedName(),
+			Gaia.PREFIX + ChatColor.GREEN + "Cancelled reverting " + arena.getFormattedName()
+		);
+		ArenaManager.revertArena(arena, info);
+		return true;
 	}
 
 	@Override

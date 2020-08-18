@@ -62,7 +62,7 @@ public class CancelCommand extends GaiaCommand {
 			}
 			arena = ArenaManager.getArena(arenaName);
 		}
-		if (arena.setReverting(false)) {
+		if (arena.isReverting()) {
 			ArenaManager.cancelRevertArena(arena);
 			return true;
 		} else {

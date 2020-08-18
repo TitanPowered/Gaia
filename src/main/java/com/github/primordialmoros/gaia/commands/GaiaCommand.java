@@ -189,10 +189,8 @@ public abstract class GaiaCommand {
 
 	public static void viewHelp(CommandSender sender) {
 		CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.YELLOW + " List of Gaia Commands:");
-		for (GaiaCommand gc : commands.values().stream().sorted(Comparator.comparing(GaiaCommand::getName)).collect(Collectors.toList())) {
-			if (sender.hasPermission(gc.getPermission())) {
-				CoreMethods.sendMessage(sender, gc.getTextComponent());
-			}
-		}
+		commands.values().stream().sorted(Comparator.comparing(GaiaCommand::getName)).
+			filter(c -> sender.hasPermission(c.getPermission())).
+			forEach(c -> CoreMethods.sendMessage(sender, c.getTextComponent()));
 	}
 }

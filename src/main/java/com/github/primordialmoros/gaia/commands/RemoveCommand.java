@@ -43,8 +43,13 @@ public class RemoveCommand extends GaiaCommand {
 			CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.RED + "Could not find arena " + ChatColor.GOLD + arenaName);
 			return false;
 		}
-		ArenaManager.removeArena(arenaName);
-		return true;
+		if (ArenaManager.removeArena(arenaName)) {
+			CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.GOLD + arenaName + ChatColor.GREEN + " has been deleted.");
+			return true;
+		} else {
+			CoreMethods.sendMessage(sender, Gaia.PREFIX + ChatColor.RED + "Error, could not delete files for " + ChatColor.GOLD + arenaName);
+			return false;
+		}
 	}
 
 	@Override

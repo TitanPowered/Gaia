@@ -72,16 +72,18 @@ public class ArenaManager {
 		if (arena != null && !ARENAS.containsKey(arena.getName())) ARENAS.put(arena.getName(), arena);
 	}
 
-	public static void removeArena(final String name) {
+	public static boolean removeArena(final String name) {
 		ARENAS.remove(name);
-		GaiaIO.getInstance().deleteArena(name); // Cleanup files
+		return GaiaIO.getInstance().deleteArena(name); // Cleanup files
 	}
 
 	public static void cancelRevertArena(final Arena arena) {
+		arena.setReverting(false);
 		arena.getSubRegions().forEach(GaiaChunk::cancelReverting);
 	}
 
 	public static void revertArena(final Arena arena, final GaiaConsumerInfo info) {
+		arena.setReverting(true);
 		arena.getSubRegions().forEach(gcr -> GaiaChunk.revertChunk(gcr, arena.getWorld()));
 		Bukkit.getScheduler().runTaskTimer(Gaia.getPlugin(), l -> {
 			if (!arena.isReverting()) {
@@ -89,9 +91,9 @@ public class ArenaManager {
 				l.cancel();
 			} else {
 				if (arena.getSubRegions().stream().noneMatch(GaiaChunk::isReverting)) {
-					arena.setReverting(false);
 					final long deltaTime = System.currentTimeMillis() - info.startTime;
 					CoreMethods.sendMessage(info.sender, info.success + ChatColor.GREEN + " (" + deltaTime + "ms).");
+					arena.setReverting(false);
 					l.cancel();
 				}
 			}

@@ -103,16 +103,12 @@ public class Arena implements Metadatable {
 		return reverting;
 	}
 
-	/**
-	 * Attempt to start or stop the reverting of the arena
-	 *
-	 * @param value whether it should start reverting or not
-	 * @return false if arena hasn't been fully analyzed or is already in the desired state, true otherwise
-	 */
-	public boolean setReverting(boolean value) {
-		if (!finalized || reverting == value) return false;
+	public boolean isFinalized() {
+		return finalized;
+	}
+
+	public void setReverting(boolean value) {
 		reverting = value;
-		return true;
 	}
 
 	public static TextComponent createInfo(final Arena arena) {

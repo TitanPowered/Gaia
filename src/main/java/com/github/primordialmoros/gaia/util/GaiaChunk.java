@@ -30,7 +30,6 @@ import com.github.primordialmoros.gaia.util.metadata.Metadatable;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.block.data.BlockData;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -89,27 +88,23 @@ public class GaiaChunk implements Metadatable {
 	 * If there are more blocks left to analyze it will continue in the next tick.
 	 *
 	 * @param info the object containing the info
+	 * @param data the object containing the data
 	 */
 	private void analyze(final GaiaRunnableInfo info, final GaiaData data) {
 		PaperLib.getChunkAtAsync(info.world, chunkX, chunkZ).thenAccept(result -> {
 			GaiaVector relative, real;
-			BlockData d;
 			int counter = 0;
 			while (++counter <= info.maxTransactions && info.it.hasNext()) {
 				relative = info.it.next();
 				real = chunk.getMinimumPoint().add(relative);
-				d = info.world.getBlockAt(real.getX(), real.getY(), real.getZ()).getBlockData();
-				data.setDataAt(relative, d);
+				data.setDataAt(relative, info.world.getBlockAt(real.getX(), real.getY(), real.getZ()).getBlockData());
 			}
 			if (info.it.hasNext()) {
 				Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> analyze(info, data), 1);
 			} else {
 				Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
 					String hash = GaiaIO.getInstance().saveData(this, data);
-					if (hash.equals((meta.hash))) {
-						ArenaMetadata m = (ArenaMetadata) parent.getMetadata();
-						m.chunks.add(meta);
-					}
+					if (!hash.isEmpty()) ((ArenaMetadata) parent.getMetadata()).chunks.add(meta);
 				});
 			}
 		});
@@ -121,6 +116,7 @@ public class GaiaChunk implements Metadatable {
 	 * If there are more blocks left to revert it will continue in the next tick.
 	 *
 	 * @param info the object containing the info
+	 * @param data the object containing the data
 	 */
 	private void revert(final GaiaRunnableInfo info, final GaiaData data) {
 		if (!reverting) return;
@@ -135,7 +131,7 @@ public class GaiaChunk implements Metadatable {
 			if (info.it.hasNext()) {
 				Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> revert(info, data), 1);
 			} else {
-				cancelReverting();
+				reverting = false;
 			}
 		});
 	}
