@@ -19,8 +19,14 @@
 
 package com.github.primordialmoros.gaia.util;
 
+import com.github.primordialmoros.gaia.Arena;
 import com.github.primordialmoros.gaia.Gaia;
+import com.github.primordialmoros.gaia.io.GaiaIO;
 import com.github.primordialmoros.gaia.util.functional.GaiaRunnableInfo;
+import com.github.primordialmoros.gaia.util.metadata.ArenaMetadata;
+import com.github.primordialmoros.gaia.util.metadata.ChunkMetadata;
+import com.github.primordialmoros.gaia.util.metadata.GaiaMetadata;
+import com.github.primordialmoros.gaia.util.metadata.Metadatable;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -29,29 +35,40 @@ import org.bukkit.block.data.BlockData;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 /**
- * A chunk aligned GaiaRegion that stores BlockData.
+ * A chunk aligned GaiaRegion.
  */
-public class GaiaChunkRegion {
+public class GaiaChunk implements Metadatable {
 
-	public static final Comparator<GaiaChunkRegion> YZX_ORDER = Comparator.comparingInt(GaiaChunkRegion::getZ).thenComparingInt(GaiaChunkRegion::getX);
+	public static final Comparator<GaiaChunk> ZX_ORDER = Comparator.comparingInt(GaiaChunk::getZ).thenComparingInt(GaiaChunk::getX);
 
-	private GaiaData data;
+	private final UUID id;
+
+	private final Arena parent;
 	private final GaiaRegion chunk;
 	private final int chunkX, chunkZ;
 
-	private boolean reverting = false;
+	private ChunkMetadata meta;
 
-	public GaiaChunkRegion(final GaiaRegion region) {
-		this(region, null);
-	}
+	private boolean reverting;
 
-	public GaiaChunkRegion(final GaiaRegion region, final GaiaData data) {
+	public GaiaChunk(final UUID id, final Arena parent, final GaiaRegion region) {
+		this.id = id;
+		this.parent = parent;
 		chunkX = region.getMinimumPoint().getX() / 16;
 		chunkZ = region.getMinimumPoint().getZ() / 16;
 		chunk = region;
-		this.data = data;
+		reverting = false;
+	}
+
+	public UUID getId() {
+		return id;
+	}
+
+	public Arena getParent() {
+		return parent;
 	}
 
 	public int getX() {
@@ -66,10 +83,6 @@ public class GaiaChunkRegion {
 		return chunk;
 	}
 
-	public GaiaData getGaiaData() {
-		return data;
-	}
-
 	/**
 	 * Attempts to load the chunk and analyze blocks based on passed info.
 	 * It will analyze up to a maximum amount of blocks per tick as defined in passed info.
@@ -77,7 +90,7 @@ public class GaiaChunkRegion {
 	 *
 	 * @param info the object containing the info
 	 */
-	private void analyze(final GaiaRunnableInfo info, final BlockData[][][] bd) {
+	private void analyze(final GaiaRunnableInfo info, final GaiaData data) {
 		PaperLib.getChunkAtAsync(info.world, chunkX, chunkZ).thenAccept(result -> {
 			GaiaVector relative, real;
 			BlockData d;
@@ -86,12 +99,18 @@ public class GaiaChunkRegion {
 				relative = info.it.next();
 				real = chunk.getMinimumPoint().add(relative);
 				d = info.world.getBlockAt(real.getX(), real.getY(), real.getZ()).getBlockData();
-				bd[relative.getX()][relative.getY()][relative.getZ()] = d;
+				data.setDataAt(relative, d);
 			}
 			if (info.it.hasNext()) {
-				Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> analyze(info, bd), 1);
+				Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> analyze(info, data), 1);
 			} else {
-				data = new GaiaData(bd);
+				Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
+					String hash = GaiaIO.getInstance().saveData(this, data);
+					if (hash.equals((meta.hash))) {
+						ArenaMetadata m = (ArenaMetadata) parent.getMetadata();
+						m.chunks.add(meta);
+					}
+				});
 			}
 		});
 	}
@@ -103,7 +122,7 @@ public class GaiaChunkRegion {
 	 *
 	 * @param info the object containing the info
 	 */
-	private void revert(final GaiaRunnableInfo info) {
+	private void revert(final GaiaRunnableInfo info, final GaiaData data) {
 		if (!reverting) return;
 		PaperLib.getChunkAtAsync(info.world, chunkX, chunkZ).thenAccept(result -> {
 			GaiaVector relative, real;
@@ -111,13 +130,32 @@ public class GaiaChunkRegion {
 			while (++counter <= info.maxTransactions && info.it.hasNext()) {
 				relative = info.it.next();
 				real = chunk.getMinimumPoint().add(relative);
-				info.world.getBlockAt(real.getX(), real.getY(), real.getZ()).setBlockData(getGaiaData().getDataAt(relative));
+				info.world.getBlockAt(real.getX(), real.getY(), real.getZ()).setBlockData(data.getDataAt(relative));
 			}
 			if (info.it.hasNext()) {
-				Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> revert(info), 1);
+				Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> revert(info, data), 1);
 			} else {
-				reverting = false;
+				cancelReverting();
 			}
+		});
+	}
+
+	public static void analyzeChunk(final GaiaChunk chunk, final World world) {
+		if (chunk.isAnalyzed()) return;
+		Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
+			final Iterator<GaiaVector> it = chunk.iterator();
+			final GaiaData gd = new GaiaData(chunk.getRegion().getVector());
+			chunk.analyze(new GaiaRunnableInfo(it, world, 4096), gd);
+		});
+	}
+
+	public static void revertChunk(final GaiaChunk chunk, final World world) {
+		if (chunk.isReverting()) return;
+		chunk.reverting = true;
+		Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
+			final Iterator<GaiaVector> it = chunk.iterator();
+			final GaiaData gd = GaiaIO.getInstance().loadData(chunk);
+			if (gd != null) chunk.revert(new GaiaRunnableInfo(it, world, 4096), gd);
 		});
 	}
 
@@ -130,22 +168,7 @@ public class GaiaChunkRegion {
 	}
 
 	public boolean isAnalyzed() {
-		return data != null;
-	}
-
-	public static void analyzeChunk(final GaiaChunkRegion chunk, final World world) {
-		if (chunk.isAnalyzed()) return;
-		final Iterator<GaiaVector> it = chunk.iterator();
-		final GaiaVector v = chunk.getRegion().getVector();
-		final BlockData[][][] bd = new BlockData[v.getX()][v.getY()][v.getZ()];
-		chunk.analyze(new GaiaRunnableInfo(it, world, 4096), bd);
-	}
-
-	public static void revertChunk(final GaiaChunkRegion chunk, final World world) {
-		if (!chunk.isAnalyzed() || chunk.isReverting()) return;
-		chunk.reverting = true;
-		final Iterator<GaiaVector> it = chunk.iterator();
-		chunk.revert(new GaiaRunnableInfo(it, world, 4096));
+		return meta != null && meta.hash != null && !meta.hash.isEmpty();
 	}
 
 	public Iterator<GaiaVector> iterator() {
@@ -176,5 +199,15 @@ public class GaiaChunkRegion {
 				return answer;
 			}
 		};
+	}
+
+	@Override
+	public GaiaMetadata getMetadata() {
+		return meta;
+	}
+
+	@Override
+	public void setMetadata(GaiaMetadata meta) {
+		this.meta = (ChunkMetadata) meta;
 	}
 }

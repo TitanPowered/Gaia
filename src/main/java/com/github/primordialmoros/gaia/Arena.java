@@ -19,9 +19,12 @@
 
 package com.github.primordialmoros.gaia;
 
-import com.github.primordialmoros.gaia.util.GaiaChunkRegion;
+import com.github.primordialmoros.gaia.util.GaiaChunk;
 import com.github.primordialmoros.gaia.util.GaiaRegion;
 import com.github.primordialmoros.gaia.util.Util;
+import com.github.primordialmoros.gaia.util.metadata.ArenaMetadata;
+import com.github.primordialmoros.gaia.util.metadata.GaiaMetadata;
+import com.github.primordialmoros.gaia.util.metadata.Metadatable;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -33,17 +36,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Arena {
+public class Arena implements Metadatable {
 
 	private final String name;
 	private final World world;
 	private final GaiaRegion region;
 	private final TextComponent info;
 
-	private final List<GaiaChunkRegion> subRegions;
+	private final List<GaiaChunk> subRegions;
 
 	private boolean reverting;
 	private boolean finalized;
+
+	private ArenaMetadata meta;
 
 	public Arena(final String name, final World world, final GaiaRegion region) {
 		this.world = world;
@@ -51,22 +56,22 @@ public class Arena {
 		this.region = region;
 		info = createInfo(this);
 		subRegions = new ArrayList<>();
-		finalized = false;
 		reverting = false;
+		finalized = false;
 	}
 
-	public void addSubRegion(final GaiaChunkRegion chunk) {
+	public void addSubRegion(final GaiaChunk chunk) {
 		subRegions.add(chunk);
 	}
 
 	public boolean finalizeArena() {
 		if (subRegions.isEmpty() || finalized) return false;
-		subRegions.sort(GaiaChunkRegion.YZX_ORDER);
+		subRegions.sort(GaiaChunk.ZX_ORDER);
 		finalized = true;
 		return true;
 	}
 
-	public List<GaiaChunkRegion> getSubRegions() {
+	public List<GaiaChunk> getSubRegions() {
 		return subRegions;
 	}
 
@@ -123,5 +128,15 @@ public class Arena {
 		createdInfo.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(infoDetails)));
 		createdInfo.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, arena.getRegion().getCenter().toString()));
 		return createdInfo;
+	}
+
+	@Override
+	public GaiaMetadata getMetadata() {
+		return meta;
+	}
+
+	@Override
+	public void setMetadata(GaiaMetadata meta) {
+		this.meta = (ArenaMetadata) meta;
 	}
 }

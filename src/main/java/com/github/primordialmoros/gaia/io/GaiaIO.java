@@ -23,20 +23,17 @@ import com.github.primordialmoros.gaia.Arena;
 import com.github.primordialmoros.gaia.ArenaManager;
 import com.github.primordialmoros.gaia.Gaia;
 import com.github.primordialmoros.gaia.methods.CoreMethods;
-import com.github.primordialmoros.gaia.util.GaiaChunkRegion;
+import com.github.primordialmoros.gaia.util.GaiaChunk;
 import com.github.primordialmoros.gaia.util.GaiaData;
 import com.github.primordialmoros.gaia.util.GaiaRegion;
 import com.github.primordialmoros.gaia.util.GaiaVector;
 import com.github.primordialmoros.gaia.util.Util;
-import com.github.primordialmoros.gaia.util.metadata.GaiaChunkMetadata;
-import com.github.primordialmoros.gaia.util.metadata.GaiaMetadata;
+import com.github.primordialmoros.gaia.util.metadata.ArenaMetadata;
+import com.github.primordialmoros.gaia.util.metadata.ChunkMetadata;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import com.sk89q.jnbt.NBTInputStream;
-import com.sk89q.jnbt.NBTOutputStream;
 import com.sk89q.worldedit.util.io.Closer;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.io.BufferedInputStream;
@@ -45,9 +42,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -56,11 +51,7 @@ import java.nio.file.Paths;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 public final class GaiaIO {
 
@@ -138,48 +129,30 @@ public final class GaiaIO {
 		return path.getFileName().toString().endsWith(DATA_SUFFIX);
 	}
 
-	private GaiaReader getReader(InputStream inputStream) throws IOException {
-		NBTInputStream nbtStream = new NBTInputStream(new GZIPInputStream(inputStream));
-		return new GaiaReader(nbtStream);
-	}
-
-	private GaiaWriter getWriter(OutputStream outputStream) throws IOException {
-		NBTOutputStream nbtStream = new NBTOutputStream(new GZIPOutputStream(outputStream));
-		return new GaiaWriter(nbtStream);
-	}
-
 	public void loadAllArenas() {
 		try {
-			Files.walk(arenaDir, 1).filter(IO::isJson).forEach(IO::loadArenaAsync);
+			Files.walk(arenaDir, 1).filter(IO::isJson).forEach(IO::loadArena);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void loadArenaAsync(Path path) {
-		Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> loadArena(path));
-	}
-
 	private void loadArena(Path path) {
 		final long time = System.currentTimeMillis();
 		try (JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8))) {
-			GaiaMetadata meta = gson.fromJson(reader, GaiaMetadata.class);
-			if (meta == null) return;
-			if (!GaiaMetadata.isValidMetadata(meta)) return;
+			ArenaMetadata meta = gson.fromJson(reader, ArenaMetadata.class);
+			if (meta == null || !meta.isValidMetadata()) return;
 			int amount = meta.amount;
 			World w = CoreMethods.getWorld(UUID.fromString(meta.world));
 			Arena arena = new Arena(meta.name, w, new GaiaRegion(meta.min, meta.max));
-			for (GaiaChunkMetadata m : meta.chunks) {
-				if (GaiaChunkMetadata.isValidMetadata(m)) {
-					GaiaRegion rg = new GaiaRegion(m.min, m.max);
-					Path chunkPath = Paths.get(arenaDir.toString(), meta.name, m.path);
-					if (!isValidFile(chunkPath, m.hash)) continue;
-					GaiaChunkRegion chunk = loadChunk(chunkPath, rg);
-					if (chunk != null) arena.addSubRegion(chunk);
-				} else {
-					if (debug) Gaia.getLog().info("Problem loading chunk: " + m.path);
+			meta.chunks.stream().filter(ChunkMetadata::isValidMetadata).forEach(m -> {
+				Path chunkPath = Paths.get(arenaDir.toString(), meta.name, m.id + DATA_SUFFIX);
+				if (isValidFile(chunkPath, m.hash)) {
+					UUID id = UUID.fromString(m.id);
+					GaiaChunk chunk = new GaiaChunk(id, arena, new GaiaRegion(m.min, m.max));
+					arena.addSubRegion(chunk);
 				}
-			}
+			});
 			if (debug && arena.getSubRegions().size() != amount) {
 				Gaia.getLog().warning("Incomplete loading for arena: " + arena.getName());
 			}
@@ -192,23 +165,11 @@ public final class GaiaIO {
 		}
 	}
 
-	public boolean saveArena(Arena arena) {
-		GaiaMetadata meta = new GaiaMetadata(arena);
-		final File file = Paths.get(arenaDir.toString(), meta.name + ARENA_SUFFIX).toFile();
-		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-			List<GaiaChunkMetadata> chunkMeta = new ArrayList<>(meta.amount);
-			int counter = 0;
-			for (GaiaChunkRegion gcr : arena.getSubRegions()) {
-				String fileName = "region_" + counter + DATA_SUFFIX;
-				Path chunkPath = Paths.get(arenaDir.toString(), meta.name, fileName);
-				String hash = saveChunk(chunkPath, gcr);
-				if (hash.isEmpty()) return false;
-				chunkMeta.add(new GaiaChunkMetadata(gcr, fileName, hash));
-				counter++;
-			}
-			meta.chunks = chunkMeta;
+	public boolean saveArena(ArenaMetadata meta) {
+		Path path = Paths.get(arenaDir.toString(), meta.name + ARENA_SUFFIX);
+		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
 			gson.toJson(meta, writer);
-			Gaia.getLog().info(arena.getName() + " has been stored successfully.");
+			Gaia.getLog().info(meta.name + " has been stored successfully.");
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -216,33 +177,36 @@ public final class GaiaIO {
 		return false;
 	}
 
-	private GaiaChunkRegion loadChunk(Path path, GaiaRegion region) {
+	public GaiaData loadData(GaiaChunk chunk) {
+		Path path = Paths.get(arenaDir.toString(), chunk.getParent().getName(), chunk.getId() + DATA_SUFFIX);
 		try (Closer closer = Closer.create()) {
 			FileInputStream fis = closer.register(new FileInputStream(path.toFile()));
 			BufferedInputStream bis = closer.register(new BufferedInputStream(fis));
-			GaiaReader reader = closer.register(getReader(bis));
-			GaiaData data = reader.read();
-			return new GaiaChunkRegion(region, data);
+			GaiaReader reader = closer.register(GaiaReader.getReader(bis));
+			return reader.read();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	private String saveChunk(Path path, GaiaChunkRegion chunk) {
+	public String saveData(GaiaChunk chunk, GaiaData data) {
+		Path path = Paths.get(arenaDir.toString(), chunk.getParent().getName(), chunk.getId() + DATA_SUFFIX);
 		DigestOutputStream hos;
 		try (Closer closer = Closer.create()) {
 			FileOutputStream fos = closer.register(new FileOutputStream(path.toFile()));
 			hos = closer.register(new DigestOutputStream(fos, MessageDigest.getInstance(ALGORITHM)));
 			BufferedOutputStream bos = closer.register(new BufferedOutputStream(hos));
-			GaiaWriter writer = closer.register(getWriter(bos));
-			writer.write(chunk.getGaiaData(), chunk.getRegion().getVector());
+			GaiaWriter writer = closer.register(GaiaWriter.getWriter(bos));
+			writer.write(data);
 		} catch (IOException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			return "";
 		}
 		byte[] hashBytes = hos.getMessageDigest().digest();
-		return Util.toHex(hashBytes);
+		String checksum = Util.toHex(hashBytes);
+		chunk.setMetadata(new ChunkMetadata(chunk, checksum));
+		return checksum;
 	}
 
 

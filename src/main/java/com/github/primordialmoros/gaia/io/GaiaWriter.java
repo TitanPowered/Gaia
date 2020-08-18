@@ -22,7 +22,6 @@
 package com.github.primordialmoros.gaia.io;
 
 import com.github.primordialmoros.gaia.util.GaiaData;
-import com.github.primordialmoros.gaia.util.GaiaVector;
 import com.sk89q.jnbt.ByteArrayTag;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.IntTag;
@@ -33,12 +32,11 @@ import com.sk89q.jnbt.Tag;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
-/**
- * Writes schematic files using the Sponge schematic format.
- */
 public class GaiaWriter implements Closeable {
 
 	private final NBTOutputStream outputStream;
@@ -48,14 +46,14 @@ public class GaiaWriter implements Closeable {
 	 *
 	 * @param outputStream the output stream to write to
 	 */
-	public GaiaWriter(NBTOutputStream outputStream) {
+	private GaiaWriter(NBTOutputStream outputStream) {
 		this.outputStream = outputStream;
 	}
 
-	public void write(GaiaData data, GaiaVector size) throws IOException {
-		int width = size.getX();
-		int height = size.getY();
-		int length = size.getZ();
+	public void write(GaiaData data) throws IOException {
+		int width = data.getVector().getX();
+		int height = data.getVector().getY();
+		int length = data.getVector().getZ();
 
 		Map<String, Tag> schematic = new HashMap<>();
 		schematic.put("Width", new ShortTag((short) width));
@@ -96,5 +94,10 @@ public class GaiaWriter implements Closeable {
 	@Override
 	public void close() throws IOException {
 		outputStream.close();
+	}
+
+	public static GaiaWriter getWriter(OutputStream outputStream) throws IOException {
+		NBTOutputStream nbtStream = new NBTOutputStream(new GZIPOutputStream(outputStream));
+		return new GaiaWriter(nbtStream);
 	}
 }

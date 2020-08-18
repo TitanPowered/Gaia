@@ -19,29 +19,9 @@
 
 package com.github.primordialmoros.gaia.util.metadata;
 
-import com.github.primordialmoros.gaia.io.GaiaIO;
-import com.github.primordialmoros.gaia.util.GaiaChunkRegion;
-import com.github.primordialmoros.gaia.util.GaiaVector;
+public interface Metadatable {
 
-public class GaiaChunkMetadata {
+	GaiaMetadata getMetadata();
 
-	public GaiaVector min;
-	public GaiaVector max;
-
-	public String path;
-	public String hash;
-
-	public GaiaChunkMetadata(GaiaChunkRegion region, String path, String hash) {
-		min = region.getRegion().getMinimumPoint();
-		max = region.getRegion().getMaximumPoint();
-		this.path = path;
-		this.hash = hash;
-	}
-
-
-	public static boolean isValidMetadata(GaiaChunkMetadata m) {
-		if (m.path == null || m.hash == null || m.min == null || m.max == null) return false;
-		if (!m.path.endsWith(GaiaIO.DATA_SUFFIX)) return false;
-		return m.hash.length() == 32;
-	}
+	void setMetadata(GaiaMetadata meta);
 }

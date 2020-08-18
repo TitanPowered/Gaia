@@ -21,7 +21,7 @@ package com.github.primordialmoros.gaia.methods;
 
 import com.github.primordialmoros.gaia.Arena;
 import com.github.primordialmoros.gaia.Gaia;
-import com.github.primordialmoros.gaia.util.GaiaChunkRegion;
+import com.github.primordialmoros.gaia.util.GaiaChunk;
 import com.github.primordialmoros.gaia.util.GaiaRegion;
 import com.github.primordialmoros.gaia.util.GaiaVector;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -69,9 +69,9 @@ public class CoreMethods {
 				tempZ = z * 16;
 				v1 = GaiaVector.atXZClamped(tempX, minY, tempZ, minX, maxX, minZ, maxZ);
 				v2 = GaiaVector.atXZClamped(tempX + 15, maxY, tempZ + 15, minX, maxX, minZ, maxZ);
-				final GaiaChunkRegion chunkRegion = new GaiaChunkRegion(new GaiaRegion(v1, v2));
+				final GaiaChunk chunkRegion = new GaiaChunk(UUID.randomUUID(), arena, new GaiaRegion(v1, v2));
 				arena.addSubRegion(chunkRegion);
-				GaiaChunkRegion.analyzeChunk(chunkRegion, arena.getWorld());
+				GaiaChunk.analyzeChunk(chunkRegion, arena.getWorld());
 			}
 		}
 		return arena.getSubRegions().size() > 0;

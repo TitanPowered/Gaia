@@ -17,37 +17,30 @@
  *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.primordialmoros.gaia.util;
+package com.github.primordialmoros.gaia.util.metadata;
 
-import org.bukkit.block.data.BlockData;
+import com.github.primordialmoros.gaia.util.GaiaChunk;
+import com.github.primordialmoros.gaia.util.GaiaVector;
 
-public final class GaiaData {
+public class ChunkMetadata extends GaiaMetadata {
 
-	private final BlockData[][][] data;
-	private final GaiaVector size;
+	public GaiaVector min;
+	public GaiaVector max;
 
-	public GaiaData(final GaiaVector size) {
-		this.data = new BlockData[size.getX()][size.getY()][size.getZ()];
-		this.size = size;
+	public String id;
+	public String hash;
+
+	public ChunkMetadata(GaiaChunk region, String hash) {
+		min = region.getRegion().getMinimumPoint();
+		max = region.getRegion().getMaximumPoint();
+		this.id = region.getId().toString();
+		this.hash = hash;
 	}
 
-	public BlockData getDataAt(GaiaVector v) {
-		return getDataAt(v.getX(), v.getY(), v.getZ());
-	}
-
-	public BlockData getDataAt(int x, int y, int z) {
-		return data[x][y][z];
-	}
-
-	public void setDataAt(GaiaVector v, BlockData blockData) {
-		setDataAt(v.getX(), v.getY(), v.getZ(), blockData);
-	}
-
-	public void setDataAt(int x, int y, int z, BlockData blockData) {
-		data[x][y][z] = blockData;
-	}
-
-	public GaiaVector getVector() {
-		return size;
+	@Override
+	public boolean isValidMetadata() {
+		if (id == null || hash == null || min == null || max == null) return false;
+		if (id.isEmpty()) return false;
+		return hash.length() == 32;
 	}
 }

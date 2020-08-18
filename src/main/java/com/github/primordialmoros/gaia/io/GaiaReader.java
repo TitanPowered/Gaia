@@ -23,23 +23,22 @@ package com.github.primordialmoros.gaia.io;
 
 import com.github.primordialmoros.gaia.methods.CoreMethods;
 import com.github.primordialmoros.gaia.util.GaiaData;
+import com.github.primordialmoros.gaia.util.GaiaVector;
 import com.sk89q.jnbt.ByteArrayTag;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.IntTag;
 import com.sk89q.jnbt.NBTInputStream;
 import com.sk89q.jnbt.ShortTag;
 import com.sk89q.jnbt.Tag;
-import org.bukkit.block.data.BlockData;
 
 import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
-/**
- * Reads schematic files using the Sponge Schematic Specification.
- */
 public class GaiaReader implements Closeable {
 
 	private final NBTInputStream inputStream;
@@ -49,7 +48,7 @@ public class GaiaReader implements Closeable {
 	 *
 	 * @param inputStream the input stream to read from
 	 */
-	public GaiaReader(NBTInputStream inputStream) {
+	private GaiaReader(NBTInputStream inputStream) {
 		this.inputStream = inputStream;
 	}
 
@@ -83,7 +82,7 @@ public class GaiaReader implements Closeable {
 		int i = 0;
 		int value;
 		int varintLength;
-		BlockData[][][] data = new BlockData[width][height][length];
+		GaiaData data = new GaiaData(GaiaVector.at(width, height, length));
 		while (i < blocks.length) {
 			value = 0;
 			varintLength = 0;
@@ -103,10 +102,10 @@ public class GaiaReader implements Closeable {
 			int y = index / (width * length);
 			int z = (index % (width * length)) / width;
 			int x = (index % (width * length)) % width;
-			data[x][y][z] = CoreMethods.getBlockDataFromString(palette.get(value));
+			data.setDataAt(x, y, z, CoreMethods.getBlockDataFromString(palette.get(value)));
 			index++;
 		}
-		return new GaiaData(data);
+		return data;
 	}
 
 	protected static <T extends Tag> T requireTag(Map<String, Tag> items, String key, Class<T> expected) throws IOException {
@@ -135,5 +134,10 @@ public class GaiaReader implements Closeable {
 	@Override
 	public void close() throws IOException {
 		inputStream.close();
+	}
+
+	public static GaiaReader getReader(InputStream inputStream) throws IOException {
+		NBTInputStream nbtStream = new NBTInputStream(new GZIPInputStream(inputStream));
+		return new GaiaReader(nbtStream);
 	}
 }
