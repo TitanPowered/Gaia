@@ -40,7 +40,7 @@ public class ArenaMetadata extends GaiaMetadata {
 	public List<ChunkMetadata> chunks;
 
 	public ArenaMetadata(Arena arena) {
-		version = 1;
+		version = VERSION;
 		name = arena.getName();
 		world = arena.getWorldUID().toString();
 		min = arena.getRegion().getMinimumPoint();
