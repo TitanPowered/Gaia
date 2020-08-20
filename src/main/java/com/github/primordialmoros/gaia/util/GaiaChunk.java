@@ -138,11 +138,9 @@ public class GaiaChunk implements Metadatable {
 
 	public static void analyzeChunk(final GaiaChunk chunk, final World world) {
 		if (chunk.isAnalyzed()) return;
-		Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
-			final Iterator<GaiaVector> it = chunk.iterator();
-			final GaiaData gd = new GaiaData(chunk.getRegion().getVector());
-			chunk.analyze(new GaiaRunnableInfo(it, world, 4096), gd);
-		});
+		final Iterator<GaiaVector> it = chunk.iterator();
+		final GaiaData gd = new GaiaData(chunk.getRegion().getVector());
+		chunk.analyze(new GaiaRunnableInfo(it, world, 4096), gd);
 	}
 
 	public static void revertChunk(final GaiaChunk chunk, final World world) {
