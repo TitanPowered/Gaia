@@ -92,7 +92,7 @@ public abstract class GaiaChunk implements Metadatable {
 	}
 
 	public Iterator<GaiaVector> iterator() {
-		return new Iterator<>() {
+		return new Iterator<GaiaVector>() {
 			private final GaiaVector max = chunk.getVector();
 			private int nextX = 0;
 			private int nextY = 0;

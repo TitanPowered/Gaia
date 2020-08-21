@@ -1,6 +1,6 @@
 allprojects {
     group = "com.github.primordialmoros"
-    version = "1.0.0"
+    version = "1.1.0"
 }
 
 subprojects {
@@ -11,4 +11,5 @@ subprojects {
         maven("https://maven.enginehub.org/repo/")
         maven("https://repo.codemc.org/repository/maven-public")
     }
+    buildDir = rootProject.buildDir
 }
