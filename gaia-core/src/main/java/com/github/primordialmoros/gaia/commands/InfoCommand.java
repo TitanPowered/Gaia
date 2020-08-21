@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class InfoCommand extends GaiaCommand {
-
 	public InfoCommand(final GaiaPlugin plugin) {
 		super(plugin, "info", "/gaia info [name]", "View info about the specified arena or if no name is given, the arena you are currently in.", new String[]{ "i" });
 	}

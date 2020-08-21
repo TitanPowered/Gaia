@@ -56,7 +56,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public final class GaiaIO {
-
 	public static final String ALGORITHM = "MD5";
 
 	public static final String ARENA_SUFFIX = ".json";

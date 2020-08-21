@@ -40,6 +40,7 @@ import io.papermc.lib.PaperLib;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -61,7 +62,6 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 		.append("Gaia", NamedTextColor.DARK_AQUA)
 		.append("] ", NamedTextColor.DARK_GRAY).build();
 
-
 	private static Gaia plugin;
 	private static BukkitAudiences audiences;
 	private ArenaManager arenaManager;
@@ -71,6 +71,7 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 
 	@Override
 	public void onEnable() {
+		new MetricsLite(this, 8608);
 		PaperLib.suggestPaper(this);
 		plugin = this;
 		log = getLogger();

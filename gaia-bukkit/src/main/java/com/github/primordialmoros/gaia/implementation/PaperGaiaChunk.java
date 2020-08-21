@@ -37,11 +37,7 @@ import org.bukkit.Bukkit;
 import java.util.Iterator;
 import java.util.UUID;
 
-/**
- * A chunk aligned GaiaRegion.
- */
 public class PaperGaiaChunk extends GaiaChunk {
-
 	protected PaperGaiaChunk(UUID id, Arena parent, GaiaRegion region) {
 		super(id, parent, region);
 	}

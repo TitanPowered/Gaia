@@ -15,7 +15,7 @@ public interface GaiaPlugin {
 
 	Logger getLog();
 
-	AbstractArenaManager getArenaManager();
+	GaiaArenaManager getArenaManager();
 
 	AbstractChunkFactory<GaiaChunk> getChunkFactory();
 

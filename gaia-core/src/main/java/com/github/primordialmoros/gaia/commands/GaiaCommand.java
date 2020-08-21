@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public abstract class GaiaCommand {
-
 	public static final String NO_PERMISSION = "You do not have permission to execute this command";
 	public static final String PLAYER_ONLY = "You must be a player to execute this command";
 
@@ -62,7 +61,6 @@ public abstract class GaiaCommand {
 		this.aliases.add(name);
 		this.aliases.addAll(Arrays.asList(aliases));
 
-		text = TextComponent.builder("> ", NamedTextColor.DARK_GRAY).append(getUsage(), NamedTextColor.DARK_AQUA).build();
 		final TextComponent details = TextComponent.builder("Command: ", NamedTextColor.DARK_AQUA)
 			.append(Util.capitalize(getName()), NamedTextColor.GREEN).append(TextComponent.newline())
 			.append("Description: ", NamedTextColor.DARK_AQUA)
@@ -72,8 +70,11 @@ public abstract class GaiaCommand {
 			.append("Permission: ", NamedTextColor.DARK_AQUA)
 			.append(getPermission(), NamedTextColor.GREEN).append(TextComponent.newline()).append(TextComponent.newline())
 			.append("Click to auto-complete.", NamedTextColor.GRAY).build();
-		text.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, details));
-		text.clickEvent(ClickEvent.of(ClickEvent.Action.SUGGEST_COMMAND, getUsage()));
+
+		text = TextComponent.builder("> ", NamedTextColor.DARK_GRAY).append(getUsage(), NamedTextColor.DARK_AQUA)
+			.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, details))
+			.clickEvent(ClickEvent.of(ClickEvent.Action.SUGGEST_COMMAND, getUsage()))
+			.build();
 
 		commands.put(name, this);
 	}
@@ -119,7 +120,7 @@ public abstract class GaiaCommand {
 		if (size >= min && size <= max) {
 			return true;
 		} else {
-			sender.sendMessage(TextComponent.builder("Proper Usage: ", NamedTextColor.GOLD).append(usage, NamedTextColor.DARK_AQUA).build());
+			sender.sendMessage(TextComponent.builder("Proper Usage ", NamedTextColor.YELLOW).append(getTextComponent()).build());
 			return false;
 		}
 	}

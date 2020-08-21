@@ -35,7 +35,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public abstract class AbstractArenaManager {
+public abstract class GaiaArenaManager {
 	private final Map<String, Arena> ARENAS = new ConcurrentHashMap<>();
 
 	public Arena getArena(final String name) {

@@ -30,7 +30,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import java.util.List;
 
 public class RevertCommand extends GaiaCommand {
-
 	public RevertCommand(final GaiaPlugin plugin) {
 		super(plugin, "revert", "/arena revert <name>", "Reset the specified arena", new String[]{ "rev", "reset", "res", "r" });
 	}

@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":gaia-core"))
     implementation("io.papermc", "paperlib", "1.0.5")
     implementation("net.kyori", "adventure-platform-bukkit", "4.0.0-SNAPSHOT")
+    implementation("org.bstats", "bstats-bukkit-lite", "1.7")
     compileOnly("org.spigotmc", "spigot-api", "1.16.1-R0.1-SNAPSHOT")
     compileOnly("com.sk89q.worldedit", "worldedit-bukkit", "7.0.0")
 
@@ -22,6 +23,7 @@ tasks {
         archiveClassifier.set("")
         archiveBaseName.set(rootProject.name)
         dependencies {
+            relocate("org.bstats", "com.github.primordialmoros.gaia.bstats")
             relocate("io.papermc.lib", "com.github.primordialmoros.gaia.internal.paperlib")
             relocate("com.google.gson", "com.github.primordialmoros.gaia.internal.gson")
             relocate("net.kyori", "com.github.primordialmoros.gaia.internal.kyori")

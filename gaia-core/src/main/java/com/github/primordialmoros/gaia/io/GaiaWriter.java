@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GaiaWriter implements Closeable {
-
 	private final NBTOutputStream outputStream;
 
 	/**

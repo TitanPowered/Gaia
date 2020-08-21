@@ -23,7 +23,6 @@ import com.github.primordialmoros.gaia.Gaia;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class ConfigManager {
-
 	public ConfigManager() {
 		loadConfig();
 	}

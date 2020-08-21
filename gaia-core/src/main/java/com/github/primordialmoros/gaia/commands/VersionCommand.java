@@ -27,7 +27,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import java.util.List;
 
 public class VersionCommand extends GaiaCommand {
-
 	public VersionCommand(final GaiaPlugin plugin) {
 		super(plugin, "version", "/gaia version", "View version info about Gaia", new String[]{ "v", "ver" });
 	}

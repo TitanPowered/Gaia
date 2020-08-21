@@ -29,7 +29,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import java.util.List;
 
 public class CreateCommand extends GaiaCommand {
-
 	public CreateCommand(final GaiaPlugin plugin) {
 		super(plugin, "create", "/arena create <name>", "Create a new arena", new String[]{ "c", "new", "n" });
 	}

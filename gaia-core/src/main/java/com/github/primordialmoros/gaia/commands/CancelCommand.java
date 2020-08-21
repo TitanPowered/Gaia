@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class CancelCommand extends GaiaCommand {
-
 	public CancelCommand(final GaiaPlugin plugin) {
 		super(plugin, "cancel", "/gaia cancel [name]", "Cancel the revert task of the specified arena or if no name is given, the arena you are currently in.", new String[]{ "abort" });
 	}

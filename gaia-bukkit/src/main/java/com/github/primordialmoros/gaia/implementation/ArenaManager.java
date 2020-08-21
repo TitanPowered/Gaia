@@ -19,7 +19,7 @@
 
 package com.github.primordialmoros.gaia.implementation;
 
-import com.github.primordialmoros.gaia.AbstractArenaManager;
+import com.github.primordialmoros.gaia.GaiaArenaManager;
 import com.github.primordialmoros.gaia.Gaia;
 import com.github.primordialmoros.gaia.api.Arena;
 import com.github.primordialmoros.gaia.api.GaiaChunk;
@@ -43,7 +43,7 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class ArenaManager extends AbstractArenaManager {
+public class ArenaManager extends GaiaArenaManager {
 	@Override
 	public void revertArena(final Arena arena, final GaiaConsumerInfo info) {
 		arena.setReverting(true);

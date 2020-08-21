@@ -28,7 +28,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import java.util.List;
 
 public class RemoveCommand extends GaiaCommand {
-
 	public RemoveCommand(final GaiaPlugin plugin) {
 		super(plugin, "remove", "/gaia remove <name>", "Remove an existing arena", new String[]{ "rm", "delete", "del" });
 	}
