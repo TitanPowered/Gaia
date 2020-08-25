@@ -23,11 +23,11 @@ tasks {
         archiveClassifier.set("")
         archiveBaseName.set(rootProject.name)
         dependencies {
-            relocate("org.bstats", "com.github.primordialmoros.gaia.bstats")
-            relocate("io.papermc.lib", "com.github.primordialmoros.gaia.internal.paperlib")
-            relocate("com.google.gson", "com.github.primordialmoros.gaia.internal.gson")
-            relocate("net.kyori", "com.github.primordialmoros.gaia.internal.kyori")
-            relocate("org.checkerframework", "com.github.primordialmoros.gaia.internal.checkerframework")
+            relocate("org.bstats", "me.moros.gaia.bstats")
+            relocate("io.papermc.lib", "me.moros.gaia.internal.paperlib")
+            relocate("com.google.gson", "me.moros.gaia.internal.gson")
+            relocate("net.kyori", "me.moros.gaia.internal.kyori")
+            relocate("org.checkerframework", "me.moros.gaia.internal.checkerframework")
         }
         minimize()
     }

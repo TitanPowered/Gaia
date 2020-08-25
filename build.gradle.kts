@@ -1,5 +1,5 @@
 allprojects {
-    group = "com.github.primordialmoros"
+    group = "me.moros"
     version = "1.1.0"
 }
 

@@ -3,7 +3,7 @@ description: Arena management plugin
 author: Moros
 version: ${pluginVersion}
 load: STARTUP
-main: com.github.primordialmoros.gaia.Gaia
+main: me.moros.gaia.Gaia
 depend: [WorldEdit]
 api-version: 1.14
 commands:
