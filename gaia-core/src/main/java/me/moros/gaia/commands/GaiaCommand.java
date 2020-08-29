@@ -29,6 +29,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +43,7 @@ public abstract class GaiaCommand {
 	public static final String PLAYER_ONLY = "You must be a player to execute this command";
 
 	public static final Map<String, GaiaCommand> commands = new HashMap<>();
-	public static final Set<String> gaiaAliases = Set.of("g", "gaia", "arena", "arenas");
+	public static final Set<String> gaiaAliases = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("g", "gaia", "arena", "arenas")));
 
 	protected final GaiaPlugin plugin;
 	private final String name;
