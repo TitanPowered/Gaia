@@ -19,51 +19,49 @@
 
 package me.moros.gaia;
 
+import co.aikar.commands.BukkitCommandExecutionContext;
+import co.aikar.commands.CommandContexts;
+import co.aikar.commands.CommandIssuer;
+import co.aikar.commands.InvalidCommandArgument;
+import co.aikar.commands.PaperCommandManager;
 import io.papermc.lib.PaperLib;
-import me.moros.gaia.commands.CancelCommand;
-import me.moros.gaia.commands.CreateCommand;
+import me.moros.gaia.api.Arena;
 import me.moros.gaia.commands.GaiaCommand;
-import me.moros.gaia.commands.InfoCommand;
-import me.moros.gaia.commands.ListCommand;
-import me.moros.gaia.commands.RemoveCommand;
-import me.moros.gaia.commands.RevertCommand;
-import me.moros.gaia.commands.VersionCommand;
 import me.moros.gaia.configuration.ConfigManager;
 import me.moros.gaia.implementation.ArenaManager;
 import me.moros.gaia.implementation.GaiaChunkFactory;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.platform.BlockDataWrapper;
+import me.moros.gaia.platform.GaiaPlayer;
 import me.moros.gaia.platform.GaiaSender;
 import me.moros.gaia.platform.PlayerWrapper;
 import me.moros.gaia.platform.SenderWrapper;
 import me.moros.gaia.platform.WorldWrapper;
+import me.moros.gaia.util.Util;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class Gaia extends JavaPlugin implements GaiaPlugin {
-	public static final TextComponent PREFIX = TextComponent.builder("[", NamedTextColor.DARK_GRAY)
-		.append("Gaia", NamedTextColor.DARK_AQUA)
-		.append("] ", NamedTextColor.DARK_GRAY).build();
+	public static final TextComponent PREFIX = Component.text("[", NamedTextColor.DARK_GRAY)
+		.append(Component.text("Gaia", NamedTextColor.DARK_AQUA))
+		.append(Component.text("] ", NamedTextColor.DARK_GRAY));
 
 	private static Gaia plugin;
 	private static BukkitAudiences audiences;
+	private PaperCommandManager commandManager;
 	private ArenaManager arenaManager;
 	private String author;
 	private String version;
@@ -123,13 +121,19 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 	}
 
 	@Override
-	public GaiaChunkFactory getChunkFactory() {
-		return new GaiaChunkFactory();
+	public Audience getAudience(CommandIssuer issuer) {
+		return audiences.sender(issuer.getIssuer());
 	}
 
 	@Override
 	public ArenaManager getArenaManager() {
 		return arenaManager;
+	}
+
+
+	@Override
+	public GaiaChunkFactory getChunkFactory() {
+		return new GaiaChunkFactory();
 	}
 
 	@Override
@@ -149,45 +153,52 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 		return new WorldWrapper(world);
 	}
 
-	public void registerCommands() {
-		new ListCommand(plugin);
-		new InfoCommand(plugin);
-		new VersionCommand(plugin);
-		new CreateCommand(plugin);
-		new RemoveCommand(plugin);
-		new RevertCommand(plugin);
-		new CancelCommand(plugin);
+	public PaperCommandManager getCommandManager() {
+		return commandManager;
+	}
 
-		final PluginCommand baseCommand = Gaia.getPlugin().getCommand("gaia");
-		if (baseCommand == null) return;
+	private void registerCommands() {
+		commandManager = new PaperCommandManager(plugin);
+		commandManager.registerDependency(GaiaPlugin.class, plugin);
+		commandManager.enableUnstableAPI("help");
+		registerCommandContexts();
+		registerCommandCompletions();
+		Gaia.getPlugin().getCommandManager().getCommandReplacements().addReplacement("gaiacommand", "gaia|g|arena|arenas");
+		Gaia.getPlugin().getCommandManager().registerCommand(new GaiaCommand());
+	}
 
-		final CommandExecutor executor = (sender, command, alias, args) -> {
-			final GaiaSender wrappedSender = sender instanceof Player ? new PlayerWrapper((Player) sender) : new SenderWrapper(sender);
-			if (GaiaCommand.gaiaAliases.contains(alias.toLowerCase())) {
-				if (args.length > 0) {
-					final String argument = args[0].toLowerCase();
-					Optional<GaiaCommand> cmd = GaiaCommand.commands.values().stream().filter(c -> c.getAliases().contains(argument)).findFirst();
-					if (cmd.isPresent()) return cmd.get().execute(wrappedSender, Arrays.asList(args).subList(1, args.length));
+	private void registerCommandCompletions() {
+		commandManager.getCommandCompletions().registerAsyncCompletion("arenas", c ->
+			getArenaManager().getSortedArenaNames()
+		);
+	}
+
+	private void registerCommandContexts() {
+		CommandContexts<BukkitCommandExecutionContext> commandContexts = commandManager.getCommandContexts();
+		commandContexts.registerIssuerOnlyContext(GaiaPlayer.class, c -> {
+			Player player = c.getPlayer();
+			if (player == null) throw new InvalidCommandArgument("You must be player!");
+			return new PlayerWrapper(player);
+		});
+
+		commandContexts.registerIssuerOnlyContext(GaiaSender.class, c -> new SenderWrapper(c.getSender()));
+
+		commandContexts.registerIssuerAwareContext(Arena.class, c -> {
+			String name = c.popFirstArg();
+			if (name != null) {
+				String sanitized = Util.sanitizeInput(name);
+				return Optional.ofNullable(getArenaManager().getArena(sanitized))
+					.orElseThrow(() -> new InvalidCommandArgument("Could not find arena " + sanitized));
+			}
+			if (c.hasFlag("standing")) {
+				Player player = c.getPlayer();
+				if (player != null) {
+					GaiaPlayer gaiaPlayer = new PlayerWrapper(player);
+					return getArenaManager().getArenaAtPoint(gaiaPlayer.getWorld().getUID(), gaiaPlayer.getLocation())
+						.orElseThrow(() -> new InvalidCommandArgument("You are not currently standing in an arena."));
 				}
-				GaiaCommand.viewHelp(new SenderWrapper(sender));
-				return true;
 			}
-			return false;
-		};
-
-		final TabCompleter completer = (sender, command, alias, args) -> {
-			final String argument = args.length > 0 ? args[0].toLowerCase() : "";
-			if (args.length <= 1) {
-				if (argument.isEmpty()) return new ArrayList<>(GaiaCommand.commands.keySet());
-				return GaiaCommand.getFlatStream().filter(s -> s.startsWith(argument)).collect(Collectors.toList());
-			} else if (args.length == 2) {
-				Optional<GaiaCommand> cmd = GaiaCommand.commands.values().stream().filter(c -> c.completeArenaNames() && c.getAliases().contains(argument)).findFirst();
-				if (cmd.isPresent()) return getArenaManager().getSortedArenaNames();
-			}
-			return new ArrayList<>();
-		};
-
-		baseCommand.setExecutor(executor);
-		baseCommand.setTabCompleter(completer);
+			throw new InvalidCommandArgument("Could not find a valid arena.");
+		});
 	}
 }

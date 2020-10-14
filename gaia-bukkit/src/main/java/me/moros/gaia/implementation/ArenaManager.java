@@ -36,7 +36,7 @@ import me.moros.gaia.platform.PlayerWrapper;
 import me.moros.gaia.platform.WorldWrapper;
 import me.moros.gaia.util.functional.GaiaConsumerInfo;
 import me.moros.gaia.util.metadata.ArenaMetadata;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -50,13 +50,13 @@ public class ArenaManager extends GaiaArenaManager {
 		arena.getSubRegions().forEach(gcr -> PaperGaiaChunk.revertChunk(gcr, arena.getWorld()));
 		Bukkit.getScheduler().runTaskTimer(Gaia.getPlugin(), l -> {
 			if (!arena.isReverting()) {
-				info.sender.sendMessage(TextComponent.of("Cancelled reverting ", NamedTextColor.RED).append(arena.getFormattedName()));
+				info.sender.sendMessage(Component.text("Cancelled reverting ", NamedTextColor.RED).append(arena.getFormattedName()));
 				l.cancel();
 			} else {
 				if (arena.getSubRegions().stream().noneMatch(GaiaChunk::isReverting)) {
 					final long deltaTime = System.currentTimeMillis() - info.startTime;
-					info.sender.sendMessage(TextComponent.builder("Finished reverting ", NamedTextColor.GREEN)
-						.append(arena.getFormattedName()).append(" (" + deltaTime + "ms).", NamedTextColor.GREEN).build()
+					info.sender.sendMessage(Component.text("Finished reverting ", NamedTextColor.GREEN)
+						.append(arena.getFormattedName()).append(Component.text(" (" + deltaTime + "ms).", NamedTextColor.GREEN))
 					);
 					arena.setReverting(false);
 					l.cancel();
@@ -104,11 +104,11 @@ public class ArenaManager extends GaiaArenaManager {
 			sender.sendBrandedMessage("Critical error, could not create arena file, check console for more info.", NamedTextColor.RED);
 			return false;
 		}
-		sender.sendBrandedMessage(TextComponent.of("Analyzing ", NamedTextColor.GREEN).append(arena.getFormattedName()));
+		sender.sendBrandedMessage(Component.text("Analyzing ", NamedTextColor.GREEN).append(arena.getFormattedName()));
 		final GaiaConsumerInfo info = new GaiaConsumerInfo(sender);
-		final TextComponent fail = TextComponent.builder("Something went wrong, couldn't create arena: ", NamedTextColor.RED)
-			.append(arena.getFormattedName()).build();
-		final TextComponent success = arena.getFormattedName().append(TextComponent.of(" has been created!", NamedTextColor.GREEN));
+		final Component fail = Component.text("Something went wrong, couldn't create arena: ", NamedTextColor.RED)
+			.append(arena.getFormattedName());
+		final Component success = arena.getFormattedName().append(Component.text(" has been created!", NamedTextColor.GREEN));
 		if (!splitIntoChunks(arena)) {
 			sender.sendBrandedMessage(fail);
 			return false;

@@ -20,21 +20,25 @@
 package me.moros.gaia.util;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class Util {
+	private static final Pattern NON_ALPHANUMERICAL = Pattern.compile("[^A-Za-z0-9]");
+	private static final Pattern VALID = Pattern.compile("[a-z0-9]{3,64}");
+
 	/**
 	 * Strip input of all non alpha-numeric values and limit to 32 characters long
 	 *
 	 * @param input the input string to sanitize
 	 * @return the sanitized output string
 	 */
-	public static String sanitizeInput(final String input) {
-		final String output = input.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
+	public static String sanitizeInput(String input) {
+		String output = NON_ALPHANUMERICAL.matcher(input).replaceAll("").toLowerCase();
 		return output.length() > 32 ? output.substring(0, 32) : output;
 	}
 
-	public static boolean validateInput(final String input) {
-		return input.matches("[a-z0-9]{3,64}");
+	public static boolean validateInput(String input) {
+		return VALID.matcher(input).matches();
 	}
 
 	public static String generateLine(int count) {
@@ -43,7 +47,7 @@ public class Util {
 		return new String(line);
 	}
 
-	public static String capitalize(final String input) {
+	public static String capitalize(String input) {
 		if (input.length() < 2) return input.toUpperCase();
 		return input.substring(0, 1).toUpperCase() + input.substring(1);
 	}

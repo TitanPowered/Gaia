@@ -24,7 +24,7 @@ import me.moros.gaia.util.Util;
 import me.moros.gaia.util.metadata.ArenaMetadata;
 import me.moros.gaia.util.metadata.GaiaMetadata;
 import me.moros.gaia.util.metadata.Metadatable;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -37,7 +37,7 @@ public class Arena implements Metadatable {
 	private final String name;
 	private final GaiaWorld world;
 	private final GaiaRegion region;
-	private final TextComponent info;
+	private final Component info;
 
 	private final List<GaiaChunk> subRegions;
 
@@ -75,8 +75,8 @@ public class Arena implements Metadatable {
 		return name;
 	}
 
-	public TextComponent getFormattedName() {
-		return TextComponent.of(getName(), NamedTextColor.GOLD);
+	public Component getFormattedName() {
+		return Component.text(getName(), NamedTextColor.GOLD);
 	}
 
 	public GaiaWorld getWorld() {
@@ -91,7 +91,7 @@ public class Arena implements Metadatable {
 		return region;
 	}
 
-	public TextComponent getInfo() {
+	public Component getInfo() {
 		return info;
 	}
 
@@ -107,25 +107,24 @@ public class Arena implements Metadatable {
 		reverting = value;
 	}
 
-	public static TextComponent createInfo(final Arena arena) {
+	public static Component createInfo(final Arena arena) {
 		final int volume = arena.getRegion().getVolume();
-		final TextComponent infoDetails = TextComponent.builder("Name: ", NamedTextColor.DARK_AQUA)
-			.append(arena.getName(), NamedTextColor.GREEN).append(TextComponent.newline())
-			.append("World: ", NamedTextColor.DARK_AQUA)
-			.append(arena.getWorld().getName(), NamedTextColor.GREEN).append(TextComponent.newline())
-			.append("Dimensions: ", NamedTextColor.DARK_AQUA)
-			.append(arena.getDimensions(), NamedTextColor.GREEN).append(TextComponent.newline())
-			.append("Volume: ", NamedTextColor.DARK_AQUA)
-			.append(String.valueOf(volume), NamedTextColor.GREEN).append(TextComponent.newline())
-			.append("Center: ", NamedTextColor.DARK_AQUA)
-			.append(arena.getRegion().getCenter().toString(), NamedTextColor.GREEN).append(TextComponent.newline()).append(TextComponent.newline())
-			.append("Click to copy center coordinates to clipboard.", NamedTextColor.GRAY).build();
+		final Component infoDetails = Component.text("Name: ", NamedTextColor.DARK_AQUA)
+			.append(Component.text(arena.getName(), NamedTextColor.GREEN)).append(Component.newline())
+			.append(Component.text("World: ", NamedTextColor.DARK_AQUA))
+			.append(Component.text(arena.getWorld().getName(), NamedTextColor.GREEN)).append(Component.newline())
+			.append(Component.text("Dimensions: ", NamedTextColor.DARK_AQUA))
+			.append(Component.text(arena.getDimensions(), NamedTextColor.GREEN)).append(Component.newline())
+			.append(Component.text("Volume: ", NamedTextColor.DARK_AQUA))
+			.append(Component.text(String.valueOf(volume), NamedTextColor.GREEN)).append(Component.newline())
+			.append(Component.text("Center: ", NamedTextColor.DARK_AQUA))
+			.append(Component.text(arena.getRegion().getCenter().toString(), NamedTextColor.GREEN)).append(Component.newline()).append(Component.newline())
+			.append(Component.text("Click to copy center coordinates to clipboard.", NamedTextColor.GRAY));
 
-		return TextComponent.builder("> ", NamedTextColor.DARK_GRAY).append(arena.getFormattedName())
-			.append(" (" + Util.getSizeDescription(volume) + ")", NamedTextColor.DARK_AQUA)
-			.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, infoDetails))
-			.clickEvent(ClickEvent.of(ClickEvent.Action.COPY_TO_CLIPBOARD, arena.getRegion().getCenter().toString()))
-			.build();
+		return Component.text("> ", NamedTextColor.DARK_GRAY).append(arena.getFormattedName())
+			.append(Component.text(" (" + Util.getSizeDescription(volume) + ")", NamedTextColor.DARK_AQUA))
+			.hoverEvent(HoverEvent.showText(infoDetails))
+			.clickEvent(ClickEvent.copyToClipboard(arena.getRegion().getCenter().toString()));
 	}
 
 	public String getDimensions() {

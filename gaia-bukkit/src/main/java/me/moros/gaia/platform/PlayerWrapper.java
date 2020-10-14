@@ -21,9 +21,8 @@ package me.moros.gaia.platform;
 
 import me.moros.gaia.Gaia;
 import me.moros.gaia.api.GaiaVector;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-
 
 public class PlayerWrapper implements GaiaPlayer {
 	private final Player player;
@@ -67,12 +66,12 @@ public class PlayerWrapper implements GaiaPlayer {
 	}
 
 	@Override
-	public void sendBrandedMessage(TextComponent text) {
-		Gaia.getAudiences().audience(player).sendMessage(TextComponent.ofChildren(Gaia.PREFIX, text));
+	public void sendBrandedMessage(Component text) {
+		Gaia.getAudiences().sender(player).sendMessage(Gaia.PREFIX.append(text));
 	}
 
 	@Override
-	public void sendMessage(TextComponent text) {
-		Gaia.getAudiences().audience(player).sendMessage(text);
+	public void sendMessage(Component text) {
+		Gaia.getAudiences().sender(player).sendMessage(text);
 	}
 }

@@ -33,7 +33,7 @@ import java.lang.reflect.Type;
 public class GaiaAdapter implements JsonSerializer<GaiaVector>, JsonDeserializer<GaiaVector> {
 	@Override
 	public JsonElement serialize(GaiaVector src, Type typeOfSrc, JsonSerializationContext context) {
-		JsonArray array = new JsonArray(3);
+		JsonArray array = new JsonArray();
 		array.add(src.getX());
 		array.add(src.getY());
 		array.add(src.getZ());

@@ -19,7 +19,7 @@
 
 package me.moros.gaia.platform;
 
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 
 public interface GaiaSender {
@@ -32,22 +32,22 @@ public interface GaiaSender {
 	boolean hasPermission(String permission);
 
 	default void sendBrandedMessage(String text, TextColor color) {
-		sendBrandedMessage(TextComponent.of(text, color));
+		sendBrandedMessage(Component.text(text, color));
 	}
 
 	default void sendBrandedMessage(String text) {
-		sendBrandedMessage(TextComponent.of(text));
+		sendBrandedMessage(Component.text(text));
 	}
 
-	void sendBrandedMessage(TextComponent text);
+	void sendBrandedMessage(Component text);
 
 	default void sendMessage(String text, TextColor color) {
-		sendMessage(TextComponent.of(text, color));
+		sendMessage(Component.text(text, color));
 	}
 
 	default void sendMessage(String text) {
-		sendMessage(TextComponent.of(text));
+		sendMessage(Component.text(text));
 	}
 
-	void sendMessage(TextComponent text);
+	void sendMessage(Component text);
 }

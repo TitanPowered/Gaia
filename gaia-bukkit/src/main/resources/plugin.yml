@@ -21,8 +21,8 @@ permissions:
     children:
       gaia.command.list: true
       gaia.command.info: true
-      gaia.command.version: true
       gaia.command.create: true
       gaia.command.remove: true
       gaia.command.revert: true
       gaia.command.cancel: true
+      gaia.command.version: true
