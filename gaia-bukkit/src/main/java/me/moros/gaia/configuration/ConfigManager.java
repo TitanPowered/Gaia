@@ -22,17 +22,23 @@ package me.moros.gaia.configuration;
 import me.moros.gaia.Gaia;
 import org.bukkit.configuration.file.FileConfiguration;
 
-public class ConfigManager {
-	public ConfigManager() {
-		loadConfig();
-	}
+public enum ConfigManager {
+	INSTANCE;
 
-	public void loadConfig() {
-		FileConfiguration config = Gaia.getPlugin().getConfig();
+	private FileConfiguration config;
+
+	public void init() {
+		config = Gaia.getPlugin().getConfig();
 		config.addDefault("Debug", false);
 		config.addDefault("Analysis.Timeout", 30_000);
+		config.addDefault("ConcurrentTransactions", 4096);
 
 		config.options().copyDefaults(true);
 		Gaia.getPlugin().saveConfig();
+	}
+
+	public int getConcurrentTransactions() {
+		if (config == null) init();
+		return config.getInt("ConcurrentTransactions");
 	}
 }

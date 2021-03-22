@@ -19,14 +19,14 @@
 
 package me.moros.gaia.util.functional;
 
-import me.moros.gaia.platform.GaiaSender;
+import me.moros.gaia.platform.GaiaUser;
 
 public class GaiaConsumerInfo {
-	public final GaiaSender sender;
+	public final GaiaUser user;
 	public final long startTime;
 
-	public GaiaConsumerInfo(final GaiaSender sender) {
-		this.sender = sender;
+	public GaiaConsumerInfo(final GaiaUser user) {
+		this.user = user;
 		startTime = System.currentTimeMillis();
 	}
 }

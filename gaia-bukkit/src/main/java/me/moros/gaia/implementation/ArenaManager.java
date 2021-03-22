@@ -31,13 +31,12 @@ import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaRegion;
 import me.moros.gaia.api.GaiaVector;
 import me.moros.gaia.io.GaiaIO;
+import me.moros.gaia.locale.Message;
 import me.moros.gaia.platform.GaiaPlayer;
 import me.moros.gaia.platform.PlayerWrapper;
 import me.moros.gaia.platform.WorldWrapper;
 import me.moros.gaia.util.functional.GaiaConsumerInfo;
 import me.moros.gaia.util.metadata.ArenaMetadata;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -50,14 +49,12 @@ public class ArenaManager extends GaiaArenaManager {
 		arena.getSubRegions().forEach(gcr -> PaperGaiaChunk.revertChunk(gcr, arena.getWorld()));
 		Bukkit.getScheduler().runTaskTimer(Gaia.getPlugin(), l -> {
 			if (!arena.isReverting()) {
-				info.sender.sendMessage(Component.text("Cancelled reverting ", NamedTextColor.RED).append(arena.getFormattedName()));
+				Message.CANCEL_SUCCESS.send(info.user, arena.getFormattedName());
 				l.cancel();
 			} else {
 				if (arena.getSubRegions().stream().noneMatch(GaiaChunk::isReverting)) {
 					final long deltaTime = System.currentTimeMillis() - info.startTime;
-					info.sender.sendMessage(Component.text("Finished reverting ", NamedTextColor.GREEN)
-						.append(arena.getFormattedName()).append(Component.text(" (" + deltaTime + "ms).", NamedTextColor.GREEN))
-					);
+					Message.FINISHED_REVERT.send(info.user, arena.getFormattedName(), String.valueOf(deltaTime));
 					arena.setReverting(false);
 					l.cancel();
 				}
@@ -66,28 +63,28 @@ public class ArenaManager extends GaiaArenaManager {
 	}
 
 	@Override
-	public boolean createArena(final GaiaPlayer sender, final String arenaName) {
+	public boolean createArena(final GaiaPlayer user, final String arenaName) {
 		final Region r;
-		final Player player = ((PlayerWrapper) sender).get();
+		final Player player = ((PlayerWrapper) user).get();
 		final WorldWrapper world = new WorldWrapper(player.getWorld());
 		try {
 			r = WorldEdit.getInstance().getSessionManager().get(BukkitAdapter.adapt(player)).getSelection(BukkitAdapter.adapt(world.get()));
 		} catch (IncompleteRegionException e) {
-			sender.sendBrandedMessage("You need a WorldEdit selection in order to create an arena.", NamedTextColor.RED);
+			Message.CREATE_ERROR_SELECTION.send(user);
 			return false;
 		}
 
 		if (!(r instanceof CuboidRegion)) {
-			sender.sendBrandedMessage("Only cuboid regions are allowed. Aborting arena creation.", NamedTextColor.RED);
+			Message.CREATE_ERROR_CUBOID.send(user);
 			return false;
 		}
 		int radius = Math.max(Math.max(r.getLength(), r.getWidth()), Math.max(r.getHeight(), 64));
 		if (radius > 512) { // For safety reasons
-			sender.sendBrandedMessage("Regions can't be larger than 32 chunks in any dimension.", NamedTextColor.RED);
+			Message.CREATE_ERROR_SIZE.send(user);
 			return false;
 		}
 		if (r.getCenter().distanceSq(BukkitAdapter.adapt(player.getLocation()).toVector()) > radius * radius) {
-			sender.sendBrandedMessage("You are standing too far away from the selected region's center. Aborting arena creation.", NamedTextColor.RED);
+			Message.CREATE_ERROR_DISTANCE.send(user);
 			return false;
 		}
 
@@ -96,35 +93,35 @@ public class ArenaManager extends GaiaArenaManager {
 		final GaiaRegion gr = new GaiaRegion(min, max);
 
 		if (!isUniqueRegion(world.getUID(), gr)) {
-			sender.sendBrandedMessage("Selected region intersects with another arena, Aborting arena creation.", NamedTextColor.RED);
+			Message.CREATE_ERROR_INTERSECTION.send(user);
 			return false;
 		}
 		final Arena arena = new Arena(arenaName, world, gr);
 		if (!GaiaIO.getInstance().createArenaFiles(arenaName)) {
-			sender.sendBrandedMessage("Critical error, could not create arena file, check console for more info.", NamedTextColor.RED);
+			Message.CREATE_ERROR_CRITICAL.send(user);
 			return false;
 		}
-		sender.sendBrandedMessage(Component.text("Analyzing ", NamedTextColor.GREEN).append(arena.getFormattedName()));
-		final GaiaConsumerInfo info = new GaiaConsumerInfo(sender);
-		final Component fail = Component.text("Something went wrong, couldn't create arena: ", NamedTextColor.RED)
-			.append(arena.getFormattedName());
-		final Component success = arena.getFormattedName().append(Component.text(" has been created!", NamedTextColor.GREEN));
+		Message.CREATE_ANALYZING.send(user, arena.getFormattedName());
+		final GaiaConsumerInfo info = new GaiaConsumerInfo(user);
 		if (!splitIntoChunks(arena)) {
-			sender.sendBrandedMessage(fail);
+			Message.CREATE_FAIL.send(user, arena.getFormattedName());
 			return false;
 		}
 		arena.setMetadata(new ArenaMetadata(arena));
 		final long timeout = Gaia.getPlugin().getConfig().getLong("Analysis.Timeout");
 		Bukkit.getScheduler().runTaskTimer(Gaia.getPlugin(), l -> {
 			if (System.currentTimeMillis() > info.startTime + timeout) {
-				sender.sendBrandedMessage(fail);
+				Message.CREATE_FAIL.send(user, arena.getFormattedName());
 				removeArena(arena.getName());
 				l.cancel();
 			} else {
 				if (arena.getSubRegions().stream().allMatch(GaiaChunk::isAnalyzed) && arena.finalizeArena()) {
 					Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
-						boolean result = GaiaIO.getInstance().saveArena((ArenaMetadata) arena.getMetadata());
-						sender.sendBrandedMessage(result ? success : fail);
+						if (GaiaIO.getInstance().saveArena((ArenaMetadata) arena.getMetadata())) {
+							Message.CREATE_SUCCESS.send(user, arena.getFormattedName());
+						} else {
+							Message.CREATE_FAIL.send(user, arena.getFormattedName());
+						}
 					});
 					l.cancel();
 				}

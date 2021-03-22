@@ -19,13 +19,13 @@
 
 package me.moros.gaia.implementation;
 
-import io.papermc.lib.PaperLib;
 import me.moros.gaia.Gaia;
 import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaData;
 import me.moros.gaia.api.GaiaRegion;
 import me.moros.gaia.api.GaiaVector;
+import me.moros.gaia.configuration.ConfigManager;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.platform.GaiaWorld;
 import me.moros.gaia.platform.WorldWrapper;
@@ -44,7 +44,7 @@ public class PaperGaiaChunk extends GaiaChunk {
 
 	@Override
 	public void analyze(final GaiaRunnableInfo info, final GaiaData data) {
-		PaperLib.getChunkAtAsync(((WorldWrapper) info.world).get(), getX(), getZ()).thenAccept(result -> {
+		((WorldWrapper) info.world).get().getChunkAtAsync(getX(), getZ()).thenRun(() -> {
 			GaiaVector relative, real;
 			int counter = 0;
 			while (++counter <= info.maxTransactions && info.it.hasNext()) {
@@ -67,7 +67,7 @@ public class PaperGaiaChunk extends GaiaChunk {
 	@Override
 	public void revert(final GaiaRunnableInfo info, final GaiaData data) {
 		if (!isReverting()) return;
-		PaperLib.getChunkAtAsync(((WorldWrapper) info.world).get(), getX(), getZ()).thenAccept(result -> {
+		((WorldWrapper) info.world).get().getChunkAtAsync(getX(), getZ()).thenRun(() -> {
 			GaiaVector relative, real;
 			int counter = 0;
 			while (++counter <= info.maxTransactions && info.it.hasNext()) {
@@ -89,7 +89,7 @@ public class PaperGaiaChunk extends GaiaChunk {
 		Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
 			final Iterator<GaiaVector> it = chunk.iterator();
 			final GaiaData gd = GaiaIO.getInstance().loadData(chunk);
-			if (gd != null) chunk.revert(new GaiaRunnableInfo(it, world, 4096), gd);
+			if (gd != null) chunk.revert(new GaiaRunnableInfo(it, world, ConfigManager.INSTANCE.getConcurrentTransactions()), gd);
 		});
 	}
 
@@ -97,6 +97,6 @@ public class PaperGaiaChunk extends GaiaChunk {
 		if (chunk.isAnalyzed()) return;
 		final Iterator<GaiaVector> it = chunk.iterator();
 		final GaiaData gd = new GaiaData(chunk.getRegion().getVector());
-		chunk.analyze(new GaiaRunnableInfo(it, world, 4096), gd);
+		chunk.analyze(new GaiaRunnableInfo(it, world, ConfigManager.INSTANCE.getConcurrentTransactions()), gd);
 	}
 }

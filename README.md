@@ -2,12 +2,11 @@
 
 ## Requirements
 - `Java 8 or newer`
+- `PaperMC 1.16.5 (at least build 473) or newer`
 - `WorldEdit 7.0.0 or newer`
 
 Gaia is a lightweight arena management plugin.
-Gaia makes use of [PaperLib's](https://github.com/PaperMC/PaperLib) async chunk API.
-While it will work with Spigot, to ensure smoothness and to take advantage of all of Gaia's async features
-you should use PaperMC.
+Gaia makes use of [Paper's](https://github.com/PaperMC/Paper) async chunk API.
 
 ## Creating an arena
 1. Select a region with WorldEdit

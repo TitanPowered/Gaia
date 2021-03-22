@@ -19,38 +19,16 @@
 
 package me.moros.gaia.platform;
 
-import me.moros.gaia.Gaia;
 import net.kyori.adventure.text.Component;
-import org.bukkit.command.CommandSender;
 
-public class SenderWrapper implements GaiaSender {
-	private final CommandSender sender;
+public interface GaiaUser {
+	String getName();
 
-	public SenderWrapper(CommandSender sender) {
-		this.sender = sender;
+	default boolean isPlayer() {
+		return false;
 	}
 
-	public CommandSender get() {
-		return this.sender;
-	}
+	boolean hasPermission(String permission);
 
-	@Override
-	public String getName() {
-		return sender.getName();
-	}
-
-	@Override
-	public boolean hasPermission(String permission) {
-		return sender.hasPermission(permission);
-	}
-
-	@Override
-	public void sendBrandedMessage(Component text) {
-		Gaia.getAudiences().sender(sender).sendMessage(Gaia.PREFIX.append(text));
-	}
-
-	@Override
-	public void sendMessage(Component text) {
-		Gaia.getAudiences().sender(sender).sendMessage(text);
-	}
+	void sendMessage(Component text);
 }

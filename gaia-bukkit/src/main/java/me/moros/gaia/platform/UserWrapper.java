@@ -20,34 +20,31 @@
 package me.moros.gaia.platform;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.command.CommandSender;
 
-public interface GaiaSender {
-	String getName();
+public class UserWrapper implements GaiaUser {
+	private final CommandSender sender;
 
-	default boolean isPlayer() {
-		return false;
+	public UserWrapper(CommandSender sender) {
+		this.sender = sender;
 	}
 
-	boolean hasPermission(String permission);
-
-	default void sendBrandedMessage(String text, TextColor color) {
-		sendBrandedMessage(Component.text(text, color));
+	public CommandSender get() {
+		return this.sender;
 	}
 
-	default void sendBrandedMessage(String text) {
-		sendBrandedMessage(Component.text(text));
+	@Override
+	public String getName() {
+		return sender.getName();
 	}
 
-	void sendBrandedMessage(Component text);
-
-	default void sendMessage(String text, TextColor color) {
-		sendMessage(Component.text(text, color));
+	@Override
+	public boolean hasPermission(String permission) {
+		return sender.hasPermission(permission);
 	}
 
-	default void sendMessage(String text) {
-		sendMessage(Component.text(text));
+	@Override
+	public void sendMessage(Component text) {
+		sender.sendMessage(text);
 	}
-
-	void sendMessage(Component text);
 }

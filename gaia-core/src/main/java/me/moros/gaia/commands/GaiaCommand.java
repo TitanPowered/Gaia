@@ -34,11 +34,13 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.moros.gaia.GaiaPlugin;
 import me.moros.gaia.api.Arena;
+import me.moros.gaia.locale.Message;
 import me.moros.gaia.platform.GaiaPlayer;
-import me.moros.gaia.platform.GaiaSender;
+import me.moros.gaia.platform.GaiaUser;
 import me.moros.gaia.util.Util;
 import me.moros.gaia.util.functional.GaiaConsumerInfo;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -55,85 +57,89 @@ public class GaiaCommand extends BaseCommand {
 	@HelpCommand
 	@CommandPermission("gaia.command.help")
 	@Description("View a list of all Gaia commands")
-	public static void doHelp(GaiaSender sender, CommandHelp help) {
-		sender.sendBrandedMessage(Component.text("List of Gaia Commands:", NamedTextColor.YELLOW));
+	public static void doHelp(GaiaUser user, CommandHelp help) {
+		Message.HELP_HEADER.send(user);
 		help.getHelpEntries().stream()
 			.sorted(Comparator.comparing(HelpEntry::getCommand))
-			.map(GaiaCommand::getEntryDetails).forEach(sender::sendMessage);
+			.map(GaiaCommand::getEntryDetails).forEach(user::sendMessage);
 	}
 
 	@Subcommand("version|ver|v")
 	@CommandPermission("gaia.command.version")
 	@Description("View version info about Gaia")
-	public static void onVersion(GaiaSender sender) {
-		sender.sendBrandedMessage(getVersionInfo());
+	public static void onVersion(GaiaUser user) {
+		String link = "https://github.com/PrimordialMoros/Gaia";
+		Component version = Component.text("Version: ", NamedTextColor.DARK_AQUA)
+			.append(Component.text(plugin.getVersion(), NamedTextColor.GREEN))
+			.hoverEvent(HoverEvent.showText(Message.VERSION_COMMAND_HOVER.build(plugin.getAuthor(), link)))
+			.clickEvent(ClickEvent.openUrl(link));
+		user.sendMessage(version);
 	}
 
 	@Subcommand("list|ls|l")
 	@CommandPermission("gaia.command.list")
 	@Description("List all Gaia arenas")
-	public static void onList(GaiaSender sender, @Default("1") int page) {
+	public static void onList(GaiaUser user, @Default("1") int page) {
 		int count = plugin.getArenaManager().getArenaCount();
 		if (count == 0) {
-			sender.sendBrandedMessage("No arenas found.", NamedTextColor.YELLOW);
+			Message.LIST_NOT_FOUND.send(user);
 			return;
 		}
 		int totalPages = (int) Math.ceil(count / (double) AMOUNT_PER_PAGE);
 		if (page < 1 || page > totalPages) {
-			sender.sendBrandedMessage(" Invalid page number!", NamedTextColor.RED);
+			Message.LIST_INVALID_PAGE.send(user);
 			return;
 		}
 		int skip = (page - 1) * AMOUNT_PER_PAGE;
-		Component text = Component.text("Arenas - Page ", NamedTextColor.DARK_AQUA);
-		if (page > 1) text.append(generatePaging(false, page - 1));
-		text.append(Component.text("{current} of {total}", NamedTextColor.DARK_AQUA)
-				.replaceFirstText("{current}", Component.text(page, NamedTextColor.GREEN))
-				.replaceFirstText("{total}", Component.text(totalPages, NamedTextColor.GREEN))
-			);
-		if (page < totalPages) text.append(generatePaging(true, page + 1));
-		sender.sendBrandedMessage(text);
+		TextComponent.Builder builder = Component.text().append(Component.text("Arenas - Page ", NamedTextColor.DARK_AQUA));
+		if (page > 1) builder.append(generatePaging(false, page - 1));
+
+		builder.append(Component.text(page, NamedTextColor.GREEN))
+			.append(Component.text(" of ", NamedTextColor.DARK_AQUA))
+			.append(Component.text(totalPages, NamedTextColor.GREEN));
+
+		if (page < totalPages) builder.append(generatePaging(true, page + 1));
+		user.sendMessage(builder.build());
 		plugin.getArenaManager().getAllArenas().stream().sorted(Comparator.comparing(Arena::getName)).
 			skip(skip).limit(AMOUNT_PER_PAGE).
-			map(Arena::getInfo).forEach(sender::sendMessage);
-		sender.sendMessage(Util.generateLine(44), NamedTextColor.DARK_AQUA);
+			map(Arena::getInfo).forEach(user::sendMessage);
+		user.sendMessage(Component.text(Util.generateLine(44), NamedTextColor.DARK_AQUA));
 	}
 
 	@Subcommand("info|i")
 	@CommandPermission("gaia.command.info")
 	@CommandCompletion("@arenas")
 	@Description("View info about the specified arena or if no name is given, the arena you are currently in")
-	public static void onInfo(GaiaSender sender, @Optional @Flags("standing") Arena arena) {
-		sender.sendMessage(arena.getInfo());
+	public static void onInfo(GaiaUser user, @Optional @Flags("standing") Arena arena) {
+		user.sendMessage(arena.getInfo());
 	}
 
 	@Subcommand("create|c|new|n")
 	@CommandPermission("gaia.command.create")
 	@Description("Create a new arena")
-	public static void onCreate(GaiaPlayer sender, String name) {
+	public static void onCreate(GaiaPlayer user, String name) {
 		String arenaName = Util.sanitizeInput(name);
 		if (arenaName.length() < 3) {
-			sender.sendBrandedMessage("Arena names can only consist of alpha-numeric characters and must be between 3 and 32 characters long!", NamedTextColor.RED);
+			Message.CREATE_ERROR_VALIDATION.send(user);
 			return;
 		}
 		if (plugin.getArenaManager().arenaExists(arenaName)) {
-			sender.sendBrandedMessage(Component.text(arenaName, NamedTextColor.GOLD).append(Component.text(" already exists! Choose a different name.", NamedTextColor.RED)));
+			Message.CREATE_ERROR_EXISTS.send(user, arenaName);
 			return;
 		}
-		plugin.getArenaManager().createArena(sender, arenaName);
+		plugin.getArenaManager().createArena(user, arenaName);
 	}
 
 	@Subcommand("remove|rm|delete|del")
 	@CommandPermission("gaia.command.remove")
 	@CommandCompletion("@arenas")
 	@Description("Remove an existing arena")
-	public static void onRemove(GaiaSender sender, Arena arena) {
+	public static void onRemove(GaiaUser user, Arena arena) {
 		String arenaName = arena.getName();
 		if (plugin.getArenaManager().removeArena(arenaName)) {
-			sender.sendBrandedMessage(Component.text(arenaName, NamedTextColor.GOLD)
-				.append(Component.text(" has been deleted.", NamedTextColor.GREEN)));
+			Message.REMOVE_SUCCESS.send(user, arenaName);
 		} else {
-			sender.sendBrandedMessage(Component.text("Error, could not delete files for ", NamedTextColor.RED)
-				.append(Component.text(arenaName, NamedTextColor.GOLD)));
+			Message.REMOVE_FAIL.send(user, arenaName);
 		}
 	}
 
@@ -141,17 +147,17 @@ public class GaiaCommand extends BaseCommand {
 	@CommandPermission("gaia.command.revert")
 	@CommandCompletion("@arenas")
 	@Description("Revert the specified arena")
-	public static void onRevert(GaiaSender sender, Arena arena) {
+	public static void onRevert(GaiaUser user, Arena arena) {
 		if (!arena.isFinalized()) {
-			sender.sendBrandedMessage(arena.getFormattedName().append(Component.text(" is not fully analyzed yet!", NamedTextColor.YELLOW)));
+			Message.REVERT_ERROR_ANALYZING.send(user, arena.getFormattedName());
 			return;
 		}
 		if (arena.isReverting()) {
-			sender.sendBrandedMessage(arena.getFormattedName().append(Component.text(" is currently being reverted!", NamedTextColor.YELLOW)));
+			Message.REVERT_ERROR_REVERTING.send(user, arena.getFormattedName());
 			return;
 		}
-		sender.sendBrandedMessage(Component.text("Reverting ", NamedTextColor.GREEN).append(arena.getFormattedName()));
-		GaiaConsumerInfo info = new GaiaConsumerInfo(sender);
+		Message.REVERT_SUCCESS.send(user, arena.getFormattedName());
+		GaiaConsumerInfo info = new GaiaConsumerInfo(user);
 		plugin.getArenaManager().revertArena(arena, info);
 	}
 
@@ -159,12 +165,11 @@ public class GaiaCommand extends BaseCommand {
 	@CommandPermission("gaia.command.cancel")
 	@CommandCompletion("@arenas")
 	@Description("Cancel the revert task of the specified arena or if no name is given, the arena you are currently in.")
-	public static void onCancel(GaiaSender sender, @Optional @Flags("standing") Arena arena) {
+	public static void onCancel(GaiaUser user, @Optional @Flags("standing") Arena arena) {
 		if (arena.isReverting()) {
 			plugin.getArenaManager().cancelRevertArena(arena);
 		} else {
-			sender.sendBrandedMessage(arena.getFormattedName()
-				.append(Component.text(" is not currently being reverted!", NamedTextColor.YELLOW)));
+			Message.CANCEL_FAIL.send(user, arena.getFormattedName());
 		}
 	}
 
@@ -179,34 +184,19 @@ public class GaiaCommand extends BaseCommand {
 		String name = command.substring(command.lastIndexOf(" ") + 1);
 		String usage = "/" + command + " " + entry.getParameterSyntax();
 		String permission = "gaia.command." + name;
-		final Component details = Component.text("Command: {name}", NamedTextColor.DARK_AQUA).append(Component.newline())
-			.append(Component.text("Description: {description}", NamedTextColor.DARK_AQUA)).append(Component.newline())
-			.append(Component.text("Usage: {usage}", NamedTextColor.DARK_AQUA)).append(Component.newline())
-			.append(Component.text("Permission: {permission}", NamedTextColor.DARK_AQUA)).append(Component.newline()).append(Component.newline())
-			.append(Component.text("Click to auto-complete.", NamedTextColor.GRAY))
-			.replaceFirstText("{name}", Component.text(Util.capitalize(name), NamedTextColor.GREEN))
-			.replaceFirstText("{description}", Component.text(entry.getDescription(), NamedTextColor.GREEN))
-			.replaceFirstText("{usage}", Component.text(usage, NamedTextColor.GREEN))
-			.replaceFirstText("{permission}", Component.text(permission, NamedTextColor.GREEN));
+		final Component details = Component.text()
+			.append(Component.text("Command: ", NamedTextColor.DARK_AQUA))
+			.append(Component.text(Util.capitalize(name), NamedTextColor.GREEN)).append(Component.newline())
+			.append(Component.text("Description: ", NamedTextColor.DARK_AQUA))
+			.append(Component.text(entry.getDescription(), NamedTextColor.GREEN)).append(Component.newline())
+			.append(Component.text("Usage: ", NamedTextColor.DARK_AQUA))
+			.append(Component.text(usage, NamedTextColor.GREEN)).append(Component.newline())
+			.append(Component.text("Permission: ", NamedTextColor.DARK_AQUA))
+			.append(Component.text(permission, NamedTextColor.GREEN)).append(Component.newline()).append(Component.newline())
+			.append(Component.text("Click to auto-complete.", NamedTextColor.GRAY)).build();
 
 		return Component.text("> ", NamedTextColor.DARK_GRAY).append(Component.text(usage, NamedTextColor.DARK_AQUA))
 			.hoverEvent(HoverEvent.showText(details))
 			.clickEvent(ClickEvent.suggestCommand(usage));
-	}
-
-	private static Component getVersionInfo() {
-		String link = "https://github.com/PrimordialMoros/Gaia";
-		Component details = Component.text("Developed by: {author}", NamedTextColor.DARK_AQUA).append(Component.newline())
-			.append(Component.text("Source code: {link}", NamedTextColor.DARK_AQUA)).append(Component.newline())
-			.append(Component.text("Licensed under: {license}", NamedTextColor.DARK_AQUA)).append(Component.newline()).append(Component.newline())
-			.append(Component.text("Click to open link.", NamedTextColor.GRAY))
-			.replaceFirstText("{author}", Component.text(plugin.getAuthor(), NamedTextColor.GREEN))
-			.replaceFirstText("{link}", Component.text(link, NamedTextColor.GREEN))
-			.replaceFirstText("{license}", Component.text("AGPLv3", NamedTextColor.GREEN));
-
-		return Component.text("Version: {version}", NamedTextColor.DARK_AQUA)
-			.replaceFirstText("{version}", Component.text(plugin.getVersion(), NamedTextColor.GREEN))
-			.hoverEvent(HoverEvent.showText(details))
-			.clickEvent(ClickEvent.openUrl(link));
 	}
 }

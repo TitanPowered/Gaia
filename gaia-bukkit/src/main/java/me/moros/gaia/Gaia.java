@@ -21,28 +21,22 @@ package me.moros.gaia;
 
 import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.CommandContexts;
-import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
-import io.papermc.lib.PaperLib;
 import me.moros.gaia.api.Arena;
 import me.moros.gaia.commands.GaiaCommand;
 import me.moros.gaia.configuration.ConfigManager;
 import me.moros.gaia.implementation.ArenaManager;
 import me.moros.gaia.implementation.GaiaChunkFactory;
 import me.moros.gaia.io.GaiaIO;
+import me.moros.gaia.locale.TranslationManager;
 import me.moros.gaia.platform.BlockDataWrapper;
 import me.moros.gaia.platform.GaiaPlayer;
-import me.moros.gaia.platform.GaiaSender;
+import me.moros.gaia.platform.GaiaUser;
 import me.moros.gaia.platform.PlayerWrapper;
-import me.moros.gaia.platform.SenderWrapper;
+import me.moros.gaia.platform.UserWrapper;
 import me.moros.gaia.platform.WorldWrapper;
 import me.moros.gaia.util.Util;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -55,12 +49,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 public class Gaia extends JavaPlugin implements GaiaPlugin {
-	public static final TextComponent PREFIX = Component.text("[", NamedTextColor.DARK_GRAY)
-		.append(Component.text("Gaia", NamedTextColor.DARK_AQUA))
-		.append(Component.text("] ", NamedTextColor.DARK_GRAY));
-
 	private static Gaia plugin;
-	private static BukkitAudiences audiences;
 	private PaperCommandManager commandManager;
 	private ArenaManager arenaManager;
 	private String author;
@@ -70,15 +59,14 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 	@Override
 	public void onEnable() {
 		new MetricsLite(this, 8608);
-		PaperLib.suggestPaper(this);
 		plugin = this;
 		log = getLogger();
 		version = getDescription().getVersion();
 		author = getDescription().getAuthors().get(0);
 
-		audiences = BukkitAudiences.create(this);
+		ConfigManager.INSTANCE.init();
 
-		new ConfigManager();
+		new TranslationManager(log, getDataFolder().toString());
 
 		arenaManager = new ArenaManager();
 		boolean debug = getConfig().getBoolean("Debug");
@@ -101,10 +89,6 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 		return plugin;
 	}
 
-	public static BukkitAudiences getAudiences() {
-		return audiences;
-	}
-
 	@Override
 	public String getAuthor() {
 		return author;
@@ -121,15 +105,9 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 	}
 
 	@Override
-	public Audience getAudience(CommandIssuer issuer) {
-		return audiences.sender(issuer.getIssuer());
-	}
-
-	@Override
 	public ArenaManager getArenaManager() {
 		return arenaManager;
 	}
-
 
 	@Override
 	public GaiaChunkFactory getChunkFactory() {
@@ -181,7 +159,7 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 			return new PlayerWrapper(player);
 		});
 
-		commandContexts.registerIssuerOnlyContext(GaiaSender.class, c -> new SenderWrapper(c.getSender()));
+		commandContexts.registerIssuerOnlyContext(GaiaUser.class, c -> new UserWrapper(c.getSender()));
 
 		commandContexts.registerIssuerAwareContext(Arena.class, c -> {
 			String name = c.popFirstArg();
