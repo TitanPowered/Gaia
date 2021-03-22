@@ -5,7 +5,7 @@ version: ${pluginVersion}
 load: STARTUP
 main: me.moros.gaia.Gaia
 depend: [WorldEdit]
-api-version: 1.14
+api-version: 1.16
 commands:
   gaia:
     description: Manage gaia arenas
