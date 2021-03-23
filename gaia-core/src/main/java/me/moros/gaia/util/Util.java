@@ -19,6 +19,8 @@
 
 package me.moros.gaia.util;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -28,31 +30,30 @@ public class Util {
 
 	/**
 	 * Strip input of all non alpha-numeric values and limit to 32 characters long
-	 *
 	 * @param input the input string to sanitize
 	 * @return the sanitized output string
 	 */
-	public static String sanitizeInput(String input) {
+	public static @NonNull String sanitizeInput(@NonNull String input) {
 		String output = NON_ALPHANUMERICAL.matcher(input).replaceAll("").toLowerCase();
 		return output.length() > 32 ? output.substring(0, 32) : output;
 	}
 
-	public static boolean validateInput(String input) {
+	public static boolean validateInput(@NonNull String input) {
 		return VALID.matcher(input).matches();
 	}
 
-	public static String generateLine(int count) {
+	public static @NonNull String generateLine(int count) {
 		char[] line = new char[count];
 		Arrays.fill(line, '-');
 		return new String(line);
 	}
 
-	public static String capitalize(String input) {
+	public static @NonNull String capitalize(@NonNull String input) {
 		if (input.length() < 2) return input.toUpperCase();
 		return input.substring(0, 1).toUpperCase() + input.substring(1);
 	}
 
-	public static String getSizeDescription(int size) {
+	public static @NonNull String getSizeDescription(int size) {
 		if (size <= 32768) {
 			return "Tiny";
 		} else if (size <= 262144) {
@@ -66,7 +67,7 @@ public class Util {
 		}
 	}
 
-	public static String toHex(byte[] bytes) {
+	public static @NonNull String toHex(byte[] bytes) {
 		StringBuilder hexString = new StringBuilder();
 		for (byte b : bytes) {
 			String hex = Integer.toHexString(0xff & b);

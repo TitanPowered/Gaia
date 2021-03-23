@@ -28,6 +28,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class Arena implements Metadatable {
 
 	private ArenaMetadata meta;
 
-	public Arena(final String name, final GaiaWorld world, final GaiaRegion region) {
+	public Arena(@NonNull String name, @NonNull GaiaWorld world, @NonNull GaiaRegion region) {
 		this.world = world;
 		this.name = name.toLowerCase();
 		this.region = region;
@@ -56,7 +57,7 @@ public class Arena implements Metadatable {
 		finalized = false;
 	}
 
-	public void addSubRegion(final GaiaChunk chunk) {
+	public void addSubRegion(@NonNull GaiaChunk chunk) {
 		subRegions.add(chunk);
 	}
 
@@ -67,31 +68,31 @@ public class Arena implements Metadatable {
 		return true;
 	}
 
-	public List<GaiaChunk> getSubRegions() {
+	public @NonNull List<@NonNull GaiaChunk> getSubRegions() {
 		return subRegions;
 	}
 
-	public String getName() {
+	public @NonNull String getName() {
 		return name;
 	}
 
-	public Component getFormattedName() {
+	public @NonNull Component getFormattedName() {
 		return Component.text(getName(), NamedTextColor.GOLD);
 	}
 
-	public GaiaWorld getWorld() {
+	public @NonNull GaiaWorld getWorld() {
 		return world;
 	}
 
-	public UUID getWorldUID() {
+	public @NonNull UUID getWorldUID() {
 		return world.getUID();
 	}
 
-	public GaiaRegion getRegion() {
+	public @NonNull GaiaRegion getRegion() {
 		return region;
 	}
 
-	public Component getInfo() {
+	public @NonNull Component getInfo() {
 		return info;
 	}
 
@@ -107,7 +108,7 @@ public class Arena implements Metadatable {
 		reverting = value;
 	}
 
-	public static Component createInfo(final Arena arena) {
+	public static @NonNull Component createInfo(@NonNull Arena arena) {
 		final int volume = arena.getRegion().getVolume();
 		final Component infoDetails = Component.text("Name: ", NamedTextColor.DARK_AQUA)
 			.append(Component.text(arena.getName(), NamedTextColor.GREEN)).append(Component.newline())
@@ -127,7 +128,7 @@ public class Arena implements Metadatable {
 			.clickEvent(ClickEvent.copyToClipboard(arena.getRegion().getCenter().toString()));
 	}
 
-	public String getDimensions() {
+	public @NonNull String getDimensions() {
 		return region.getWidth() + " x " + region.getHeight() + " x " + region.getLength();
 	}
 

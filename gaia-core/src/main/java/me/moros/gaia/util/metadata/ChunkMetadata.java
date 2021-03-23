@@ -21,6 +21,7 @@ package me.moros.gaia.util.metadata;
 
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaVector;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ChunkMetadata extends GaiaMetadata {
 	public GaiaVector min;
@@ -29,7 +30,7 @@ public class ChunkMetadata extends GaiaMetadata {
 	public String id;
 	public String hash;
 
-	public ChunkMetadata(GaiaChunk region, String hash) {
+	public ChunkMetadata(@NonNull GaiaChunk region, @NonNull String hash) {
 		min = region.getRegion().getMinimumPoint();
 		max = region.getRegion().getMaximumPoint();
 		this.id = region.getId().toString();

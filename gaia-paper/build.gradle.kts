@@ -11,7 +11,7 @@ configure<JavaPluginConvention> {
 dependencies {
     implementation(project(":gaia-core"))
     implementation("org.bstats", "bstats-bukkit-lite", "1.7")
-    implementation("co.aikar","acf-paper", "0.5.0-SNAPSHOT")
+    implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
     compileOnly("com.destroystokyo.paper", "paper-api", "1.16.5-R0.1-SNAPSHOT")
     compileOnly("com.sk89q.worldedit", "worldedit-bukkit", "7.0.0")
 }

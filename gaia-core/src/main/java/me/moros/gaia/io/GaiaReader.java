@@ -30,6 +30,7 @@ import com.sk89q.jnbt.Tag;
 import me.moros.gaia.GaiaPlugin;
 import me.moros.gaia.api.GaiaData;
 import me.moros.gaia.api.GaiaVector;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import javax.annotation.Nullable;
 import java.io.Closeable;
@@ -43,10 +44,9 @@ public class GaiaReader implements Closeable {
 
 	/**
 	 * Create a new instance.
-	 *
 	 * @param inputStream the input stream to read from
 	 */
-	protected GaiaReader(GaiaPlugin platform, NBTInputStream inputStream) {
+	protected GaiaReader(@NonNull GaiaPlugin platform, @NonNull NBTInputStream inputStream) {
 		this.platform = platform;
 		this.inputStream = inputStream;
 	}
@@ -55,7 +55,7 @@ public class GaiaReader implements Closeable {
 		return (CompoundTag) inputStream.readNamedTag().getTag();
 	}
 
-	protected GaiaData read() throws IOException {
+	protected @NonNull GaiaData read() throws IOException {
 		CompoundTag schematicTag = getBaseTag();
 		Map<String, Tag> schematic = schematicTag.getValue();
 

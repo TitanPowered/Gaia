@@ -27,12 +27,13 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import me.moros.gaia.api.GaiaVector;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.lang.reflect.Type;
 
 public class GaiaAdapter implements JsonSerializer<GaiaVector>, JsonDeserializer<GaiaVector> {
 	@Override
-	public JsonElement serialize(GaiaVector src, Type typeOfSrc, JsonSerializationContext context) {
+	public @NonNull JsonElement serialize(@NonNull GaiaVector src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
 		JsonArray array = new JsonArray();
 		array.add(src.getX());
 		array.add(src.getY());
@@ -41,7 +42,7 @@ public class GaiaAdapter implements JsonSerializer<GaiaVector>, JsonDeserializer
 	}
 
 	@Override
-	public GaiaVector deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+	public @NonNull GaiaVector deserialize(@NonNull JsonElement json, @NonNull Type typeOfT, @NonNull JsonDeserializationContext context) throws JsonParseException {
 		JsonArray array = json.getAsJsonArray();
 		if (array.size() != 3) throw new JsonParseException("Invalid GaiaVector: Expected array length 3");
 		GaiaVector v = GaiaVector.at(array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt());

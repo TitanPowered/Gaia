@@ -24,10 +24,9 @@ import co.aikar.commands.CommandContexts;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import me.moros.gaia.api.Arena;
+import me.moros.gaia.api.GaiaRegion;
 import me.moros.gaia.commands.GaiaCommand;
 import me.moros.gaia.configuration.ConfigManager;
-import me.moros.gaia.implementation.ArenaManager;
-import me.moros.gaia.implementation.GaiaChunkFactory;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.locale.TranslationManager;
 import me.moros.gaia.platform.BlockDataWrapper;
@@ -43,6 +42,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -90,49 +91,48 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 	}
 
 	@Override
-	public String getAuthor() {
+	public @NonNull String getAuthor() {
 		return author;
 	}
 
 	@Override
-	public String getVersion() {
+	public @NonNull String getVersion() {
 		return version;
 	}
 
 	@Override
-	public Logger getLog() {
+	public @NonNull Logger getLog() {
 		return log;
 	}
 
 	@Override
-	public ArenaManager getArenaManager() {
+	public @NonNull ArenaManager getArenaManager() {
 		return arenaManager;
 	}
 
 	@Override
-	public GaiaChunkFactory getChunkFactory() {
-		return new GaiaChunkFactory();
+	public @NonNull PaperGaiaChunk adaptChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region) {
+		return new PaperGaiaChunk(id, parent, region);
 	}
 
 	@Override
-	public BlockDataWrapper getBlockDataFromString(final String value) {
+	public @NonNull BlockDataWrapper getBlockDataFromString(final String value) {
 		try {
 			return new BlockDataWrapper(Bukkit.createBlockData(value));
 		} catch (IllegalArgumentException e) {
-			getLog().warning("Invalid block data in palette: " + value + ". Block will be replaced with air.");
+			log.warning("Invalid block data in palette: " + value + ". Block will be replaced with air.");
 			return new BlockDataWrapper(Material.AIR.createBlockData());
 		}
 	}
 
 	@Override
-	public WorldWrapper getWorld(final UUID uid) {
+	public @Nullable WorldWrapper getWorld(final UUID uid) {
 		final World world = Bukkit.getWorld(uid);
-		if (world == null) throw new IllegalArgumentException("Couldn't find world with UID " + uid);
+		if (world == null) {
+			log.warning("Couldn't find world with UID " + uid);
+			return null;
+		}
 		return new WorldWrapper(world);
-	}
-
-	public PaperCommandManager getCommandManager() {
-		return commandManager;
 	}
 
 	private void registerCommands() {
@@ -141,8 +141,8 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 		commandManager.enableUnstableAPI("help");
 		registerCommandContexts();
 		registerCommandCompletions();
-		Gaia.getPlugin().getCommandManager().getCommandReplacements().addReplacement("gaiacommand", "gaia|g|arena|arenas");
-		Gaia.getPlugin().getCommandManager().registerCommand(new GaiaCommand());
+		commandManager.getCommandReplacements().addReplacement("gaiacommand", "gaia|g|arena|arenas");
+		commandManager.registerCommand(new GaiaCommand());
 	}
 
 	private void registerCommandCompletions() {

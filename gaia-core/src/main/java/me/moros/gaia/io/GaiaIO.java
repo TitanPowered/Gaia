@@ -35,6 +35,8 @@ import me.moros.gaia.platform.GaiaWorld;
 import me.moros.gaia.util.Util;
 import me.moros.gaia.util.metadata.ArenaMetadata;
 import me.moros.gaia.util.metadata.ChunkMetadata;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -75,7 +77,7 @@ public final class GaiaIO {
 		gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(GaiaVector.class, new GaiaAdapter()).create();
 	}
 
-	public static boolean createInstance(GaiaPlugin plugin, String parentDirectory, boolean debug) {
+	public static boolean createInstance(@NonNull GaiaPlugin plugin, @NonNull String parentDirectory, boolean debug) {
 		if (IO != null) return false;
 		try {
 			Path arenaDir = Paths.get(parentDirectory, "Arenas");
@@ -92,12 +94,12 @@ public final class GaiaIO {
 		return IO;
 	}
 
-	public boolean arenaFileExists(String name) {
+	public boolean arenaFileExists(@NonNull String name) {
 		Path file = Paths.get(arenaDir.toString(), name + ARENA_SUFFIX);
 		return Files.exists(file);
 	}
 
-	public boolean createArenaFiles(String name) {
+	public boolean createArenaFiles(@NonNull String name) {
 		try {
 			Path file = Paths.get(arenaDir.toString(), name + ARENA_SUFFIX);
 			Path directory = Paths.get(arenaDir.toString(), name);
@@ -110,7 +112,7 @@ public final class GaiaIO {
 		return false;
 	}
 
-	public boolean deleteArena(String name) {
+	public boolean deleteArena(@NonNull String name) {
 		Path file = Paths.get(arenaDir.toString(), name + ARENA_SUFFIX);
 		Path directory = Paths.get(arenaDir.toString(), name);
 		try {
@@ -124,11 +126,11 @@ public final class GaiaIO {
 		return false;
 	}
 
-	private boolean isJson(Path path) {
+	private boolean isJson(@NonNull Path path) {
 		return path.getFileName().toString().endsWith(ARENA_SUFFIX);
 	}
 
-	private boolean isData(Path path) {
+	private boolean isData(@NonNull Path path) {
 		return path.getFileName().toString().endsWith(DATA_SUFFIX);
 	}
 
@@ -140,19 +142,20 @@ public final class GaiaIO {
 		}
 	}
 
-	private void loadArena(Path path) {
+	private void loadArena(@NonNull Path path) {
 		final long time = System.currentTimeMillis();
 		try (JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8))) {
 			ArenaMetadata meta = gson.fromJson(reader, ArenaMetadata.class);
 			if (meta == null || !meta.isValidMetadata()) return;
 			int amount = meta.amount;
 			GaiaWorld w = plugin.getWorld(UUID.fromString(meta.world));
+			if (w == null) return;
 			Arena arena = new Arena(meta.name, w, new GaiaRegion(meta.min, meta.max));
 			meta.chunks.stream().filter(ChunkMetadata::isValidMetadata).forEach(m -> {
 				Path chunkPath = Paths.get(arenaDir.toString(), meta.name, m.id + DATA_SUFFIX);
 				if (isValidFile(chunkPath, m.hash)) {
 					UUID id = UUID.fromString(m.id);
-					plugin.getChunkFactory().create(id, arena, new GaiaRegion(m.min, m.max));
+					plugin.adaptChunk(id, arena, new GaiaRegion(m.min, m.max));
 				}
 			});
 			if (debug && arena.getSubRegions().size() != amount) {
@@ -167,7 +170,7 @@ public final class GaiaIO {
 		}
 	}
 
-	public boolean saveArena(ArenaMetadata meta) {
+	public boolean saveArena(@NonNull ArenaMetadata meta) {
 		Path path = Paths.get(arenaDir.toString(), meta.name + ARENA_SUFFIX);
 		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
 			gson.toJson(meta, writer);
@@ -179,7 +182,7 @@ public final class GaiaIO {
 		return false;
 	}
 
-	public GaiaData loadData(GaiaChunk chunk) {
+	public @Nullable GaiaData loadData(@NonNull GaiaChunk chunk) {
 		Path path = Paths.get(arenaDir.toString(), chunk.getParent().getName(), chunk.getId() + DATA_SUFFIX);
 		try (Closer closer = Closer.create()) {
 			FileInputStream fis = closer.register(new FileInputStream(path.toFile()));
@@ -192,7 +195,7 @@ public final class GaiaIO {
 		return null;
 	}
 
-	public String saveData(GaiaChunk chunk, GaiaData data) {
+	public @NonNull String saveData(@NonNull GaiaChunk chunk, @NonNull GaiaData data) {
 		Path path = Paths.get(arenaDir.toString(), chunk.getParent().getName(), chunk.getId() + DATA_SUFFIX);
 		DigestOutputStream hos;
 		try (Closer closer = Closer.create()) {

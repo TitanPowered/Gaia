@@ -21,6 +21,7 @@ package me.moros.gaia.util.functional;
 
 import me.moros.gaia.api.GaiaVector;
 import me.moros.gaia.platform.GaiaWorld;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Iterator;
 
@@ -30,7 +31,7 @@ public final class GaiaRunnableInfo {
 	public final int maxTransactions;
 	public final long startTime;
 
-	public GaiaRunnableInfo(final Iterator<GaiaVector> it, final GaiaWorld world, int maxTransactions) {
+	public GaiaRunnableInfo(@NonNull Iterator<GaiaVector> it, @NonNull GaiaWorld world, int maxTransactions) {
 		this.it = it;
 		this.world = world;
 		this.maxTransactions = maxTransactions;

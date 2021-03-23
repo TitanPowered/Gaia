@@ -23,6 +23,7 @@ import me.moros.gaia.util.functional.GaiaRunnableInfo;
 import me.moros.gaia.util.metadata.ChunkMetadata;
 import me.moros.gaia.util.metadata.GaiaMetadata;
 import me.moros.gaia.util.metadata.Metadatable;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -45,7 +46,7 @@ public abstract class GaiaChunk implements Metadatable {
 
 	private boolean reverting;
 
-	protected GaiaChunk(final UUID id, final Arena parent, final GaiaRegion region) {
+	protected GaiaChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region) {
 		this.id = id;
 		this.parent = parent;
 		chunkX = region.getMinimumPoint().getX() / 16;
@@ -55,11 +56,11 @@ public abstract class GaiaChunk implements Metadatable {
 		parent.addSubRegion(this);
 	}
 
-	public UUID getId() {
+	public @NonNull UUID getId() {
 		return id;
 	}
 
-	public Arena getParent() {
+	public @NonNull Arena getParent() {
 		return parent;
 	}
 
@@ -71,7 +72,7 @@ public abstract class GaiaChunk implements Metadatable {
 		return chunkZ;
 	}
 
-	public GaiaRegion getRegion() {
+	public @NonNull GaiaRegion getRegion() {
 		return chunk;
 	}
 
@@ -135,19 +136,17 @@ public abstract class GaiaChunk implements Metadatable {
 	 * Attempts to load the chunk and analyze blocks based on passed info.
 	 * It will analyze up to a maximum amount of blocks per tick as defined in passed info.
 	 * If there are more blocks left to analyze it will continue in the next tick.
-	 *
 	 * @param info the object containing the info
 	 * @param data the object containing the data
 	 */
-	public abstract void analyze(final GaiaRunnableInfo info, final GaiaData data);
+	public abstract void analyze(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data);
 
 	/**
 	 * Attempts to load the chunk and revert blocks based on passed info.
 	 * It will revert up to a maximum amount of blocks per tick as defined in passed info.
 	 * If there are more blocks left to revert it will continue in the next tick.
-	 *
 	 * @param info the object containing the info
 	 * @param data the object containing the data
 	 */
-	public abstract void revert(final GaiaRunnableInfo info, final GaiaData data);
+	public abstract void revert(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data);
 }

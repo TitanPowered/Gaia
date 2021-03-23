@@ -21,6 +21,8 @@
 
 package me.moros.gaia.api;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 /**
  * An immutable 3-dimensional vector.
  */
@@ -31,7 +33,7 @@ public final class GaiaVector {
 	private static final int XZ_BOUNDS = 30_000_000;
 	private static final int Y_MAX = 256;
 
-	public static GaiaVector at(int x, int y, int z) {
+	public static @NonNull GaiaVector at(int x, int y, int z) {
 		switch (y) {
 			case 0:
 				if (x == 0 && z == 0) return ZERO;
@@ -45,7 +47,7 @@ public final class GaiaVector {
 		return new GaiaVector(x, y, z);
 	}
 
-	public static GaiaVector atXZClamped(int x, int y, int z, int minX, int maxX, int minZ, int maxZ) {
+	public static @NonNull GaiaVector atXZClamped(int x, int y, int z, int minX, int maxX, int minZ, int maxZ) {
 		if (minX > maxX || minZ > maxZ) throw new IllegalArgumentException("Minimum cannot be greater than maximum");
 		return at(Math.max(minX, Math.min(maxX, x)), y, Math.max(minZ, Math.min(maxZ, z)));
 	}
@@ -76,31 +78,31 @@ public final class GaiaVector {
 		return x * y * z;
 	}
 
-	public GaiaVector add(GaiaVector other) {
+	public @NonNull GaiaVector add(@NonNull GaiaVector other) {
 		return add(other.x, other.y, other.z);
 	}
 
-	public GaiaVector add(int x, int y, int z) {
+	public @NonNull GaiaVector add(int x, int y, int z) {
 		return GaiaVector.at(this.x + x, this.y + y, this.z + z);
 	}
 
-	public GaiaVector subtract(GaiaVector other) {
+	public @NonNull GaiaVector subtract(@NonNull GaiaVector other) {
 		return subtract(other.x, other.y, other.z);
 	}
 
-	public GaiaVector subtract(int x, int y, int z) {
+	public @NonNull GaiaVector subtract(int x, int y, int z) {
 		return GaiaVector.at(this.x - x, this.y - y, this.z - z);
 	}
 
-	public GaiaVector divide(int n) {
+	public @NonNull GaiaVector divide(int n) {
 		return GaiaVector.at(x / n, y / n, z / n);
 	}
 
-	public boolean containedWithin(GaiaVector min, GaiaVector max) {
+	public boolean containedWithin(@NonNull GaiaVector min, @NonNull GaiaVector max) {
 		return x >= min.x && x <= max.x && y >= min.y && y <= max.y && z >= min.z && z <= max.z;
 	}
 
-	public GaiaVector getMinimum(GaiaVector v2) {
+	public @NonNull GaiaVector getMinimum(@NonNull GaiaVector v2) {
 		return new GaiaVector(
 			Math.min(x, v2.x),
 			Math.min(y, v2.y),
@@ -108,7 +110,7 @@ public final class GaiaVector {
 		);
 	}
 
-	public GaiaVector getMaximum(GaiaVector v2) {
+	public @NonNull GaiaVector getMaximum(@NonNull GaiaVector v2) {
 		return new GaiaVector(
 			Math.max(x, v2.x),
 			Math.max(y, v2.y),
@@ -116,7 +118,7 @@ public final class GaiaVector {
 		);
 	}
 
-	public static boolean isValidVector(GaiaVector v) {
+	public static boolean isValidVector(@NonNull GaiaVector v) {
 		return isValidXZ(v.getX()) && isValidXZ(v.getZ()) && isValidY(v.getY());
 	}
 

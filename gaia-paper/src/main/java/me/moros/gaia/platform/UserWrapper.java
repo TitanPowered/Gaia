@@ -19,34 +19,33 @@
 
 package me.moros.gaia.platform;
 
-import me.moros.gaia.api.GaiaVector;
-import org.bukkit.World;
+import net.kyori.adventure.text.Component;
+import org.bukkit.command.CommandSender;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.UUID;
+public class UserWrapper implements GaiaUser {
+	private final CommandSender sender;
 
-public class WorldWrapper implements GaiaWorld {
-	private final World world;
-
-	public WorldWrapper(World world) {
-		this.world = world;
+	public UserWrapper(@NonNull CommandSender sender) {
+		this.sender = sender;
 	}
 
-	public World get() {
-		return this.world;
-	}
-
-	@Override
-	public GaiaBlock getBlockAt(GaiaVector v) {
-		return new BlockWrapper(world.getBlockAt(v.getX(), v.getY(), v.getZ()));
+	public @NonNull CommandSender get() {
+		return this.sender;
 	}
 
 	@Override
-	public String getName() {
-		return world.getName();
+	public @NonNull String getName() {
+		return sender.getName();
 	}
 
 	@Override
-	public UUID getUID() {
-		return world.getUID();
+	public boolean hasPermission(@NonNull String permission) {
+		return sender.hasPermission(permission);
+	}
+
+	@Override
+	public void sendMessage(@NonNull Component text) {
+		sender.sendMessage(text);
 	}
 }

@@ -28,6 +28,7 @@ import com.sk89q.jnbt.NBTOutputStream;
 import com.sk89q.jnbt.ShortTag;
 import com.sk89q.jnbt.Tag;
 import me.moros.gaia.api.GaiaData;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -40,14 +41,13 @@ public class GaiaWriter implements Closeable {
 
 	/**
 	 * Create a new schematic writer.
-	 *
 	 * @param outputStream the output stream to write to
 	 */
-	protected GaiaWriter(NBTOutputStream outputStream) {
+	protected GaiaWriter(@NonNull NBTOutputStream outputStream) {
 		this.outputStream = outputStream;
 	}
 
-	public void write(GaiaData data) throws IOException {
+	public void write(@NonNull GaiaData data) throws IOException {
 		int width = data.getVector().getX();
 		int height = data.getVector().getY();
 		int length = data.getVector().getZ();

@@ -20,15 +20,16 @@
 package me.moros.gaia.platform;
 
 import net.kyori.adventure.text.Component;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface GaiaUser {
-	String getName();
+	@NonNull String getName();
 
 	default boolean isPlayer() {
 		return false;
 	}
 
-	boolean hasPermission(String permission);
+	boolean hasPermission(@NonNull String permission);
 
-	void sendMessage(Component text);
+	void sendMessage(@NonNull Component text);
 }

@@ -17,15 +17,13 @@
  *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.implementation;
+package me.moros.gaia;
 
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
-import me.moros.gaia.Gaia;
-import me.moros.gaia.GaiaArenaManager;
 import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaRegion;
@@ -39,12 +37,13 @@ import me.moros.gaia.util.functional.GaiaConsumerInfo;
 import me.moros.gaia.util.metadata.ArenaMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.UUID;
 
 public class ArenaManager extends GaiaArenaManager {
 	@Override
-	public void revertArena(final Arena arena, final GaiaConsumerInfo info) {
+	public void revertArena(@NonNull Arena arena, @NonNull GaiaConsumerInfo info) {
 		arena.setReverting(true);
 		arena.getSubRegions().forEach(gcr -> PaperGaiaChunk.revertChunk(gcr, arena.getWorld()));
 		Bukkit.getScheduler().runTaskTimer(Gaia.getPlugin(), l -> {
@@ -63,7 +62,7 @@ public class ArenaManager extends GaiaArenaManager {
 	}
 
 	@Override
-	public boolean createArena(final GaiaPlayer user, final String arenaName) {
+	public boolean createArena(@NonNull GaiaPlayer user, @NonNull String arenaName) {
 		final Region r;
 		final Player player = ((PlayerWrapper) user).get();
 		final WorldWrapper world = new WorldWrapper(player.getWorld());
@@ -131,7 +130,7 @@ public class ArenaManager extends GaiaArenaManager {
 		return true;
 	}
 
-	public static boolean splitIntoChunks(final Arena arena) {
+	public static boolean splitIntoChunks(@NonNull Arena arena) {
 		final int minX = arena.getRegion().getMinimumPoint().getX();
 		final int maxX = arena.getRegion().getMaximumPoint().getX();
 		final int minY = arena.getRegion().getMinimumPoint().getY();
@@ -147,7 +146,7 @@ public class ArenaManager extends GaiaArenaManager {
 				tempZ = z * 16;
 				v1 = GaiaVector.atXZClamped(tempX, minY, tempZ, minX, maxX, minZ, maxZ);
 				v2 = GaiaVector.atXZClamped(tempX + 15, maxY, tempZ + 15, minX, maxX, minZ, maxZ);
-				final PaperGaiaChunk chunkRegion = Gaia.getPlugin().getChunkFactory().create(UUID.randomUUID(), arena, new GaiaRegion(v1, v2));
+				final PaperGaiaChunk chunkRegion = Gaia.getPlugin().adaptChunk(UUID.randomUUID(), arena, new GaiaRegion(v1, v2));
 				PaperGaiaChunk.analyzeChunk(chunkRegion, arena.getWorld());
 			}
 		}

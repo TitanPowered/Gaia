@@ -19,6 +19,8 @@
 
 package me.moros.gaia.platform;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 public interface GaiaBlockData {
-	String getAsString();
+	@NonNull String getAsString();
 }

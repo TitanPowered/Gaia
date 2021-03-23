@@ -22,6 +22,7 @@ package me.moros.gaia.util.metadata;
 import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaVector;
 import me.moros.gaia.util.Util;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ArenaMetadata extends GaiaMetadata {
 	public int amount;
 	public List<ChunkMetadata> chunks;
 
-	public ArenaMetadata(Arena arena) {
+	public ArenaMetadata(@NonNull Arena arena) {
 		version = VERSION;
 		name = arena.getName();
 		world = arena.getWorldUID().toString();

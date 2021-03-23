@@ -19,8 +19,10 @@
 
 package me.moros.gaia.platform;
 
-public interface GaiaBlock {
-	GaiaBlockData getBlockData();
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-	void setBlockData(GaiaBlockData data);
+public interface GaiaBlock {
+	@NonNull GaiaBlockData getBlockData();
+
+	void setBlockData(@NonNull GaiaBlockData data);
 }

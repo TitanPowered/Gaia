@@ -17,9 +17,8 @@
  *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.implementation;
+package me.moros.gaia;
 
-import me.moros.gaia.Gaia;
 import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaData;
@@ -33,17 +32,18 @@ import me.moros.gaia.util.functional.GaiaRunnableInfo;
 import me.moros.gaia.util.metadata.ArenaMetadata;
 import me.moros.gaia.util.metadata.ChunkMetadata;
 import org.bukkit.Bukkit;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Iterator;
 import java.util.UUID;
 
 public class PaperGaiaChunk extends GaiaChunk {
-	protected PaperGaiaChunk(UUID id, Arena parent, GaiaRegion region) {
+	protected PaperGaiaChunk(@NonNull UUID id, Arena parent, @NonNull GaiaRegion region) {
 		super(id, parent, region);
 	}
 
 	@Override
-	public void analyze(final GaiaRunnableInfo info, final GaiaData data) {
+	public void analyze(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data) {
 		((WorldWrapper) info.world).get().getChunkAtAsync(getX(), getZ()).thenRun(() -> {
 			GaiaVector relative, real;
 			int counter = 0;
@@ -65,7 +65,7 @@ public class PaperGaiaChunk extends GaiaChunk {
 	}
 
 	@Override
-	public void revert(final GaiaRunnableInfo info, final GaiaData data) {
+	public void revert(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data) {
 		if (!isReverting()) return;
 		((WorldWrapper) info.world).get().getChunkAtAsync(getX(), getZ()).thenRun(() -> {
 			GaiaVector relative, real;
@@ -83,7 +83,7 @@ public class PaperGaiaChunk extends GaiaChunk {
 		});
 	}
 
-	public static void revertChunk(final GaiaChunk chunk, final GaiaWorld world) {
+	public static void revertChunk(@NonNull GaiaChunk chunk, @NonNull GaiaWorld world) {
 		if (chunk.isReverting()) return;
 		chunk.startReverting();
 		Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
@@ -93,7 +93,7 @@ public class PaperGaiaChunk extends GaiaChunk {
 		});
 	}
 
-	public static void analyzeChunk(final GaiaChunk chunk, final GaiaWorld world) {
+	public static void analyzeChunk(@NonNull GaiaChunk chunk, @NonNull GaiaWorld world) {
 		if (chunk.isAnalyzed()) return;
 		final Iterator<GaiaVector> it = chunk.iterator();
 		final GaiaData gd = new GaiaData(chunk.getRegion().getVector());

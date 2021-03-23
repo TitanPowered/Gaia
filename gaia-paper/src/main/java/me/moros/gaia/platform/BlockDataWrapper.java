@@ -17,18 +17,24 @@
  *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.implementation;
+package me.moros.gaia.platform;
 
-import me.moros.gaia.api.Arena;
-import me.moros.gaia.api.GaiaChunk;
-import me.moros.gaia.api.GaiaRegion;
-import me.moros.gaia.api.factory.AbstractChunkFactory;
+import org.bukkit.block.data.BlockData;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.UUID;
+public class BlockDataWrapper implements GaiaBlockData {
+	private final BlockData blockData;
 
-public class GaiaChunkFactory implements AbstractChunkFactory<GaiaChunk> {
+	public BlockDataWrapper(@NonNull BlockData blockData) {
+		this.blockData = blockData;
+	}
+
+	public @NonNull BlockData get() {
+		return blockData;
+	}
+
 	@Override
-	public PaperGaiaChunk create(UUID id, Arena parent, GaiaRegion region) {
-		return new PaperGaiaChunk(id, parent, region);
+	public @NonNull String getAsString() {
+		return blockData.getAsString();
 	}
 }

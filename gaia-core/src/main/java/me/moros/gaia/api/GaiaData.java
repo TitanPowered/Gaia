@@ -20,33 +20,34 @@
 package me.moros.gaia.api;
 
 import me.moros.gaia.platform.GaiaBlockData;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class GaiaData {
 	private final GaiaBlockData[][][] data;
 	private final GaiaVector size;
 
-	public GaiaData(final GaiaVector size) {
+	public GaiaData(@NonNull GaiaVector size) {
 		this.data = new GaiaBlockData[size.getX()][size.getY()][size.getZ()];
 		this.size = size;
 	}
 
-	public GaiaBlockData getDataAt(GaiaVector v) {
+	public @NonNull GaiaBlockData getDataAt(@NonNull GaiaVector v) {
 		return getDataAt(v.getX(), v.getY(), v.getZ());
 	}
 
-	public GaiaBlockData getDataAt(int x, int y, int z) {
+	public @NonNull GaiaBlockData getDataAt(int x, int y, int z) {
 		return data[x][y][z];
 	}
 
-	public void setDataAt(GaiaVector v, GaiaBlockData gaiaBlockData) {
+	public void setDataAt(@NonNull GaiaVector v, @NonNull GaiaBlockData gaiaBlockData) {
 		setDataAt(v.getX(), v.getY(), v.getZ(), gaiaBlockData);
 	}
 
-	public void setDataAt(int x, int y, int z, GaiaBlockData gaiaBlockData) {
+	public void setDataAt(int x, int y, int z, @NonNull GaiaBlockData gaiaBlockData) {
 		data[x][y][z] = gaiaBlockData;
 	}
 
-	public GaiaVector getVector() {
+	public @NonNull GaiaVector getVector() {
 		return size;
 	}
 }

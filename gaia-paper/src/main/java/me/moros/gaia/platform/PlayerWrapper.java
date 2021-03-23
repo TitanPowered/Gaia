@@ -22,15 +22,16 @@ package me.moros.gaia.platform;
 import me.moros.gaia.api.GaiaVector;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class PlayerWrapper implements GaiaPlayer {
 	private final Player player;
 
-	public PlayerWrapper(Player player) {
+	public PlayerWrapper(@NonNull Player player) {
 		this.player = player;
 	}
 
-	public Player get() {
+	public @NonNull Player get() {
 		return this.player;
 	}
 
@@ -45,27 +46,27 @@ public class PlayerWrapper implements GaiaPlayer {
 	}
 
 	@Override
-	public GaiaVector getLocation() {
+	public @NonNull GaiaVector getLocation() {
 		return GaiaVector.at(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 	}
 
 	@Override
-	public WorldWrapper getWorld() {
+	public @NonNull WorldWrapper getWorld() {
 		return new WorldWrapper(player.getWorld());
 	}
 
 	@Override
-	public String getName() {
+	public @NonNull String getName() {
 		return player.getName();
 	}
 
 	@Override
-	public boolean hasPermission(String permission) {
+	public boolean hasPermission(@NonNull String permission) {
 		return player.hasPermission(permission);
 	}
 
 	@Override
-	public void sendMessage(Component text) {
+	public void sendMessage(@NonNull Component text) {
 		player.sendMessage(text);
 	}
 }

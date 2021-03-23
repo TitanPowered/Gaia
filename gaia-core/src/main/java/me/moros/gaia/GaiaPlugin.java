@@ -1,25 +1,28 @@
 package me.moros.gaia;
 
+import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaChunk;
-import me.moros.gaia.api.factory.AbstractChunkFactory;
+import me.moros.gaia.api.GaiaRegion;
 import me.moros.gaia.platform.GaiaBlockData;
 import me.moros.gaia.platform.GaiaWorld;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.UUID;
 import java.util.logging.Logger;
 
 public interface GaiaPlugin {
-	String getAuthor();
+	@NonNull String getAuthor();
 
-	String getVersion();
+	@NonNull String getVersion();
 
-	Logger getLog();
+	@NonNull Logger getLog();
 
-	GaiaArenaManager getArenaManager();
+	@NonNull GaiaArenaManager getArenaManager();
 
-	AbstractChunkFactory<GaiaChunk> getChunkFactory();
+	@NonNull GaiaChunk adaptChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region);
 
-	GaiaBlockData getBlockDataFromString(String value);
+	@NonNull GaiaBlockData getBlockDataFromString(String value);
 
-	GaiaWorld getWorld(UUID uid);
+	@Nullable GaiaWorld getWorld(UUID uid);
 }
