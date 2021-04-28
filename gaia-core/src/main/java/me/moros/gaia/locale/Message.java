@@ -78,8 +78,8 @@ public interface Message {
   Args1<Component> CANCEL_SUCCESS = arena -> brand(translatable("gaia.command.cancel.success", YELLOW)
     .args(arena));
 
-  Args2<String, String> VERSION_COMMAND_HOVER = (author, link) -> brand(translatable("gaia.command.version.hover", DARK_AQUA)
-    .args(text(author, GREEN), text(link, GREEN)));
+  Args2<String, String> VERSION_COMMAND_HOVER = (author, link) -> translatable("gaia.command.version.hover", DARK_AQUA)
+    .args(text(author, GREEN), text(link, GREEN));
 
   static Component brand(ComponentLike message) {
     return PREFIX.asComponent().append(message);

@@ -44,6 +44,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -117,12 +118,17 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 
   @Override
   public @NonNull BlockDataWrapper getBlockDataFromString(final String value) {
-    try {
-      return new BlockDataWrapper(Bukkit.createBlockData(value));
-    } catch (IllegalArgumentException e) {
-      log.warning("Invalid block data in palette: " + value + ". Block will be replaced with air.");
-      return new BlockDataWrapper(Material.AIR.createBlockData());
+    if (value != null) {
+      try {
+        BlockData data = Bukkit.createBlockData(value);
+        return new BlockDataWrapper(data);
+      } catch (IllegalArgumentException e) {
+        log.warning("Invalid block data in palette: " + value + ". Block will be replaced with air.");
+      } catch (Exception other) {
+        // do nothing
+      }
     }
+    return new BlockDataWrapper(Material.AIR.createBlockData());
   }
 
   @Override

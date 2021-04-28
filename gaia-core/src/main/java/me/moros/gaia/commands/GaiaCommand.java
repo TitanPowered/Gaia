@@ -69,7 +69,7 @@ public class GaiaCommand extends BaseCommand {
   @Description("View version info about Gaia")
   public static void onVersion(GaiaUser user) {
     String link = "https://github.com/PrimordialMoros/Gaia";
-    Component version = Component.text("Version: ", NamedTextColor.DARK_AQUA)
+    Component version = Message.brand(Component.text("Version: ", NamedTextColor.DARK_AQUA))
       .append(Component.text(plugin.getVersion(), NamedTextColor.GREEN))
       .hoverEvent(HoverEvent.showText(Message.VERSION_COMMAND_HOVER.build(plugin.getAuthor(), link)))
       .clickEvent(ClickEvent.openUrl(link));
