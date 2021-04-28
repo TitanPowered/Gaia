@@ -1,5 +1,9 @@
 # Gaia
 
+[![Gradle CI](https://img.shields.io/github/workflow/status/PrimordialMoros/Gaia/Build?style=flat-square)](https://github.com/PrimordialMoros/Gaia/actions)
+[![License](https://img.shields.io/github/license/PrimordialMoros/Gaia?color=blue&style=flat-square)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/PrimordialMoros/Gaia?style=flat-square)](https://github.com/PrimordialMoros/Gaia/releases)
+
 ## Requirements
 - `Java 11 or newer`
 - `PaperMC 1.16.5 (at least build 473) or newer`
