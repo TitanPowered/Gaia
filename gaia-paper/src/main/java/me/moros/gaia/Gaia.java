@@ -19,6 +19,10 @@
 
 package me.moros.gaia;
 
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Logger;
+
 import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.CommandContexts;
 import co.aikar.commands.InvalidCommandArgument;
@@ -36,7 +40,7 @@ import me.moros.gaia.platform.PlayerWrapper;
 import me.moros.gaia.platform.UserWrapper;
 import me.moros.gaia.platform.WorldWrapper;
 import me.moros.gaia.util.Util;
-import org.bstats.bukkit.MetricsLite;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -45,138 +49,134 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Logger;
-
 public class Gaia extends JavaPlugin implements GaiaPlugin {
-	private static Gaia plugin;
-	private PaperCommandManager commandManager;
-	private ArenaManager arenaManager;
-	private String author;
-	private String version;
-	private Logger log;
+  private static Gaia plugin;
+  private PaperCommandManager commandManager;
+  private ArenaManager arenaManager;
+  private String author;
+  private String version;
+  private Logger log;
 
-	@Override
-	public void onEnable() {
-		new MetricsLite(this, 8608);
-		plugin = this;
-		log = getLogger();
-		version = getDescription().getVersion();
-		author = getDescription().getAuthors().get(0);
+  @Override
+  public void onEnable() {
+    new Metrics(this, 8608);
+    plugin = this;
+    log = getLogger();
+    version = getDescription().getVersion();
+    author = getDescription().getAuthors().get(0);
 
-		ConfigManager.INSTANCE.init();
+    ConfigManager.INSTANCE.init();
 
-		new TranslationManager(log, getDataFolder().toString());
+    new TranslationManager(log, getDataFolder().toString());
 
-		arenaManager = new ArenaManager();
-		boolean debug = getConfig().getBoolean("Debug");
-		if (debug) getLog().info("Debugging is enabled");
-		if (!GaiaIO.createInstance(plugin, getDataFolder().getPath(), debug)) {
-			getLog().severe("Could not create Arenas folder! Aborting plugin load.");
-			plugin.setEnabled(false);
-			return;
-		}
-		Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), GaiaIO.getInstance()::loadAllArenas);
-		registerCommands();
-	}
+    arenaManager = new ArenaManager();
+    boolean debug = getConfig().getBoolean("Debug");
+    if (debug) getLog().info("Debugging is enabled");
+    if (!GaiaIO.createInstance(plugin, getDataFolder().getPath(), debug)) {
+      getLog().severe("Could not create Arenas folder! Aborting plugin load.");
+      plugin.setEnabled(false);
+      return;
+    }
+    Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), GaiaIO.getInstance()::loadAllArenas);
+    registerCommands();
+  }
 
-	@Override
-	public void onDisable() {
-		getServer().getScheduler().cancelTasks(this);
-	}
+  @Override
+  public void onDisable() {
+    getServer().getScheduler().cancelTasks(this);
+  }
 
-	public static Gaia getPlugin() {
-		return plugin;
-	}
+  public static Gaia getPlugin() {
+    return plugin;
+  }
 
-	@Override
-	public @NonNull String getAuthor() {
-		return author;
-	}
+  @Override
+  public @NonNull String getAuthor() {
+    return author;
+  }
 
-	@Override
-	public @NonNull String getVersion() {
-		return version;
-	}
+  @Override
+  public @NonNull String getVersion() {
+    return version;
+  }
 
-	@Override
-	public @NonNull Logger getLog() {
-		return log;
-	}
+  @Override
+  public @NonNull Logger getLog() {
+    return log;
+  }
 
-	@Override
-	public @NonNull ArenaManager getArenaManager() {
-		return arenaManager;
-	}
+  @Override
+  public @NonNull ArenaManager getArenaManager() {
+    return arenaManager;
+  }
 
-	@Override
-	public @NonNull PaperGaiaChunk adaptChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region) {
-		return new PaperGaiaChunk(id, parent, region);
-	}
+  @Override
+  public @NonNull PaperGaiaChunk adaptChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region) {
+    return new PaperGaiaChunk(id, parent, region);
+  }
 
-	@Override
-	public @NonNull BlockDataWrapper getBlockDataFromString(final String value) {
-		try {
-			return new BlockDataWrapper(Bukkit.createBlockData(value));
-		} catch (IllegalArgumentException e) {
-			log.warning("Invalid block data in palette: " + value + ". Block will be replaced with air.");
-			return new BlockDataWrapper(Material.AIR.createBlockData());
-		}
-	}
+  @Override
+  public @NonNull BlockDataWrapper getBlockDataFromString(final String value) {
+    try {
+      return new BlockDataWrapper(Bukkit.createBlockData(value));
+    } catch (IllegalArgumentException e) {
+      log.warning("Invalid block data in palette: " + value + ". Block will be replaced with air.");
+      return new BlockDataWrapper(Material.AIR.createBlockData());
+    }
+  }
 
-	@Override
-	public @Nullable WorldWrapper getWorld(final UUID uid) {
-		final World world = Bukkit.getWorld(uid);
-		if (world == null) {
-			log.warning("Couldn't find world with UID " + uid);
-			return null;
-		}
-		return new WorldWrapper(world);
-	}
+  @Override
+  public @Nullable WorldWrapper getWorld(final UUID uid) {
+    final World world = Bukkit.getWorld(uid);
+    if (world == null) {
+      log.warning("Couldn't find world with UID " + uid);
+      return null;
+    }
+    return new WorldWrapper(world);
+  }
 
-	private void registerCommands() {
-		commandManager = new PaperCommandManager(plugin);
-		commandManager.registerDependency(GaiaPlugin.class, plugin);
-		commandManager.enableUnstableAPI("help");
-		registerCommandContexts();
-		registerCommandCompletions();
-		commandManager.getCommandReplacements().addReplacement("gaiacommand", "gaia|g|arena|arenas");
-		commandManager.registerCommand(new GaiaCommand());
-	}
+  private void registerCommands() {
+    commandManager = new PaperCommandManager(plugin);
+    commandManager.registerDependency(GaiaPlugin.class, plugin);
+    commandManager.enableUnstableAPI("help");
+    registerCommandContexts();
+    registerCommandCompletions();
+    commandManager.getCommandReplacements().addReplacement("gaiacommand", "gaia|g|arena|arenas");
+    commandManager.registerCommand(new GaiaCommand());
+  }
 
-	private void registerCommandCompletions() {
-		commandManager.getCommandCompletions().registerAsyncCompletion("arenas", c ->
-			getArenaManager().getSortedArenaNames()
-		);
-	}
+  private void registerCommandCompletions() {
+    commandManager.getCommandCompletions().registerAsyncCompletion("arenas", c ->
+      getArenaManager().getSortedArenaNames()
+    );
+  }
 
-	private void registerCommandContexts() {
-		CommandContexts<BukkitCommandExecutionContext> commandContexts = commandManager.getCommandContexts();
-		commandContexts.registerIssuerOnlyContext(GaiaPlayer.class, c -> {
-			Player player = c.getPlayer();
-			if (player == null) throw new InvalidCommandArgument("You must be player!");
-			return new PlayerWrapper(player);
-		});
+  private void registerCommandContexts() {
+    CommandContexts<BukkitCommandExecutionContext> commandContexts = commandManager.getCommandContexts();
+    commandContexts.registerIssuerOnlyContext(GaiaPlayer.class, c -> {
+      Player player = c.getPlayer();
+      if (player == null) throw new InvalidCommandArgument("You must be player!");
+      return new PlayerWrapper(player);
+    });
 
-		commandContexts.registerIssuerOnlyContext(GaiaUser.class, c -> new UserWrapper(c.getSender()));
+    commandContexts.registerIssuerOnlyContext(GaiaUser.class, c -> new UserWrapper(c.getSender()));
 
-		commandContexts.registerIssuerAwareContext(Arena.class, c -> {
-			String name = c.popFirstArg();
-			if (name != null) {
-				String sanitized = Util.sanitizeInput(name);
-				return Optional.ofNullable(getArenaManager().getArena(sanitized))
-					.orElseThrow(() -> new InvalidCommandArgument("Could not find arena " + sanitized));
-			}
-			if (c.hasFlag("standing")) {
-				Player player = c.getPlayer();
-				if (player != null) {
-					GaiaPlayer gaiaPlayer = new PlayerWrapper(player);
-					return getArenaManager().getArenaAtPoint(gaiaPlayer.getWorld().getUID(), gaiaPlayer.getLocation())
-						.orElseThrow(() -> new InvalidCommandArgument("You are not currently standing in an arena."));
-				}
-			}
-			throw new InvalidCommandArgument("Could not find a valid arena.");
-		});
-	}
+    commandContexts.registerIssuerAwareContext(Arena.class, c -> {
+      String name = c.popFirstArg();
+      if (name != null) {
+        String sanitized = Util.sanitizeInput(name);
+        return Optional.ofNullable(getArenaManager().getArena(sanitized))
+          .orElseThrow(() -> new InvalidCommandArgument("Could not find arena " + sanitized));
+      }
+      if (c.hasFlag("standing")) {
+        Player player = c.getPlayer();
+        if (player != null) {
+          GaiaPlayer gaiaPlayer = new PlayerWrapper(player);
+          return getArenaManager().getArenaAtPoint(gaiaPlayer.getWorld().getUID(), gaiaPlayer.getLocation())
+            .orElseThrow(() -> new InvalidCommandArgument("You are not currently standing in an arena."));
+        }
+      }
+      throw new InvalidCommandArgument("Could not find a valid arena.");
+    });
+  }
 }

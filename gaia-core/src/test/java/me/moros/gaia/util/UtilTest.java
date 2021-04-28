@@ -19,32 +19,32 @@
 
 package me.moros.gaia.util;
 
-import org.junit.jupiter.api.Test;
-
 import java.math.BigInteger;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UtilTest {
 
-	@Test
-	void sanitizeInput() {
-		assertEquals(Util.sanitizeInput("abc!\n123"), "abc123");
-	}
+  @Test
+  void sanitizeInput() {
+    assertEquals(Util.sanitizeInput("abc!\n123"), "abc123");
+  }
 
-	@Test
-	void toHex() {
-		String md5 = "d34015d0bc57bab90ac95012bd27eb48";
-		assertEquals(Util.toHex(stringToBytes(md5)), md5);
-	}
+  @Test
+  void toHex() {
+    String md5 = "d34015d0bc57bab90ac95012bd27eb48";
+    assertEquals(Util.toHex(stringToBytes(md5)), md5);
+  }
 
-	public byte[] stringToBytes(String hexString) {
-		byte[] byteArray = new BigInteger(hexString, 16).toByteArray();
-		if (byteArray[0] == 0) {
-			byte[] output = new byte[byteArray.length - 1];
-			System.arraycopy(byteArray, 1, output, 0, output.length);
-			return output;
-		}
-		return byteArray;
-	}
+  public byte[] stringToBytes(String hexString) {
+    byte[] byteArray = new BigInteger(hexString, 16).toByteArray();
+    if (byteArray[0] == 0) {
+      byte[] output = new byte[byteArray.length - 1];
+      System.arraycopy(byteArray, 1, output, 0, output.length);
+      return output;
+    }
+    return byteArray;
+  }
 }

@@ -23,13 +23,13 @@ import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface GaiaUser {
-	@NonNull String getName();
+  @NonNull String getName();
 
-	default boolean isPlayer() {
-		return false;
-	}
+  default boolean isPlayer() {
+    return false;
+  }
 
-	boolean hasPermission(@NonNull String permission);
+  boolean hasPermission(@NonNull String permission);
 
-	void sendMessage(@NonNull Component text);
+  void sendMessage(@NonNull Component text);
 }

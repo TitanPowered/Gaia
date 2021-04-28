@@ -20,7 +20,7 @@
 package me.moros.gaia.util.metadata;
 
 public interface Metadatable {
-	GaiaMetadata getMetadata();
+  GaiaMetadata getMetadata();
 
-	void setMetadata(GaiaMetadata meta);
+  void setMetadata(GaiaMetadata meta);
 }

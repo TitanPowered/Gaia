@@ -25,58 +25,58 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * An axis-aligned immutable cuboid. It can be defined using a world and two corners of the cuboid.
  */
 public final class GaiaRegion {
-	private final GaiaVector minPoint, maxPoint, diff;
+  private final GaiaVector minPoint, maxPoint, diff;
 
-	public GaiaRegion(@NonNull GaiaVector pos1, @NonNull GaiaVector pos2) {
-		if (!GaiaVector.isValidVector(pos1))
-			throw new IllegalArgumentException("Location exceeds coordinate limits: " + pos1);
-		if (!GaiaVector.isValidVector(pos2))
-			throw new IllegalArgumentException("Location exceeds coordinate limits: " + pos2);
+  public GaiaRegion(@NonNull GaiaVector pos1, @NonNull GaiaVector pos2) {
+    if (!GaiaVector.isValidVector(pos1))
+      throw new IllegalArgumentException("Location exceeds coordinate limits: " + pos1);
+    if (!GaiaVector.isValidVector(pos2))
+      throw new IllegalArgumentException("Location exceeds coordinate limits: " + pos2);
 
-		minPoint = pos1.getMinimum(pos2);
-		maxPoint = pos2.getMaximum(pos2);
-		diff = maxPoint.subtract(minPoint).add(1, 1, 1);
-	}
+    minPoint = pos1.getMinimum(pos2);
+    maxPoint = pos2.getMaximum(pos2);
+    diff = maxPoint.subtract(minPoint).add(1, 1, 1);
+  }
 
-	public @NonNull GaiaVector getMinimumPoint() {
-		return minPoint;
-	}
+  public @NonNull GaiaVector getMinimumPoint() {
+    return minPoint;
+  }
 
-	public @NonNull GaiaVector getMaximumPoint() {
-		return maxPoint;
-	}
+  public @NonNull GaiaVector getMaximumPoint() {
+    return maxPoint;
+  }
 
-	public @NonNull GaiaVector getVector() {
-		return diff;
-	}
+  public @NonNull GaiaVector getVector() {
+    return diff;
+  }
 
-	public int getWidth() {
-		return diff.getX();
-	}
+  public int getWidth() {
+    return diff.getX();
+  }
 
-	public int getHeight() {
-		return diff.getY();
-	}
+  public int getHeight() {
+    return diff.getY();
+  }
 
-	public int getLength() {
-		return diff.getZ();
-	}
+  public int getLength() {
+    return diff.getZ();
+  }
 
-	public int getVolume() {
-		return diff.getLength();
-	}
+  public int getVolume() {
+    return diff.getLength();
+  }
 
-	public @NonNull GaiaVector getCenter() {
-		return getMinimumPoint().add(getMaximumPoint()).divide(2);
-	}
+  public @NonNull GaiaVector getCenter() {
+    return getMinimumPoint().add(getMaximumPoint()).divide(2);
+  }
 
-	public boolean contains(@NonNull GaiaVector vector) {
-		return vector.containedWithin(getMinimumPoint(), getMaximumPoint());
-	}
+  public boolean contains(@NonNull GaiaVector vector) {
+    return vector.containedWithin(getMinimumPoint(), getMaximumPoint());
+  }
 
-	public boolean intersects(@NonNull GaiaRegion region) {
-		return (getMinimumPoint().getX() <= region.getMaximumPoint().getX() && getMaximumPoint().getX() >= region.getMinimumPoint().getX()) &&
-			(getMinimumPoint().getY() <= region.getMaximumPoint().getY() && getMaximumPoint().getY() >= region.getMinimumPoint().getY()) &&
-			(getMinimumPoint().getZ() <= region.getMaximumPoint().getZ() && getMaximumPoint().getZ() >= region.getMinimumPoint().getZ());
-	}
+  public boolean intersects(@NonNull GaiaRegion region) {
+    return (getMinimumPoint().getX() <= region.getMaximumPoint().getX() && getMaximumPoint().getX() >= region.getMinimumPoint().getX()) &&
+      (getMinimumPoint().getY() <= region.getMaximumPoint().getY() && getMaximumPoint().getY() >= region.getMinimumPoint().getY()) &&
+      (getMinimumPoint().getZ() <= region.getMaximumPoint().getZ() && getMaximumPoint().getZ() >= region.getMinimumPoint().getZ());
+  }
 }

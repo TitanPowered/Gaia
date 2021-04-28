@@ -19,35 +19,35 @@
 
 package me.moros.gaia.platform;
 
+import java.util.UUID;
+
 import me.moros.gaia.api.GaiaVector;
 import org.bukkit.World;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.UUID;
-
 public class WorldWrapper implements GaiaWorld {
-	private final World world;
+  private final World world;
 
-	public WorldWrapper(@NonNull World world) {
-		this.world = world;
-	}
+  public WorldWrapper(@NonNull World world) {
+    this.world = world;
+  }
 
-	public @NonNull World get() {
-		return this.world;
-	}
+  public @NonNull World get() {
+    return this.world;
+  }
 
-	@Override
-	public @NonNull GaiaBlock getBlockAt(@NonNull GaiaVector v) {
-		return new BlockWrapper(world.getBlockAt(v.getX(), v.getY(), v.getZ()));
-	}
+  @Override
+  public @NonNull GaiaBlock getBlockAt(@NonNull GaiaVector v) {
+    return new BlockWrapper(world.getBlockAt(v.getX(), v.getY(), v.getZ()));
+  }
 
-	@Override
-	public @NonNull String getName() {
-		return world.getName();
-	}
+  @Override
+  public @NonNull String getName() {
+    return world.getName();
+  }
 
-	@Override
-	public @NonNull UUID getUID() {
-		return world.getUID();
-	}
+  @Override
+  public @NonNull UUID getUID() {
+    return world.getUID();
+  }
 }

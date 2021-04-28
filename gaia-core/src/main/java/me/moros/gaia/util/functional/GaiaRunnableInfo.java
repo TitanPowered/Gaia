@@ -19,22 +19,22 @@
 
 package me.moros.gaia.util.functional;
 
+import java.util.Iterator;
+
 import me.moros.gaia.api.GaiaVector;
 import me.moros.gaia.platform.GaiaWorld;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.Iterator;
-
 public final class GaiaRunnableInfo {
-	public final Iterator<GaiaVector> it;
-	public final GaiaWorld world;
-	public final int maxTransactions;
-	public final long startTime;
+  public final Iterator<GaiaVector> it;
+  public final GaiaWorld world;
+  public final int maxTransactions;
+  public final long startTime;
 
-	public GaiaRunnableInfo(@NonNull Iterator<GaiaVector> it, @NonNull GaiaWorld world, int maxTransactions) {
-		this.it = it;
-		this.world = world;
-		this.maxTransactions = maxTransactions;
-		startTime = System.currentTimeMillis();
-	}
+  public GaiaRunnableInfo(@NonNull Iterator<GaiaVector> it, @NonNull GaiaWorld world, int maxTransactions) {
+    this.it = it;
+    this.world = world;
+    this.maxTransactions = maxTransactions;
+    startTime = System.currentTimeMillis();
+  }
 }

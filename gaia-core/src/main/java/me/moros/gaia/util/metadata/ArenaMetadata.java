@@ -19,42 +19,42 @@
 
 package me.moros.gaia.util.metadata;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaVector;
 import me.moros.gaia.util.Util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ArenaMetadata extends GaiaMetadata {
-	public int version;
+  public int version;
 
-	public String name;
-	public String world;
+  public String name;
+  public String world;
 
-	public GaiaVector min;
-	public GaiaVector max;
+  public GaiaVector min;
+  public GaiaVector max;
 
-	public int amount;
-	public List<ChunkMetadata> chunks;
+  public int amount;
+  public List<ChunkMetadata> chunks;
 
-	public ArenaMetadata(@NonNull Arena arena) {
-		version = VERSION;
-		name = arena.getName();
-		world = arena.getWorldUID().toString();
-		min = arena.getRegion().getMinimumPoint();
-		max = arena.getRegion().getMaximumPoint();
-		amount = arena.getSubRegions().size();
-		chunks = new ArrayList<>(amount);
-	}
+  public ArenaMetadata(@NonNull Arena arena) {
+    version = VERSION;
+    name = arena.getName();
+    world = arena.getWorldUID().toString();
+    min = arena.getRegion().getMinimumPoint();
+    max = arena.getRegion().getMaximumPoint();
+    amount = arena.getSubRegions().size();
+    chunks = new ArrayList<>(amount);
+  }
 
-	@Override
-	public boolean isValidMetadata() {
-		if (version != VERSION) return false;
-		if (name == null || world == null || min == null || max == null || chunks == null) return false;
-		if (!Util.validateInput(name)) return false;
-		if (!GaiaVector.isValidVector(min) || !GaiaVector.isValidVector(max)) return false;
-		return amount > 0 && chunks.size() == amount;
-	}
+  @Override
+  public boolean isValidMetadata() {
+    if (version != VERSION) return false;
+    if (name == null || world == null || min == null || max == null || chunks == null) return false;
+    if (!Util.validateInput(name)) return false;
+    if (!GaiaVector.isValidVector(min) || !GaiaVector.isValidVector(max)) return false;
+    return amount > 0 && chunks.size() == amount;
+  }
 }

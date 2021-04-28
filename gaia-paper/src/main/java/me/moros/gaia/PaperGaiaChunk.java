@@ -19,6 +19,9 @@
 
 package me.moros.gaia;
 
+import java.util.Iterator;
+import java.util.UUID;
+
 import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaData;
@@ -34,69 +37,67 @@ import me.moros.gaia.util.metadata.ChunkMetadata;
 import org.bukkit.Bukkit;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.Iterator;
-import java.util.UUID;
-
 public class PaperGaiaChunk extends GaiaChunk {
-	protected PaperGaiaChunk(@NonNull UUID id, Arena parent, @NonNull GaiaRegion region) {
-		super(id, parent, region);
-	}
+  protected PaperGaiaChunk(@NonNull UUID id, Arena parent, @NonNull GaiaRegion region) {
+    super(id, parent, region);
+  }
 
-	@Override
-	public void analyze(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data) {
-		((WorldWrapper) info.world).get().getChunkAtAsync(getX(), getZ()).thenRun(() -> {
-			GaiaVector relative, real;
-			int counter = 0;
-			while (++counter <= info.maxTransactions && info.it.hasNext()) {
-				relative = info.it.next();
-				real = getRegion().getMinimumPoint().add(relative);
-				data.setDataAt(relative, info.world.getBlockAt(real).getBlockData());
-			}
-			if (info.it.hasNext()) {
-				Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> analyze(info, data), 1);
-			} else {
-				Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
-					String hash = GaiaIO.getInstance().saveData(this, data);
-					if (!hash.isEmpty())
-						((ArenaMetadata) getParent().getMetadata()).chunks.add((ChunkMetadata) getMetadata());
-				});
-			}
-		});
-	}
+  @Override
+  public void analyze(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data) {
+    ((WorldWrapper) info.world).get().getChunkAtAsync(getX(), getZ()).thenRun(() -> {
+      GaiaVector relative, real;
+      int counter = 0;
+      while (++counter <= info.maxTransactions && info.it.hasNext()) {
+        relative = info.it.next();
+        real = getRegion().getMinimumPoint().add(relative);
+        data.setDataAt(relative, info.world.getBlockAt(real).getBlockData());
+      }
+      if (info.it.hasNext()) {
+        Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> analyze(info, data), 1);
+      } else {
+        Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
+          String hash = GaiaIO.getInstance().saveData(this, data);
+          if (!hash.isEmpty())
+            ((ArenaMetadata) getParent().getMetadata()).chunks.add((ChunkMetadata) getMetadata());
+        });
+      }
+    });
+  }
 
-	@Override
-	public void revert(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data) {
-		if (!isReverting()) return;
-		((WorldWrapper) info.world).get().getChunkAtAsync(getX(), getZ()).thenRun(() -> {
-			GaiaVector relative, real;
-			int counter = 0;
-			while (++counter <= info.maxTransactions && info.it.hasNext()) {
-				relative = info.it.next();
-				real = getRegion().getMinimumPoint().add(relative);
-				info.world.getBlockAt(real).setBlockData(data.getDataAt(relative));
-			}
-			if (info.it.hasNext()) {
-				Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> revert(info, data), 1);
-			} else {
-				cancelReverting();
-			}
-		});
-	}
+  @Override
+  public void revert(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data) {
+    if (!isReverting()) return;
+    ((WorldWrapper) info.world).get().getChunkAtAsync(getX(), getZ()).thenRun(() -> {
+      GaiaVector relative, real;
+      int counter = 0;
+      while (++counter <= info.maxTransactions && info.it.hasNext()) {
+        relative = info.it.next();
+        real = getRegion().getMinimumPoint().add(relative);
+        info.world.getBlockAt(real).setBlockData(data.getDataAt(relative));
+      }
+      if (info.it.hasNext()) {
+        Bukkit.getScheduler().runTaskLater(Gaia.getPlugin(), () -> revert(info, data), 1);
+      } else {
+        cancelReverting();
+      }
+    });
+  }
 
-	public static void revertChunk(@NonNull GaiaChunk chunk, @NonNull GaiaWorld world) {
-		if (chunk.isReverting()) return;
-		chunk.startReverting();
-		Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
-			final Iterator<GaiaVector> it = chunk.iterator();
-			final GaiaData gd = GaiaIO.getInstance().loadData(chunk);
-			if (gd != null) chunk.revert(new GaiaRunnableInfo(it, world, ConfigManager.INSTANCE.getConcurrentTransactions()), gd);
-		});
-	}
+  public static void revertChunk(@NonNull GaiaChunk chunk, @NonNull GaiaWorld world) {
+    if (chunk.isReverting()) return;
+    chunk.startReverting();
+    Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), () -> {
+      final Iterator<GaiaVector> it = chunk.iterator();
+      final GaiaData gd = GaiaIO.getInstance().loadData(chunk);
+      if (gd != null)
+        chunk.revert(new GaiaRunnableInfo(it, world, ConfigManager.INSTANCE.getConcurrentTransactions()), gd);
+    });
+  }
 
-	public static void analyzeChunk(@NonNull GaiaChunk chunk, @NonNull GaiaWorld world) {
-		if (chunk.isAnalyzed()) return;
-		final Iterator<GaiaVector> it = chunk.iterator();
-		final GaiaData gd = new GaiaData(chunk.getRegion().getVector());
-		chunk.analyze(new GaiaRunnableInfo(it, world, ConfigManager.INSTANCE.getConcurrentTransactions()), gd);
-	}
+  public static void analyzeChunk(@NonNull GaiaChunk chunk, @NonNull GaiaWorld world) {
+    if (chunk.isAnalyzed()) return;
+    final Iterator<GaiaVector> it = chunk.iterator();
+    final GaiaData gd = new GaiaData(chunk.getRegion().getVector());
+    chunk.analyze(new GaiaRunnableInfo(it, world, ConfigManager.INSTANCE.getConcurrentTransactions()), gd);
+  }
 }

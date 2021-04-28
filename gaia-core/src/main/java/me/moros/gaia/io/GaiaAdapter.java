@@ -19,6 +19,8 @@
 
 package me.moros.gaia.io;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -29,24 +31,22 @@ import com.google.gson.JsonSerializer;
 import me.moros.gaia.api.GaiaVector;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.lang.reflect.Type;
-
 public class GaiaAdapter implements JsonSerializer<GaiaVector>, JsonDeserializer<GaiaVector> {
-	@Override
-	public @NonNull JsonElement serialize(@NonNull GaiaVector src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
-		JsonArray array = new JsonArray();
-		array.add(src.getX());
-		array.add(src.getY());
-		array.add(src.getZ());
-		return array;
-	}
+  @Override
+  public @NonNull JsonElement serialize(@NonNull GaiaVector src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
+    JsonArray array = new JsonArray();
+    array.add(src.getX());
+    array.add(src.getY());
+    array.add(src.getZ());
+    return array;
+  }
 
-	@Override
-	public @NonNull GaiaVector deserialize(@NonNull JsonElement json, @NonNull Type typeOfT, @NonNull JsonDeserializationContext context) throws JsonParseException {
-		JsonArray array = json.getAsJsonArray();
-		if (array.size() != 3) throw new JsonParseException("Invalid GaiaVector: Expected array length 3");
-		GaiaVector v = GaiaVector.at(array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt());
-		if (!GaiaVector.isValidVector(v)) throw new JsonParseException("Invalid GaiaVector: " + json.toString());
-		return v;
-	}
+  @Override
+  public @NonNull GaiaVector deserialize(@NonNull JsonElement json, @NonNull Type typeOfT, @NonNull JsonDeserializationContext context) throws JsonParseException {
+    JsonArray array = json.getAsJsonArray();
+    if (array.size() != 3) throw new JsonParseException("Invalid GaiaVector: Expected array length 3");
+    GaiaVector v = GaiaVector.at(array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt());
+    if (!GaiaVector.isValidVector(v)) throw new JsonParseException("Invalid GaiaVector: " + json.toString());
+    return v;
+  }
 }

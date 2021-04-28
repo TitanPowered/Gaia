@@ -25,48 +25,48 @@ import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class PlayerWrapper implements GaiaPlayer {
-	private final Player player;
+  private final Player player;
 
-	public PlayerWrapper(@NonNull Player player) {
-		this.player = player;
-	}
+  public PlayerWrapper(@NonNull Player player) {
+    this.player = player;
+  }
 
-	public @NonNull Player get() {
-		return this.player;
-	}
+  public @NonNull Player get() {
+    return this.player;
+  }
 
-	@Override
-	public boolean isPlayer() {
-		return true;
-	}
+  @Override
+  public boolean isPlayer() {
+    return true;
+  }
 
-	@Override
-	public boolean isOnline() {
-		return player.isOnline();
-	}
+  @Override
+  public boolean isOnline() {
+    return player.isOnline();
+  }
 
-	@Override
-	public @NonNull GaiaVector getLocation() {
-		return GaiaVector.at(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-	}
+  @Override
+  public @NonNull GaiaVector getLocation() {
+    return GaiaVector.at(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+  }
 
-	@Override
-	public @NonNull WorldWrapper getWorld() {
-		return new WorldWrapper(player.getWorld());
-	}
+  @Override
+  public @NonNull WorldWrapper getWorld() {
+    return new WorldWrapper(player.getWorld());
+  }
 
-	@Override
-	public @NonNull String getName() {
-		return player.getName();
-	}
+  @Override
+  public @NonNull String getName() {
+    return player.getName();
+  }
 
-	@Override
-	public boolean hasPermission(@NonNull String permission) {
-		return player.hasPermission(permission);
-	}
+  @Override
+  public boolean hasPermission(@NonNull String permission) {
+    return player.hasPermission(permission);
+  }
 
-	@Override
-	public void sendMessage(@NonNull Component text) {
-		player.sendMessage(text);
-	}
+  @Override
+  public void sendMessage(@NonNull Component text) {
+    player.sendMessage(text);
+  }
 }

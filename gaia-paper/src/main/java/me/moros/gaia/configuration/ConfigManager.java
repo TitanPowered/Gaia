@@ -23,22 +23,22 @@ import me.moros.gaia.Gaia;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public enum ConfigManager {
-	INSTANCE;
+  INSTANCE;
 
-	private FileConfiguration config;
+  private FileConfiguration config;
 
-	public void init() {
-		config = Gaia.getPlugin().getConfig();
-		config.addDefault("Debug", false);
-		config.addDefault("Analysis.Timeout", 30_000);
-		config.addDefault("ConcurrentTransactions", 4096);
+  public void init() {
+    config = Gaia.getPlugin().getConfig();
+    config.addDefault("Debug", false);
+    config.addDefault("Analysis.Timeout", 30_000);
+    config.addDefault("ConcurrentTransactions", 4096);
 
-		config.options().copyDefaults(true);
-		Gaia.getPlugin().saveConfig();
-	}
+    config.options().copyDefaults(true);
+    Gaia.getPlugin().saveConfig();
+  }
 
-	public int getConcurrentTransactions() {
-		if (config == null) init();
-		return config.getInt("ConcurrentTransactions");
-	}
+  public int getConcurrentTransactions() {
+    if (config == null) init();
+    return config.getInt("ConcurrentTransactions");
+  }
 }

@@ -1,7 +1,7 @@
 # Gaia
 
 ## Requirements
-- `Java 8 or newer`
+- `Java 11 or newer`
 - `PaperMC 1.16.5 (at least build 473) or newer`
 - `WorldEdit 7.0.0 or newer`
 

@@ -22,7 +22,7 @@ package me.moros.gaia.platform;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface GaiaBlock {
-	@NonNull GaiaBlockData getBlockData();
+  @NonNull GaiaBlockData getBlockData();
 
-	void setBlockData(@NonNull GaiaBlockData data);
+  void setBlockData(@NonNull GaiaBlockData data);
 }

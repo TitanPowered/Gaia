@@ -19,15 +19,15 @@
 
 package me.moros.gaia.platform;
 
+import java.util.UUID;
+
 import me.moros.gaia.api.GaiaVector;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.UUID;
-
 public interface GaiaWorld {
-	@NonNull GaiaBlock getBlockAt(GaiaVector v);
+  @NonNull GaiaBlock getBlockAt(GaiaVector v);
 
-	@NonNull String getName();
+  @NonNull String getName();
 
-	@NonNull UUID getUID();
+  @NonNull UUID getUID();
 }

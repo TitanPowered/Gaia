@@ -24,28 +24,28 @@ import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class UserWrapper implements GaiaUser {
-	private final CommandSender sender;
+  private final CommandSender sender;
 
-	public UserWrapper(@NonNull CommandSender sender) {
-		this.sender = sender;
-	}
+  public UserWrapper(@NonNull CommandSender sender) {
+    this.sender = sender;
+  }
 
-	public @NonNull CommandSender get() {
-		return this.sender;
-	}
+  public @NonNull CommandSender get() {
+    return this.sender;
+  }
 
-	@Override
-	public @NonNull String getName() {
-		return sender.getName();
-	}
+  @Override
+  public @NonNull String getName() {
+    return sender.getName();
+  }
 
-	@Override
-	public boolean hasPermission(@NonNull String permission) {
-		return sender.hasPermission(permission);
-	}
+  @Override
+  public boolean hasPermission(@NonNull String permission) {
+    return sender.hasPermission(permission);
+  }
 
-	@Override
-	public void sendMessage(@NonNull Component text) {
-		sender.sendMessage(text);
-	}
+  @Override
+  public void sendMessage(@NonNull Component text) {
+    sender.sendMessage(text);
+  }
 }

@@ -23,11 +23,11 @@ import me.moros.gaia.platform.GaiaUser;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class GaiaConsumerInfo {
-	public final GaiaUser user;
-	public final long startTime;
+  public final GaiaUser user;
+  public final long startTime;
 
-	public GaiaConsumerInfo(@NonNull GaiaUser user) {
-		this.user = user;
-		startTime = System.currentTimeMillis();
-	}
+  public GaiaConsumerInfo(@NonNull GaiaUser user) {
+    this.user = user;
+    startTime = System.currentTimeMillis();
+  }
 }

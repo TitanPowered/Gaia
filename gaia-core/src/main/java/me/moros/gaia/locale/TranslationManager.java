@@ -19,13 +19,6 @@
 
 package me.moros.gaia.locale;
 
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.translation.GlobalTranslator;
-import net.kyori.adventure.translation.TranslationRegistry;
-import net.kyori.adventure.translation.Translator;
-import net.kyori.adventure.util.UTF8ResourceBundleControl;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -43,76 +36,83 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.TranslationRegistry;
+import net.kyori.adventure.translation.Translator;
+import net.kyori.adventure.util.UTF8ResourceBundleControl;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 public class TranslationManager {
-	private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
+  private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
-	private final Set<Locale> installed = ConcurrentHashMap.newKeySet();
-	private final Path translationsDirectory;
-	private TranslationRegistry registry;
-	private final Logger logger;
+  private final Set<Locale> installed = ConcurrentHashMap.newKeySet();
+  private final Path translationsDirectory;
+  private TranslationRegistry registry;
+  private final Logger logger;
 
-	public TranslationManager(@NonNull Logger logger, @NonNull String directory) {
-		this.logger = logger;
-		translationsDirectory = Paths.get(directory, "translations");
-		reload();
-	}
+  public TranslationManager(@NonNull Logger logger, @NonNull String directory) {
+    this.logger = logger;
+    translationsDirectory = Paths.get(directory, "translations");
+    reload();
+  }
 
-	public void reload() {
-		if (registry != null) {
-			GlobalTranslator.get().removeSource(registry);
-			installed.clear();
-		}
-		registry = TranslationRegistry.create(Key.key("gaia", "translations"));
-		registry.defaultLocale(DEFAULT_LOCALE);
+  public void reload() {
+    if (registry != null) {
+      GlobalTranslator.get().removeSource(registry);
+      installed.clear();
+    }
+    registry = TranslationRegistry.create(Key.key("gaia", "translations"));
+    registry.defaultLocale(DEFAULT_LOCALE);
 
-		loadCustom();
+    loadCustom();
 
-		ResourceBundle bundle = ResourceBundle.getBundle("gaia", DEFAULT_LOCALE, UTF8ResourceBundleControl.get());
-		registry.registerAll(DEFAULT_LOCALE, bundle, false);
-		GlobalTranslator.get().addSource(registry);
-	}
+    ResourceBundle bundle = ResourceBundle.getBundle("gaia", DEFAULT_LOCALE, UTF8ResourceBundleControl.get());
+    registry.registerAll(DEFAULT_LOCALE, bundle, false);
+    GlobalTranslator.get().addSource(registry);
+  }
 
-	private void loadCustom() {
-		Collection<Path> files;
-		try (Stream<Path> stream = Files.list(translationsDirectory)) {
-			files = stream.filter(this::isValidPropertyFile).collect(Collectors.toList());
-		} catch (IOException e) {
-			files = Collections.emptyList();
-		}
-		files.forEach(this::loadTranslationFile);
-		int amount = installed.size();
-		if (amount > 0) {
-			String translations = installed.stream().map(Locale::getLanguage).collect(Collectors.joining(", ", "[", "]"));
-			logger.info("Loaded " + amount + " translations: " + translations);
-		}
-	}
+  private void loadCustom() {
+    Collection<Path> files;
+    try (Stream<Path> stream = Files.list(translationsDirectory)) {
+      files = stream.filter(this::isValidPropertyFile).collect(Collectors.toList());
+    } catch (IOException e) {
+      files = Collections.emptyList();
+    }
+    files.forEach(this::loadTranslationFile);
+    int amount = installed.size();
+    if (amount > 0) {
+      String translations = installed.stream().map(Locale::getLanguage).collect(Collectors.joining(", ", "[", "]"));
+      logger.info("Loaded " + amount + " translations: " + translations);
+    }
+  }
 
-	private void loadTranslationFile(Path path) {
-		String localeString = removeFileExtension(path);
-		Locale locale = Translator.parseLocale(localeString);
-		if (locale == null) {
-			logger.warning("Unknown locale: " + localeString);
-			return;
-		}
-		PropertyResourceBundle bundle;
-		try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-			bundle = new PropertyResourceBundle(reader);
-		} catch (IOException e) {
-			logger.warning("Error loading locale file: " + localeString);
-			return;
-		}
-		registry.registerAll(locale, bundle, false);
-		installed.add(locale);
-	}
+  private void loadTranslationFile(Path path) {
+    String localeString = removeFileExtension(path);
+    Locale locale = Translator.parseLocale(localeString);
+    if (locale == null) {
+      logger.warning("Unknown locale: " + localeString);
+      return;
+    }
+    PropertyResourceBundle bundle;
+    try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+      bundle = new PropertyResourceBundle(reader);
+    } catch (IOException e) {
+      logger.warning("Error loading locale file: " + localeString);
+      return;
+    }
+    registry.registerAll(locale, bundle, false);
+    installed.add(locale);
+  }
 
-	private boolean isValidPropertyFile(Path path) {
-		if (!Files.isRegularFile(path)) return false;
-		String name = path.getFileName().toString();
-		return name.length() > "properties".length() && name.endsWith(".properties");
-	}
+  private boolean isValidPropertyFile(Path path) {
+    if (!Files.isRegularFile(path)) return false;
+    String name = path.getFileName().toString();
+    return name.length() > "properties".length() && name.endsWith(".properties");
+  }
 
-	private String removeFileExtension(Path path) {
-		String fileName = path.getFileName().toString();
-		return fileName.substring(0, fileName.length() - ".properties".length());
-	}
+  private String removeFileExtension(Path path) {
+    String fileName = path.getFileName().toString();
+    return fileName.substring(0, fileName.length() - ".properties".length());
+  }
 }

@@ -23,18 +23,18 @@ import org.bukkit.block.data.BlockData;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class BlockDataWrapper implements GaiaBlockData {
-	private final BlockData blockData;
+  private final BlockData blockData;
 
-	public BlockDataWrapper(@NonNull BlockData blockData) {
-		this.blockData = blockData;
-	}
+  public BlockDataWrapper(@NonNull BlockData blockData) {
+    this.blockData = blockData;
+  }
 
-	public @NonNull BlockData get() {
-		return blockData;
-	}
+  public @NonNull BlockData get() {
+    return blockData;
+  }
 
-	@Override
-	public @NonNull String getAsString() {
-		return blockData.getAsString();
-	}
+  @Override
+  public @NonNull String getAsString() {
+    return blockData.getAsString();
+  }
 }

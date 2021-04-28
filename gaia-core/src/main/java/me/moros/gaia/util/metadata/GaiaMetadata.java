@@ -20,7 +20,7 @@
 package me.moros.gaia.util.metadata;
 
 public abstract class GaiaMetadata {
-	public static final int VERSION = 1;
+  public static final int VERSION = 1;
 
-	public abstract boolean isValidMetadata();
+  public abstract boolean isValidMetadata();
 }

@@ -24,23 +24,23 @@ import me.moros.gaia.api.GaiaVector;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ChunkMetadata extends GaiaMetadata {
-	public GaiaVector min;
-	public GaiaVector max;
+  public GaiaVector min;
+  public GaiaVector max;
 
-	public String id;
-	public String hash;
+  public String id;
+  public String hash;
 
-	public ChunkMetadata(@NonNull GaiaChunk region, @NonNull String hash) {
-		min = region.getRegion().getMinimumPoint();
-		max = region.getRegion().getMaximumPoint();
-		this.id = region.getId().toString();
-		this.hash = hash;
-	}
+  public ChunkMetadata(@NonNull GaiaChunk region, @NonNull String hash) {
+    min = region.getRegion().getMinimumPoint();
+    max = region.getRegion().getMaximumPoint();
+    this.id = region.getId().toString();
+    this.hash = hash;
+  }
 
-	@Override
-	public boolean isValidMetadata() {
-		if (id == null || hash == null || min == null || max == null) return false;
-		if (id.isEmpty()) return false;
-		return hash.length() == 32;
-	}
+  @Override
+  public boolean isValidMetadata() {
+    if (id == null || hash == null || min == null || max == null) return false;
+    if (id.isEmpty()) return false;
+    return hash.length() == 32;
+  }
 }

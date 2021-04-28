@@ -19,14 +19,6 @@
 
 package me.moros.gaia;
 
-import me.moros.gaia.api.Arena;
-import me.moros.gaia.api.GaiaChunk;
-import me.moros.gaia.api.GaiaRegion;
-import me.moros.gaia.api.GaiaVector;
-import me.moros.gaia.io.GaiaIO;
-import me.moros.gaia.platform.GaiaPlayer;
-import me.moros.gaia.util.functional.GaiaConsumerInfo;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -35,52 +27,60 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import me.moros.gaia.api.Arena;
+import me.moros.gaia.api.GaiaChunk;
+import me.moros.gaia.api.GaiaRegion;
+import me.moros.gaia.api.GaiaVector;
+import me.moros.gaia.io.GaiaIO;
+import me.moros.gaia.platform.GaiaPlayer;
+import me.moros.gaia.util.functional.GaiaConsumerInfo;
+
 public abstract class GaiaArenaManager {
-	private final Map<String, Arena> ARENAS = new ConcurrentHashMap<>();
+  private final Map<String, Arena> ARENAS = new ConcurrentHashMap<>();
 
-	public Arena getArena(final String name) {
-		return ARENAS.get(name);
-	}
+  public Arena getArena(final String name) {
+    return ARENAS.get(name);
+  }
 
-	public boolean arenaExists(final String name) {
-		return ARENAS.containsKey(name) || GaiaIO.getInstance().arenaFileExists(name);
-	}
+  public boolean arenaExists(final String name) {
+    return ARENAS.containsKey(name) || GaiaIO.getInstance().arenaFileExists(name);
+  }
 
-	public List<String> getSortedArenaNames() {
-		return ARENAS.keySet().stream().sorted().collect(Collectors.toList());
-	}
+  public List<String> getSortedArenaNames() {
+    return ARENAS.keySet().stream().sorted().collect(Collectors.toList());
+  }
 
-	public Collection<Arena> getAllArenas() {
-		return ARENAS.values();
-	}
+  public Collection<Arena> getAllArenas() {
+    return ARENAS.values();
+  }
 
-	public int getArenaCount() {
-		return ARENAS.size();
-	}
+  public int getArenaCount() {
+    return ARENAS.size();
+  }
 
-	public void addArena(final Arena arena) {
-		if (arena != null && !ARENAS.containsKey(arena.getName())) ARENAS.put(arena.getName(), arena);
-	}
+  public void addArena(final Arena arena) {
+    if (arena != null && !ARENAS.containsKey(arena.getName())) ARENAS.put(arena.getName(), arena);
+  }
 
-	public boolean removeArena(final String name) {
-		ARENAS.remove(name);
-		return GaiaIO.getInstance().deleteArena(name); // Cleanup files
-	}
+  public boolean removeArena(final String name) {
+    ARENAS.remove(name);
+    return GaiaIO.getInstance().deleteArena(name); // Cleanup files
+  }
 
-	public void cancelRevertArena(final Arena arena) {
-		arena.setReverting(false);
-		arena.getSubRegions().forEach(GaiaChunk::cancelReverting);
-	}
+  public void cancelRevertArena(final Arena arena) {
+    arena.setReverting(false);
+    arena.getSubRegions().forEach(GaiaChunk::cancelReverting);
+  }
 
-	public Optional<Arena> getArenaAtPoint(final UUID id, final GaiaVector l) {
-		return getAllArenas().stream().filter(a -> a.getWorldUID().equals(id) && a.getRegion().contains(l)).findAny();
-	}
+  public Optional<Arena> getArenaAtPoint(final UUID id, final GaiaVector l) {
+    return getAllArenas().stream().filter(a -> a.getWorldUID().equals(id) && a.getRegion().contains(l)).findAny();
+  }
 
-	public boolean isUniqueRegion(final UUID id, final GaiaRegion rg) {
-		return ARENAS.values().stream().filter(a -> a.getWorldUID().equals(id)).map(Arena::getRegion).noneMatch(rg::intersects);
-	}
+  public boolean isUniqueRegion(final UUID id, final GaiaRegion rg) {
+    return ARENAS.values().stream().filter(a -> a.getWorldUID().equals(id)).map(Arena::getRegion).noneMatch(rg::intersects);
+  }
 
-	public abstract void revertArena(final Arena arena, final GaiaConsumerInfo info);
+  public abstract void revertArena(final Arena arena, final GaiaConsumerInfo info);
 
-	public abstract boolean createArena(final GaiaPlayer player, final String arenaName);
+  public abstract boolean createArena(final GaiaPlayer player, final String arenaName);
 }
