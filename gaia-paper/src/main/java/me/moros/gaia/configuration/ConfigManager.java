@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -31,14 +31,24 @@ public enum ConfigManager {
     config = Gaia.getPlugin().getConfig();
     config.addDefault("Debug", false);
     config.addDefault("Analysis.Timeout", 30_000);
-    config.addDefault("ConcurrentTransactions", 4096);
+    config.addDefault("ConcurrentTransactions", 8192);
+    config.addDefault("ConcurrentChunks", 8);
 
     config.options().copyDefaults(true);
     Gaia.getPlugin().saveConfig();
   }
 
   public int getConcurrentTransactions() {
-    if (config == null) init();
+    if (config == null) {
+      init();
+    }
     return config.getInt("ConcurrentTransactions");
+  }
+
+  public int getConcurrentChunks() {
+    if (config == null) {
+      init();
+    }
+    return config.getInt("ConcurrentChunks");
   }
 }

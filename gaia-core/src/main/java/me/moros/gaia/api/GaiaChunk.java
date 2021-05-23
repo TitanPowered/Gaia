@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -22,18 +22,21 @@ package me.moros.gaia.api;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 
-import me.moros.gaia.util.functional.GaiaRunnableInfo;
+import com.sk89q.worldedit.math.BlockVector3;
 import me.moros.gaia.util.metadata.ChunkMetadata;
 import me.moros.gaia.util.metadata.GaiaMetadata;
 import me.moros.gaia.util.metadata.Metadatable;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A chunk aligned GaiaRegion.
  */
-public abstract class GaiaChunk implements Metadatable {
+public class GaiaChunk implements Metadatable {
   public static final Comparator<GaiaChunk> ZX_ORDER = Comparator.comparingInt(GaiaChunk::getZ).thenComparingInt(GaiaChunk::getX);
 
   private final UUID id;
@@ -46,9 +49,9 @@ public abstract class GaiaChunk implements Metadatable {
 
   private boolean reverting;
 
-  protected GaiaChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region) {
-    this.id = id;
-    this.parent = parent;
+  public GaiaChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region) {
+    this.id = Objects.requireNonNull(id);
+    this.parent = Objects.requireNonNull(parent);
     chunkX = region.getMinimumPoint().getX() / 16;
     chunkZ = region.getMinimumPoint().getZ() / 16;
     chunk = region;
@@ -88,13 +91,13 @@ public abstract class GaiaChunk implements Metadatable {
     reverting = false;
   }
 
-  public boolean isAnalyzed() {
+  public synchronized boolean isAnalyzed() {
     return meta != null && meta.hash != null && !meta.hash.isEmpty();
   }
 
-  public Iterator<GaiaVector> iterator() {
-    return new Iterator<GaiaVector>() {
-      private final GaiaVector max = chunk.getVector();
+  public @NonNull Iterator<BlockVector3> iterator() {
+    return new Iterator<>() {
+      private final BlockVector3 max = chunk.getVector();
       private int nextX = 0;
       private int nextY = 0;
       private int nextZ = 0;
@@ -105,9 +108,11 @@ public abstract class GaiaChunk implements Metadatable {
       }
 
       @Override
-      public GaiaVector next() {
-        if (!hasNext()) throw new NoSuchElementException();
-        GaiaVector answer = GaiaVector.at(nextX, nextY, nextZ);
+      public BlockVector3 next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        BlockVector3 answer = BlockVector3.at(nextX, nextY, nextZ);
         if (++nextX >= max.getX()) {
           nextX = 0;
           if (++nextZ >= max.getZ()) {
@@ -123,30 +128,12 @@ public abstract class GaiaChunk implements Metadatable {
   }
 
   @Override
-  public GaiaMetadata getMetadata() {
+  public @MonotonicNonNull GaiaMetadata getMetadata() {
     return meta;
   }
 
   @Override
-  public void setMetadata(GaiaMetadata meta) {
+  public void setMetadata(@NotNull GaiaMetadata meta) {
     this.meta = (ChunkMetadata) meta;
   }
-
-  /**
-   * Attempts to load the chunk and analyze blocks based on passed info.
-   * It will analyze up to a maximum amount of blocks per tick as defined in passed info.
-   * If there are more blocks left to analyze it will continue in the next tick.
-   * @param info the object containing the info
-   * @param data the object containing the data
-   */
-  public abstract void analyze(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data);
-
-  /**
-   * Attempts to load the chunk and revert blocks based on passed info.
-   * It will revert up to a maximum amount of blocks per tick as defined in passed info.
-   * If there are more blocks left to revert it will continue in the next tick.
-   * @param info the object containing the info
-   * @param data the object containing the data
-   */
-  public abstract void revert(@NonNull GaiaRunnableInfo info, @NonNull GaiaData data);
 }

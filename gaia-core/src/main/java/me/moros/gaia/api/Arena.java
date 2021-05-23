@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import me.moros.gaia.platform.GaiaWorld;
+import com.sk89q.worldedit.world.World;
 import me.moros.gaia.util.Util;
 import me.moros.gaia.util.metadata.ArenaMetadata;
 import me.moros.gaia.util.metadata.GaiaMetadata;
@@ -32,11 +32,13 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class Arena implements Metadatable {
   private final String name;
-  private final GaiaWorld world;
+  private final World world;
+  private final UUID worldId;
   private final GaiaRegion region;
   private final Component info;
 
@@ -47,9 +49,10 @@ public class Arena implements Metadatable {
 
   private ArenaMetadata meta;
 
-  public Arena(@NonNull String name, @NonNull GaiaWorld world, @NonNull GaiaRegion region) {
-    this.world = world;
+  public Arena(@NonNull String name, @NonNull World world, @NonNull UUID worldId, @NonNull GaiaRegion region) {
     this.name = name.toLowerCase();
+    this.world = world;
+    this.worldId = worldId;
     this.region = region;
     info = createInfo(this);
     subRegions = new ArrayList<>();
@@ -62,7 +65,9 @@ public class Arena implements Metadatable {
   }
 
   public boolean finalizeArena() {
-    if (subRegions.isEmpty() || finalized) return false;
+    if (subRegions.isEmpty() || finalized) {
+      return false;
+    }
     subRegions.sort(GaiaChunk.ZX_ORDER);
     finalized = true;
     return true;
@@ -80,12 +85,12 @@ public class Arena implements Metadatable {
     return Component.text(getName(), NamedTextColor.GOLD);
   }
 
-  public @NonNull GaiaWorld getWorld() {
+  public @NonNull World getWorld() {
     return world;
   }
 
   public @NonNull UUID getWorldUID() {
-    return world.getUID();
+    return worldId;
   }
 
   public @NonNull GaiaRegion getRegion() {
@@ -110,7 +115,8 @@ public class Arena implements Metadatable {
 
   public static @NonNull Component createInfo(@NonNull Arena arena) {
     final int volume = arena.getRegion().getVolume();
-    final Component infoDetails = Component.text("Name: ", NamedTextColor.DARK_AQUA)
+    final Component infoDetails = Component.text()
+      .append(Component.text("Name: ", NamedTextColor.DARK_AQUA))
       .append(Component.text(arena.getName(), NamedTextColor.GREEN)).append(Component.newline())
       .append(Component.text("World: ", NamedTextColor.DARK_AQUA))
       .append(Component.text(arena.getWorld().getName(), NamedTextColor.GREEN)).append(Component.newline())
@@ -120,12 +126,15 @@ public class Arena implements Metadatable {
       .append(Component.text(String.valueOf(volume), NamedTextColor.GREEN)).append(Component.newline())
       .append(Component.text("Center: ", NamedTextColor.DARK_AQUA))
       .append(Component.text(arena.getRegion().getCenter().toString(), NamedTextColor.GREEN)).append(Component.newline()).append(Component.newline())
-      .append(Component.text("Click to copy center coordinates to clipboard.", NamedTextColor.GRAY));
+      .append(Component.text("Click to copy center coordinates to clipboard.", NamedTextColor.GRAY))
+      .build();
 
-    return Component.text("> ", NamedTextColor.DARK_GRAY).append(arena.getFormattedName())
+    return Component.text()
+      .append(Component.text("> ", NamedTextColor.DARK_GRAY).append(arena.getFormattedName()))
       .append(Component.text(" (" + Util.getSizeDescription(volume) + ")", NamedTextColor.DARK_AQUA))
       .hoverEvent(HoverEvent.showText(infoDetails))
-      .clickEvent(ClickEvent.copyToClipboard(arena.getRegion().getCenter().toString()));
+      .clickEvent(ClickEvent.copyToClipboard(arena.getRegion().getCenter().toString()))
+      .build();
   }
 
   public @NonNull String getDimensions() {
@@ -133,12 +142,12 @@ public class Arena implements Metadatable {
   }
 
   @Override
-  public GaiaMetadata getMetadata() {
+  public @MonotonicNonNull GaiaMetadata getMetadata() {
     return meta;
   }
 
   @Override
-  public void setMetadata(GaiaMetadata meta) {
+  public void setMetadata(@NonNull GaiaMetadata meta) {
     this.meta = (ArenaMetadata) meta;
   }
 }

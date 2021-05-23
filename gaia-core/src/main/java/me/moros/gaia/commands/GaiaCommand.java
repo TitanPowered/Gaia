@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -36,11 +36,9 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.moros.gaia.GaiaPlugin;
 import me.moros.gaia.api.Arena;
+import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.locale.Message;
-import me.moros.gaia.platform.GaiaPlayer;
-import me.moros.gaia.platform.GaiaUser;
 import me.moros.gaia.util.Util;
-import me.moros.gaia.util.functional.GaiaConsumerInfo;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -92,13 +90,17 @@ public class GaiaCommand extends BaseCommand {
     }
     int skip = (page - 1) * AMOUNT_PER_PAGE;
     TextComponent.Builder builder = Component.text().append(Component.text("Arenas - Page ", NamedTextColor.DARK_AQUA));
-    if (page > 1) builder.append(generatePaging(false, page - 1));
+    if (page > 1) {
+      builder.append(generatePaging(false, page - 1));
+    }
 
     builder.append(Component.text(page, NamedTextColor.GREEN))
       .append(Component.text(" of ", NamedTextColor.DARK_AQUA))
       .append(Component.text(totalPages, NamedTextColor.GREEN));
 
-    if (page < totalPages) builder.append(generatePaging(true, page + 1));
+    if (page < totalPages) {
+      builder.append(generatePaging(true, page + 1));
+    }
     user.sendMessage(builder.build());
     plugin.getArenaManager().getAllArenas().stream().sorted(Comparator.comparing(Arena::getName)).
       skip(skip).limit(AMOUNT_PER_PAGE).
@@ -117,7 +119,11 @@ public class GaiaCommand extends BaseCommand {
   @Subcommand("create|c|new|n")
   @CommandPermission("gaia.command.create")
   @Description("Create a new arena")
-  public static void onCreate(GaiaPlayer user, String name) {
+  public static void onCreate(GaiaUser user, String name) {
+    if (!user.isPlayer()) {
+      Message.PLAYER_REQUIRED.send(user);
+      return;
+    }
     String arenaName = Util.sanitizeInput(name);
     if (arenaName.length() < 3) {
       Message.CREATE_ERROR_VALIDATION.send(user);
@@ -157,8 +163,7 @@ public class GaiaCommand extends BaseCommand {
       return;
     }
     Message.REVERT_SUCCESS.send(user, arena.getFormattedName());
-    GaiaConsumerInfo info = new GaiaConsumerInfo(user);
-    plugin.getArenaManager().revertArena(arena, info);
+    plugin.getArenaManager().revertArena(user, arena);
   }
 
   @Subcommand("cancel|abort")

@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -28,12 +28,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import me.moros.gaia.api.GaiaVector;
+import com.sk89q.worldedit.math.BlockVector3;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class GaiaAdapter implements JsonSerializer<GaiaVector>, JsonDeserializer<GaiaVector> {
+public class GaiaAdapter implements JsonSerializer<BlockVector3>, JsonDeserializer<BlockVector3> {
   @Override
-  public @NonNull JsonElement serialize(@NonNull GaiaVector src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
+  public @NonNull JsonElement serialize(@NonNull BlockVector3 src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
     JsonArray array = new JsonArray();
     array.add(src.getX());
     array.add(src.getY());
@@ -42,11 +42,15 @@ public class GaiaAdapter implements JsonSerializer<GaiaVector>, JsonDeserializer
   }
 
   @Override
-  public @NonNull GaiaVector deserialize(@NonNull JsonElement json, @NonNull Type typeOfT, @NonNull JsonDeserializationContext context) throws JsonParseException {
+  public @NonNull BlockVector3 deserialize(@NonNull JsonElement json, @NonNull Type typeOfT, @NonNull JsonDeserializationContext context) throws JsonParseException {
     JsonArray array = json.getAsJsonArray();
-    if (array.size() != 3) throw new JsonParseException("Invalid GaiaVector: Expected array length 3");
-    GaiaVector v = GaiaVector.at(array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt());
-    if (!GaiaVector.isValidVector(v)) throw new JsonParseException("Invalid GaiaVector: " + json.toString());
+    if (array.size() != 3) {
+      throw new JsonParseException("Invalid Vector: Expected array length 3");
+    }
+    BlockVector3 v = BlockVector3.at(array.get(0).getAsInt(), array.get(1).getAsInt(), array.get(2).getAsInt());
+    if (!BlockVector3.isLongPackable(v)) {
+      throw new JsonParseException("Invalid Vector: " + json);
+    }
     return v;
   }
 }

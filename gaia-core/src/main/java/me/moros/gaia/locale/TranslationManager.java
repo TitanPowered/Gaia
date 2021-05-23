@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class TranslationManager {
-  private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
+  public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
   private final Set<Locale> installed = ConcurrentHashMap.newKeySet();
   private final Path translationsDirectory;
@@ -106,7 +106,9 @@ public class TranslationManager {
   }
 
   private boolean isValidPropertyFile(Path path) {
-    if (!Files.isRegularFile(path)) return false;
+    if (!Files.isRegularFile(path)) {
+      return false;
+    }
     String name = path.getFileName().toString();
     return name.length() > "properties".length() && name.endsWith(".properties");
   }

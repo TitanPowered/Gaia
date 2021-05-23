@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -19,9 +19,10 @@
 
 package me.moros.gaia.locale;
 
-import me.moros.gaia.platform.GaiaUser;
+import me.moros.gaia.api.GaiaUser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import static net.kyori.adventure.text.Component.text;
@@ -38,13 +39,17 @@ public interface Message {
 
   Args0 HELP_HEADER = () -> brand(translatable("gaia.command.help.header", DARK_AQUA));
 
+
   Args1<Component> CREATE_ANALYZING = arena -> brand(translatable("gaia.command.create.analyzing", GREEN)
     .args(arena));
   Args1<Component> CREATE_FAIL = arena -> brand(translatable("gaia.command.create.fail", RED)
     .args(arena));
+  Args1<Component> CREATE_FAIL_TIMEOUT = arena -> brand(translatable("gaia.command.create.fail-timeout", RED)
+    .args(arena));
   Args1<Component> CREATE_SUCCESS = arena -> brand(translatable("gaia.command.create.success", GREEN)
     .args(arena));
 
+  Args0 PLAYER_REQUIRED = () -> brand(translatable("gaia.command.create.error.player-required", RED));
   Args0 CREATE_ERROR_ABORT = () -> brand(translatable("gaia.command.create.error.abort", RED));
   Args0 CREATE_ERROR_VALIDATION = () -> brand(translatable("gaia.command.create.error.validation", RED));
   Args1<String> CREATE_ERROR_EXISTS = arena -> brand(translatable("gaia.command.create.error.exists", RED)
@@ -89,7 +94,11 @@ public interface Message {
     @NonNull Component build();
 
     default void send(@NonNull GaiaUser user) {
-      user.sendMessage(build());
+      if (user.hasLocale()) {
+        user.sendMessage(build());
+      } else {
+        user.sendMessage(GlobalTranslator.render(build(), TranslationManager.DEFAULT_LOCALE));
+      }
     }
   }
 
@@ -97,7 +106,11 @@ public interface Message {
     @NonNull Component build(@NonNull A0 arg0);
 
     default void send(@NonNull GaiaUser user, @NonNull A0 arg0) {
-      user.sendMessage(build(arg0));
+      if (user.hasLocale()) {
+        user.sendMessage(build(arg0));
+      } else {
+        user.sendMessage(GlobalTranslator.render(build(arg0), TranslationManager.DEFAULT_LOCALE));
+      }
     }
   }
 
@@ -105,7 +118,11 @@ public interface Message {
     @NonNull Component build(@NonNull A0 arg0, @NonNull A1 arg1);
 
     default void send(@NonNull GaiaUser user, @NonNull A0 arg0, @NonNull A1 arg1) {
-      user.sendMessage(build(arg0, arg1));
+      if (user.hasLocale()) {
+        user.sendMessage(build(arg0, arg1));
+      } else {
+        user.sendMessage(GlobalTranslator.render(build(arg0, arg1), TranslationManager.DEFAULT_LOCALE));
+      }
     }
   }
 }

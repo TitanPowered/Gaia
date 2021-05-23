@@ -17,31 +17,32 @@
  *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia;
+package me.moros.gaia.util.functional;
 
-import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
+import java.util.Iterator;
 
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.World;
-import com.sk89q.worldedit.world.block.BlockState;
+import me.moros.gaia.api.GaiaChunk;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public interface GaiaPlugin {
-  @NonNull String getAuthor();
+public abstract class GaiaOperation {
+  protected final World world;
+  protected final GaiaChunk chunk;
+  protected final Iterator<BlockVector3> it;
+  protected final long startTime;
 
-  @NonNull String getVersion();
+  protected GaiaOperation(@NonNull GaiaChunk chunk) {
+    this.world = chunk.getParent().getWorld();
+    this.chunk = chunk;
+    this.it = chunk.iterator();
+    this.startTime = System.currentTimeMillis();
+  }
 
-  @NonNull Logger getLog();
+  public abstract @Nullable GaiaOperation process(int maxTransactions);
 
-  @NonNull ArenaManager getArenaManager();
-
-  @NonNull ChunkManager getChunkManager();
-
-  @NonNull BlockState getBlockDataFromString(@Nullable String value);
-
-  @Nullable World getWorld(@NonNull UUID uid);
-
-  @NonNull Executor executor();
+  public long getStartTime() {
+    return startTime;
+  }
 }

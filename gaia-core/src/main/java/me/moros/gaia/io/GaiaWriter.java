@@ -1,9 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
- *   Copyright (C) sk89q <http://www.sk89q.com>
- *   Copyright (C) WorldEdit team and contributors
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -26,6 +24,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.sk89q.jnbt.ByteArrayTag;
 import com.sk89q.jnbt.CompoundTag;
@@ -44,7 +43,7 @@ public class GaiaWriter implements Closeable {
    * @param outputStream the output stream to write to
    */
   protected GaiaWriter(@NonNull NBTOutputStream outputStream) {
-    this.outputStream = outputStream;
+    this.outputStream = Objects.requireNonNull(outputStream);
   }
 
   public void write(@NonNull GaiaData data) throws IOException {

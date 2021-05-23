@@ -13,7 +13,7 @@ dependencies {
     implementation("org.bstats", "bstats-bukkit", "2.2.1")
     implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
     compileOnly("com.destroystokyo.paper", "paper-api", "1.16.5-R0.1-SNAPSHOT")
-    compileOnly("com.sk89q.worldedit", "worldedit-bukkit", "7.0.0")
+    compileOnly("com.sk89q.worldedit", "worldedit-bukkit", "7.2.0")
 }
 
 tasks {

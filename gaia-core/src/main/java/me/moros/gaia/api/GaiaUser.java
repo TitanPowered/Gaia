@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -17,24 +17,19 @@
  *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.platform;
+package me.moros.gaia.api;
 
-import org.bukkit.block.data.BlockData;
+import net.kyori.adventure.audience.ForwardingAudience;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class BlockDataWrapper implements GaiaBlockData {
-  private final BlockData blockData;
+public interface GaiaUser extends ForwardingAudience.Single {
+  @NonNull String getName();
 
-  public BlockDataWrapper(@NonNull BlockData blockData) {
-    this.blockData = blockData;
-  }
+  boolean isPlayer();
 
-  public @NonNull BlockData get() {
-    return blockData;
-  }
+  boolean hasPermission(@NonNull String permission);
 
-  @Override
-  public @NonNull String getAsString() {
-    return blockData.getAsString();
+  default boolean hasLocale() {
+    return false;
   }
 }

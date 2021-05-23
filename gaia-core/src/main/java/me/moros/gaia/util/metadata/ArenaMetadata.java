@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@ package me.moros.gaia.util.metadata;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sk89q.worldedit.math.BlockVector3;
 import me.moros.gaia.api.Arena;
-import me.moros.gaia.api.GaiaVector;
 import me.moros.gaia.util.Util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -33,8 +33,8 @@ public class ArenaMetadata extends GaiaMetadata {
   public String name;
   public String world;
 
-  public GaiaVector min;
-  public GaiaVector max;
+  public BlockVector3 min;
+  public BlockVector3 max;
 
   public int amount;
   public List<ChunkMetadata> chunks;
@@ -51,10 +51,22 @@ public class ArenaMetadata extends GaiaMetadata {
 
   @Override
   public boolean isValidMetadata() {
-    if (version != VERSION) return false;
-    if (name == null || world == null || min == null || max == null || chunks == null) return false;
-    if (!Util.validateInput(name)) return false;
-    if (!GaiaVector.isValidVector(min) || !GaiaVector.isValidVector(max)) return false;
+    if (version != VERSION) {
+      return false;
+    }
+    if (name == null || world == null || min == null || max == null || chunks == null) {
+      return false;
+    }
+    if (!Util.validateInput(name)) {
+      return false;
+    }
+    if (!BlockVector3.isLongPackable(min) || !BlockVector3.isLongPackable(max)) {
+      return false;
+    }
     return amount > 0 && chunks.size() == amount;
+  }
+
+  public synchronized void addChunkMetadata(@NonNull ChunkMetadata metadata) {
+    chunks.add(metadata);
   }
 }

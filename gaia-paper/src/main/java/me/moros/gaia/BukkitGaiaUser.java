@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -17,20 +17,24 @@
  *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.platform;
+package me.moros.gaia;
 
-import net.kyori.adventure.text.Component;
+import me.moros.gaia.api.GaiaUser;
+import net.kyori.adventure.audience.Audience;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class UserWrapper implements GaiaUser {
+public class BukkitGaiaUser implements GaiaUser {
   private final CommandSender sender;
+  private final boolean isPlayer;
 
-  public UserWrapper(@NonNull CommandSender sender) {
+  public BukkitGaiaUser(@NonNull CommandSender sender) {
     this.sender = sender;
+    isPlayer = sender instanceof Player;
   }
 
-  public @NonNull CommandSender get() {
+  public @NonNull CommandSender getHandle() {
     return this.sender;
   }
 
@@ -40,12 +44,22 @@ public class UserWrapper implements GaiaUser {
   }
 
   @Override
+  public boolean isPlayer() {
+    return isPlayer;
+  }
+
+  @Override
+  public boolean hasLocale() {
+    return isPlayer;
+  }
+
+  @Override
   public boolean hasPermission(@NonNull String permission) {
     return sender.hasPermission(permission);
   }
 
   @Override
-  public void sendMessage(@NonNull Component text) {
-    sender.sendMessage(text);
+  public @NonNull Audience audience() {
+    return sender;
   }
 }

@@ -7,7 +7,7 @@
 ## Requirements
 - `Java 11 or newer`
 - `PaperMC 1.16.5 (at least build 473) or newer`
-- `WorldEdit 7.0.0 or newer`
+- `WorldEdit 7.2.0 or newer`
 
 Gaia is a lightweight arena management plugin.
 Gaia makes use of [Paper's](https://github.com/PaperMC/Paper) async chunk API.

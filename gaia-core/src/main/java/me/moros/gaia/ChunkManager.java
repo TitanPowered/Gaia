@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -17,12 +17,20 @@
  *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.platform;
+package me.moros.gaia;
 
+import com.sk89q.worldedit.world.World;
+import me.moros.gaia.api.GaiaChunk;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public interface GaiaBlock {
-  @NonNull GaiaBlockData getBlockData();
+public interface ChunkManager {
+  void shutdown();
 
-  void setBlockData(@NonNull GaiaBlockData data);
+  int getRemainingTasks();
+
+  void cancelTasks(@NonNull GaiaChunk chunk);
+
+  void revertChunk(@NonNull GaiaChunk chunk, @NonNull World world);
+
+  void analyzeChunk(@NonNull GaiaChunk chunk, @NonNull World world);
 }

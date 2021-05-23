@@ -1,9 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
- *   Copyright (C) sk89q <http://www.sk89q.com>
- *   Copyright (C) WorldEdit team and contributors
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -25,7 +23,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Objects;
 
 import com.sk89q.jnbt.ByteArrayTag;
 import com.sk89q.jnbt.CompoundTag;
@@ -33,9 +31,10 @@ import com.sk89q.jnbt.IntTag;
 import com.sk89q.jnbt.NBTInputStream;
 import com.sk89q.jnbt.ShortTag;
 import com.sk89q.jnbt.Tag;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.block.BlockState;
 import me.moros.gaia.GaiaPlugin;
 import me.moros.gaia.api.GaiaData;
-import me.moros.gaia.api.GaiaVector;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class GaiaReader implements Closeable {
@@ -47,16 +46,12 @@ public class GaiaReader implements Closeable {
    * @param inputStream the input stream to read from
    */
   protected GaiaReader(@NonNull GaiaPlugin platform, @NonNull NBTInputStream inputStream) {
-    this.platform = platform;
-    this.inputStream = inputStream;
-  }
-
-  private CompoundTag getBaseTag() throws IOException {
-    return (CompoundTag) inputStream.readNamedTag().getTag();
+    this.platform = Objects.requireNonNull(platform);
+    this.inputStream = Objects.requireNonNull(inputStream);
   }
 
   protected @NonNull GaiaData read() throws IOException {
-    CompoundTag schematicTag = getBaseTag();
+    CompoundTag schematicTag = (CompoundTag) inputStream.readNamedTag().getTag();
     Map<String, Tag> schematic = schematicTag.getValue();
 
     int width = requireTag(schematic, "Width", ShortTag.class).getValue();
@@ -69,11 +64,11 @@ public class GaiaReader implements Closeable {
       throw new IOException("Block palette size does not match expected size.");
     }
 
-    Map<Integer, String> palette = new HashMap<>();
+    Map<Integer, BlockState> palette = new HashMap<>();
 
     for (String palettePart : paletteObject.keySet()) {
       int id = requireTag(paletteObject, palettePart, IntTag.class).getValue();
-      palette.put(id, palettePart);
+      palette.put(id, platform.getBlockDataFromString(palettePart));
     }
 
     byte[] blocks = requireTag(schematic, "BlockData", ByteArrayTag.class).getValue();
@@ -81,7 +76,7 @@ public class GaiaReader implements Closeable {
     int i = 0;
     int value;
     int varintLength;
-    GaiaData data = new GaiaData(GaiaVector.at(width, height, length));
+    GaiaData data = new GaiaData(BlockVector3.at(width, height, length));
     while (i < blocks.length) {
       value = 0;
       varintLength = 0;
@@ -101,7 +96,7 @@ public class GaiaReader implements Closeable {
       int y = index / (width * length);
       int z = (index % (width * length)) / width;
       int x = (index % (width * length)) % width;
-      data.setDataAt(x, y, z, platform.getBlockDataFromString(palette.get(value)));
+      data.setDataAt(x, y, z, palette.get(value));
       index++;
     }
     return data;
@@ -118,7 +113,6 @@ public class GaiaReader implements Closeable {
     return expected.cast(tag);
   }
 
-  @Nullable
   protected static <T extends Tag> T getTag(Map<String, Tag> items, String key, Class<T> expected) {
     if (!items.containsKey(key)) {
       return null;

@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -19,8 +19,11 @@
 
 package me.moros.gaia.util.metadata;
 
-public interface Metadatable {
-  GaiaMetadata getMetadata();
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-  void setMetadata(GaiaMetadata meta);
+public interface Metadatable {
+  @MonotonicNonNull GaiaMetadata getMetadata();
+
+  void setMetadata(@NonNull GaiaMetadata meta);
 }

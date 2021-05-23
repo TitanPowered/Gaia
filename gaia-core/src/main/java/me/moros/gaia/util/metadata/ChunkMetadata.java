@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -19,13 +19,15 @@
 
 package me.moros.gaia.util.metadata;
 
+import java.util.Objects;
+
+import com.sk89q.worldedit.math.BlockVector3;
 import me.moros.gaia.api.GaiaChunk;
-import me.moros.gaia.api.GaiaVector;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ChunkMetadata extends GaiaMetadata {
-  public GaiaVector min;
-  public GaiaVector max;
+  public BlockVector3 min;
+  public BlockVector3 max;
 
   public String id;
   public String hash;
@@ -34,13 +36,17 @@ public class ChunkMetadata extends GaiaMetadata {
     min = region.getRegion().getMinimumPoint();
     max = region.getRegion().getMaximumPoint();
     this.id = region.getId().toString();
-    this.hash = hash;
+    this.hash = Objects.requireNonNull(hash);
   }
 
   @Override
   public boolean isValidMetadata() {
-    if (id == null || hash == null || min == null || max == null) return false;
-    if (id.isEmpty()) return false;
+    if (id == null || hash == null || min == null || max == null) {
+      return false;
+    }
+    if (id.isEmpty()) {
+      return false;
+    }
     return hash.length() == 32;
   }
 }

@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -19,41 +19,47 @@
 
 package me.moros.gaia;
 
-import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.CommandContexts;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.entity.Player;
+import com.sk89q.worldedit.extension.input.InputParseException;
+import com.sk89q.worldedit.extension.input.ParserContext;
+import com.sk89q.worldedit.world.World;
+import com.sk89q.worldedit.world.block.BlockState;
 import me.moros.gaia.api.Arena;
-import me.moros.gaia.api.GaiaRegion;
+import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.commands.GaiaCommand;
 import me.moros.gaia.configuration.ConfigManager;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.locale.TranslationManager;
-import me.moros.gaia.platform.BlockDataWrapper;
-import me.moros.gaia.platform.GaiaPlayer;
-import me.moros.gaia.platform.GaiaUser;
-import me.moros.gaia.platform.PlayerWrapper;
-import me.moros.gaia.platform.UserWrapper;
-import me.moros.gaia.platform.WorldWrapper;
 import me.moros.gaia.util.Util;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class Gaia extends JavaPlugin implements GaiaPlugin {
+  private BlockState AIR;
+
   private static Gaia plugin;
+  private ExecutorService executor;
+  private ParserContext parserContext;
   private PaperCommandManager commandManager;
-  private ArenaManager arenaManager;
+  private BukkitArenaManager arenaManager;
+  private BukkitChunkManager chunkManager;
   private String author;
   private String version;
   private Logger log;
@@ -68,23 +74,47 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 
     ConfigManager.INSTANCE.init();
 
+    executor = Executors.newFixedThreadPool(ConfigManager.INSTANCE.getConcurrentChunks());
+    parserContext = new ParserContext();
+    parserContext.setRestricted(false);
+    parserContext.setTryLegacy(false);
+    parserContext.setPreferringWildcard(false);
+    AIR = BukkitAdapter.adapt(Material.AIR.createBlockData());
+
     new TranslationManager(log, getDataFolder().toString());
 
-    arenaManager = new ArenaManager();
+    arenaManager = new BukkitArenaManager(this);
+    chunkManager = new BukkitChunkManager();
+
     boolean debug = getConfig().getBoolean("Debug");
-    if (debug) getLog().info("Debugging is enabled");
+    if (debug) {
+      getLog().info("Debugging is enabled");
+    }
     if (!GaiaIO.createInstance(plugin, getDataFolder().getPath(), debug)) {
       getLog().severe("Could not create Arenas folder! Aborting plugin load.");
       plugin.setEnabled(false);
       return;
     }
-    Bukkit.getScheduler().runTaskAsynchronously(Gaia.getPlugin(), GaiaIO.getInstance()::loadAllArenas);
+    long startTime = System.currentTimeMillis();
+    GaiaIO.getInstance().loadAllArenas().thenRun(() -> {
+      long delta = System.currentTimeMillis() - startTime;
+      plugin.getLog().info("Successfully loaded " + arenaManager.getArenaCount() + " arenas in (" + delta + "ms)");
+    });
     registerCommands();
   }
 
   @Override
   public void onDisable() {
+    executor.shutdown();
+    try {
+      executor.awaitTermination(1, TimeUnit.MINUTES);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     getServer().getScheduler().cancelTasks(this);
+    if (chunkManager != null) {
+      chunkManager.shutdown();
+    }
   }
 
   public static Gaia getPlugin() {
@@ -107,38 +137,40 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
   }
 
   @Override
-  public @NonNull ArenaManager getArenaManager() {
+  public @NonNull BukkitArenaManager getArenaManager() {
     return arenaManager;
   }
 
   @Override
-  public @NonNull PaperGaiaChunk adaptChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region) {
-    return new PaperGaiaChunk(id, parent, region);
+  public @NonNull BukkitChunkManager getChunkManager() {
+    return chunkManager;
   }
 
   @Override
-  public @NonNull BlockDataWrapper getBlockDataFromString(final String value) {
+  public @NonNull BlockState getBlockDataFromString(@Nullable String value) {
     if (value != null) {
       try {
-        BlockData data = Bukkit.createBlockData(value);
-        return new BlockDataWrapper(data);
-      } catch (IllegalArgumentException e) {
-        log.warning("Invalid block data in palette: " + value + ". Block will be replaced with air.");
-      } catch (Exception other) {
-        // do nothing
+        return WorldEdit.getInstance().getBlockFactory().parseFromInput(value, parserContext).toImmutableState();
+      } catch (InputParseException e) {
+        log.warning("Invalid BlockState in palette: " + value + ". Block will be replaced with air.");
       }
     }
-    return new BlockDataWrapper(Material.AIR.createBlockData());
+    return AIR;
   }
 
   @Override
-  public @Nullable WorldWrapper getWorld(final UUID uid) {
-    final World world = Bukkit.getWorld(uid);
+  public @Nullable World getWorld(@NonNull UUID uid) {
+    final org.bukkit.World world = Bukkit.getWorld(uid);
     if (world == null) {
       log.warning("Couldn't find world with UID " + uid);
       return null;
     }
-    return new WorldWrapper(world);
+    return BukkitAdapter.adapt(world);
+  }
+
+  @Override
+  public @NonNull Executor executor() {
+    return executor;
   }
 
   private void registerCommands() {
@@ -159,26 +191,22 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 
   private void registerCommandContexts() {
     CommandContexts<BukkitCommandExecutionContext> commandContexts = commandManager.getCommandContexts();
-    commandContexts.registerIssuerOnlyContext(GaiaPlayer.class, c -> {
-      Player player = c.getPlayer();
-      if (player == null) throw new InvalidCommandArgument("You must be player!");
-      return new PlayerWrapper(player);
-    });
 
-    commandContexts.registerIssuerOnlyContext(GaiaUser.class, c -> new UserWrapper(c.getSender()));
+    commandContexts.registerIssuerOnlyContext(GaiaUser.class, c -> new BukkitGaiaUser(c.getSender()));
 
     commandContexts.registerIssuerAwareContext(Arena.class, c -> {
       String name = c.popFirstArg();
       if (name != null) {
         String sanitized = Util.sanitizeInput(name);
-        return Optional.ofNullable(getArenaManager().getArena(sanitized))
+        return getArenaManager().getArena(sanitized)
           .orElseThrow(() -> new InvalidCommandArgument("Could not find arena " + sanitized));
       }
       if (c.hasFlag("standing")) {
-        Player player = c.getPlayer();
-        if (player != null) {
-          GaiaPlayer gaiaPlayer = new PlayerWrapper(player);
-          return getArenaManager().getArenaAtPoint(gaiaPlayer.getWorld().getUID(), gaiaPlayer.getLocation())
+        org.bukkit.entity.Player p = c.getPlayer();
+        if (p != null) {
+          Player player = BukkitAdapter.adapt(p);
+          UUID worldId = p.getWorld().getUID();
+          return getArenaManager().getArenaAtPoint(worldId, player.getLocation().toVector().toBlockPoint())
             .orElseThrow(() -> new InvalidCommandArgument("You are not currently standing in an arena."));
         }
       }

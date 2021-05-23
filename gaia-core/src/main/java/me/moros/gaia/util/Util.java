@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -49,7 +49,9 @@ public class Util {
   }
 
   public static @NonNull String capitalize(@NonNull String input) {
-    if (input.length() < 2) return input.toUpperCase();
+    if (input.length() < 2) {
+      return input.toUpperCase();
+    }
     return input.substring(0, 1).toUpperCase() + input.substring(1);
   }
 
@@ -71,7 +73,9 @@ public class Util {
     StringBuilder hexString = new StringBuilder();
     for (byte b : bytes) {
       String hex = Integer.toHexString(0xff & b);
-      if (hex.length() == 1) hexString.append('0');
+      if (hex.length() == 1) {
+        hexString.append('0');
+      }
       hexString.append(hex);
     }
     return hexString.toString();

@@ -2,7 +2,7 @@ name: Gaia
 description: Arena management plugin
 author: Moros
 version: ${pluginVersion}
-load: STARTUP
+load: POSTWORLD
 main: me.moros.gaia.Gaia
 depend: [ WorldEdit ]
 api-version: 1.16

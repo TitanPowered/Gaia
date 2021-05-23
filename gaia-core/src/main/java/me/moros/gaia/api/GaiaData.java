@@ -1,7 +1,7 @@
 /*
- *   Copyright 2020 Moros <https://github.com/PrimordialMoros>
+ *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
  *
- * 	  This file is part of Gaia.
+ *    This file is part of Gaia.
  *
  *    Gaia is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -19,35 +19,36 @@
 
 package me.moros.gaia.api;
 
-import me.moros.gaia.platform.GaiaBlockData;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.block.BlockState;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class GaiaData {
-  private final GaiaBlockData[][][] data;
-  private final GaiaVector size;
+  private final BlockState[][][] data;
+  private final BlockVector3 size;
 
-  public GaiaData(@NonNull GaiaVector size) {
-    this.data = new GaiaBlockData[size.getX()][size.getY()][size.getZ()];
+  public GaiaData(@NonNull BlockVector3 size) {
+    this.data = new BlockState[size.getX()][size.getY()][size.getZ()];
     this.size = size;
   }
 
-  public @NonNull GaiaBlockData getDataAt(@NonNull GaiaVector v) {
+  public @NonNull BlockState getDataAt(@NonNull BlockVector3 v) {
     return getDataAt(v.getX(), v.getY(), v.getZ());
   }
 
-  public @NonNull GaiaBlockData getDataAt(int x, int y, int z) {
+  public @NonNull BlockState getDataAt(int x, int y, int z) {
     return data[x][y][z];
   }
 
-  public void setDataAt(@NonNull GaiaVector v, @NonNull GaiaBlockData gaiaBlockData) {
+  public void setDataAt(@NonNull BlockVector3 v, @NonNull BlockState gaiaBlockData) {
     setDataAt(v.getX(), v.getY(), v.getZ(), gaiaBlockData);
   }
 
-  public void setDataAt(int x, int y, int z, @NonNull GaiaBlockData gaiaBlockData) {
+  public void setDataAt(int x, int y, int z, @NonNull BlockState gaiaBlockData) {
     data[x][y][z] = gaiaBlockData;
   }
 
-  public @NonNull GaiaVector getVector() {
+  public @NonNull BlockVector3 getVector() {
     return size;
   }
 }
