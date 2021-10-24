@@ -1,6 +1,14 @@
 allprojects {
     group = "me.moros"
-    version = "1.4.0"
+    version = "1.5.0"
+
+    apply(plugin = "java")
+
+    plugins.withId("java") {
+        the<JavaPluginExtension>().toolchain {
+            languageVersion.set(JavaLanguageVersion.of(16))
+        }
+    }
 }
 
 subprojects {
@@ -14,8 +22,5 @@ subprojects {
     }
     tasks.withType<JavaCompile> {
         options.compilerArgs.add("-parameters")
-        options.isFork = true
-        options.forkOptions.executable = "javac"
     }
-    buildDir = rootProject.buildDir
 }

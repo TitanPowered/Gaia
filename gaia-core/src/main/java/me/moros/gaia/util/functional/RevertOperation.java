@@ -22,6 +22,7 @@ package me.moros.gaia.util.functional;
 import java.util.Objects;
 
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.util.SideEffectSet;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaData;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -43,7 +44,7 @@ public class RevertOperation extends GaiaOperation {
       relative = it.next();
       real = chunk.getRegion().getMinimumPoint().add(relative);
       try {
-        world.setBlock(real, data.getDataAt(relative));
+        world.setBlock(real, data.getDataAt(relative), SideEffectSet.none());
       } catch (Exception e) {
         // Ignore
       }

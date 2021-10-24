@@ -1,3 +1,2 @@
 rootProject.name = "Gaia"
-include("gaia-core")
-include("gaia-paper")
+include("gaia-core", "gaia-paper")
