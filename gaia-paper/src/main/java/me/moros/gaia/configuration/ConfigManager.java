@@ -33,6 +33,7 @@ public enum ConfigManager {
     config.addDefault("Analysis.Timeout", 30_000);
     config.addDefault("ConcurrentTransactions", 8192);
     config.addDefault("ConcurrentChunks", 8);
+    config.addDefault("Cooldown", 0);
 
     config.options().copyDefaults(true);
     Gaia.getPlugin().saveConfig();
@@ -50,5 +51,12 @@ public enum ConfigManager {
       init();
     }
     return config.getInt("ConcurrentChunks");
+  }
+
+  public long getCooldown() {
+    if (config == null) {
+      init();
+    }
+    return config.getLong("Cooldown");
   }
 }

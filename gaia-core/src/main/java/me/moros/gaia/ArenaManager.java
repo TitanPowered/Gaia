@@ -94,4 +94,6 @@ public abstract class ArenaManager {
   public abstract void revertArena(@NonNull GaiaUser user, @NonNull Arena arena);
 
   public abstract boolean createArena(@NonNull GaiaUser user, @NonNull String arenaName);
+
+  public abstract long nextRevertTime(@NonNull Arena arena);
 }

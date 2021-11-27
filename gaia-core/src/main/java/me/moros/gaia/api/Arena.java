@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.World;
 import me.moros.gaia.util.Util;
 import me.moros.gaia.util.metadata.ArenaMetadata;
@@ -48,6 +49,8 @@ public class Arena implements Metadatable {
   private boolean finalized;
 
   private ArenaMetadata meta;
+
+  private long lastReverted = 0;
 
   public Arena(@NonNull String name, @NonNull World world, @NonNull UUID worldId, @NonNull GaiaRegion region) {
     this.name = name.toLowerCase();
@@ -115,6 +118,7 @@ public class Arena implements Metadatable {
 
   public static @NonNull Component createInfo(@NonNull Arena arena) {
     final int volume = arena.getRegion().getVolume();
+    BlockVector3 c = arena.getRegion().getCenter();
     final Component infoDetails = Component.text()
       .append(Component.text("Name: ", NamedTextColor.DARK_AQUA))
       .append(Component.text(arena.getName(), NamedTextColor.GREEN)).append(Component.newline())
@@ -125,20 +129,28 @@ public class Arena implements Metadatable {
       .append(Component.text("Volume: ", NamedTextColor.DARK_AQUA))
       .append(Component.text(String.valueOf(volume), NamedTextColor.GREEN)).append(Component.newline())
       .append(Component.text("Center: ", NamedTextColor.DARK_AQUA))
-      .append(Component.text(arena.getRegion().getCenter().toString(), NamedTextColor.GREEN)).append(Component.newline()).append(Component.newline())
+      .append(Component.text(c.getX() + ", " + c.getY() + ", " + c.getZ(), NamedTextColor.GREEN))
+      .append(Component.newline()).append(Component.newline())
       .append(Component.text("Click to copy center coordinates to clipboard.", NamedTextColor.GRAY))
       .build();
-
     return Component.text()
       .append(Component.text("> ", NamedTextColor.DARK_GRAY).append(arena.getFormattedName()))
       .append(Component.text(" (" + Util.getSizeDescription(volume) + ")", NamedTextColor.DARK_AQUA))
       .hoverEvent(HoverEvent.showText(infoDetails))
-      .clickEvent(ClickEvent.copyToClipboard(arena.getRegion().getCenter().toString()))
+      .clickEvent(ClickEvent.copyToClipboard(c.getX() + " " + c.getY() + " " + c.getZ()))
       .build();
   }
 
   public @NonNull String getDimensions() {
     return region.getWidth() + " x " + region.getHeight() + " x " + region.getLength();
+  }
+
+  public long lastReverted() {
+    return lastReverted;
+  }
+
+  public void resetLastReverted() {
+    lastReverted = System.currentTimeMillis();
   }
 
   @Override

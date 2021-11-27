@@ -154,6 +154,13 @@ public class GaiaCommand extends BaseCommand {
   @CommandCompletion("@arenas")
   @Description("Revert the specified arena")
   public static void onRevert(GaiaUser user, Arena arena) {
+    if (user.isPlayer()) {
+      long deltaTime = plugin.getArenaManager().nextRevertTime(arena) - System.currentTimeMillis();
+      if (deltaTime > 0) {
+        Message.REVERT_COOLDOWN.send(user, deltaTime);
+        return;
+      }
+    }
     if (!arena.isFinalized()) {
       Message.REVERT_ERROR_ANALYZING.send(user, arena.getFormattedName());
       return;
@@ -163,6 +170,7 @@ public class GaiaCommand extends BaseCommand {
       return;
     }
     Message.REVERT_SUCCESS.send(user, arena.getFormattedName());
+    arena.resetLastReverted();
     plugin.getArenaManager().revertArena(user, arena);
   }
 

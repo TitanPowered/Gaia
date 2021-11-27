@@ -20,6 +20,7 @@
 package me.moros.gaia.locale;
 
 import me.moros.gaia.api.GaiaUser;
+import me.moros.gaia.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.translation.GlobalTranslator;
@@ -75,6 +76,8 @@ public interface Message {
     .args(arena));
   Args1<Component> REVERT_ERROR_REVERTING = arena -> brand(translatable("gaia.command.revert.error.already-reverting", YELLOW)
     .args(arena));
+  Args1<Long> REVERT_COOLDOWN = time -> brand(translatable("gaia.command.revert.on-cooldown", DARK_AQUA)
+    .args(text(Util.formatDuration(time), YELLOW)));
   Args2<Component, String> FINISHED_REVERT = (arena, time) -> brand(translatable("gaia.command.revert.finished", GREEN)
     .args(arena, text(time, GREEN)));
 

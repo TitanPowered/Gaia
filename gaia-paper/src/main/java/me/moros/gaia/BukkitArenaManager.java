@@ -33,6 +33,7 @@ import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaRegion;
 import me.moros.gaia.api.GaiaUser;
+import me.moros.gaia.configuration.ConfigManager;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.locale.Message;
 import me.moros.gaia.util.metadata.ArenaMetadata;
@@ -140,7 +141,12 @@ public class BukkitArenaManager extends ArenaManager {
     return true;
   }
 
-  public static boolean splitIntoChunks(@NonNull Arena arena) {
+  @Override
+  public long nextRevertTime(@NonNull Arena arena) {
+    return arena.lastReverted() + ConfigManager.INSTANCE.getCooldown();
+  }
+
+  private boolean splitIntoChunks(@NonNull Arena arena) {
     final int minX = arena.getRegion().getMinimumPoint().getX();
     final int maxX = arena.getRegion().getMaximumPoint().getX();
     final int minY = arena.getRegion().getMinimumPoint().getY();

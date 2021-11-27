@@ -19,9 +19,13 @@
 
 package me.moros.gaia.util;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class Util {
@@ -67,6 +71,26 @@ public class Util {
     } else {
       return "Huge";
     }
+  }
+
+  public static @NonNull String formatDuration(@Positive long deltaTime) {
+    Duration duration = Duration.ofMillis(deltaTime);
+    List<String> parts = new ArrayList<>();
+    long days = duration.toDaysPart();
+    if (days > 0) {
+      parts.add(days + "d");
+    }
+    int hours = duration.toHoursPart();
+    if (hours > 0 || !parts.isEmpty()) {
+      parts.add(hours + "h");
+    }
+    int minutes = duration.toMinutesPart();
+    if (minutes > 0 || !parts.isEmpty()) {
+      parts.add(minutes + "m");
+    }
+    int seconds = Math.max(1, duration.toSecondsPart());
+    parts.add(seconds + "s");
+    return String.join(" ", parts);
   }
 
   public static @NonNull String toHex(byte[] bytes) {
