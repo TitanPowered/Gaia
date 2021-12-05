@@ -6,11 +6,6 @@ load: POSTWORLD
 main: me.moros.gaia.Gaia
 depend: [WorldEdit]
 api-version: 1.17
-commands:
-  gaia:
-    description: Manage gaia arenas
-    default: true
-    aliases: [g,arena,arenas]
 permissions:
   gaia.command.version:
     default: true

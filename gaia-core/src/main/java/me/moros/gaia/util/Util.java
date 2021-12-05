@@ -1,20 +1,20 @@
 /*
- *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
+ * Copyright 2020-2021 Moros
  *
- *    This file is part of Gaia.
+ * This file is part of Gaia.
  *
- *    Gaia is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * Gaia is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *    Gaia is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * Gaia is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.moros.gaia.util;
@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class Util {
   private static final Pattern NON_ALPHANUMERICAL = Pattern.compile("[^A-Za-z0-9]");
@@ -37,7 +38,10 @@ public class Util {
    * @param input the input string to sanitize
    * @return the sanitized output string
    */
-  public static @NonNull String sanitizeInput(@NonNull String input) {
+  public static @NonNull String sanitizeInput(@Nullable String input) {
+    if (input == null) {
+      return "";
+    }
     String output = NON_ALPHANUMERICAL.matcher(input).replaceAll("").toLowerCase();
     return output.length() > 32 ? output.substring(0, 32) : output;
   }
@@ -59,7 +63,7 @@ public class Util {
     return input.substring(0, 1).toUpperCase() + input.substring(1);
   }
 
-  public static @NonNull String getSizeDescription(int size) {
+  public static @NonNull String description(int size) {
     if (size <= 32768) {
       return "Tiny";
     } else if (size <= 262144) {

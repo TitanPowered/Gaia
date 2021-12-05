@@ -1,20 +1,20 @@
 /*
- *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
+ * Copyright 2020-2021 Moros
  *
- *    This file is part of Gaia.
+ * This file is part of Gaia.
  *
- *    Gaia is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * Gaia is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *    Gaia is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * Gaia is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.moros.gaia.api;
@@ -36,8 +36,8 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A chunk aligned GaiaRegion.
  */
-public class GaiaChunk implements Metadatable {
-  public static final Comparator<GaiaChunk> ZX_ORDER = Comparator.comparingInt(GaiaChunk::getZ).thenComparingInt(GaiaChunk::getX);
+public class GaiaChunk implements Metadatable, Iterable<BlockVector3> {
+  public static final Comparator<GaiaChunk> ZX_ORDER = Comparator.comparingInt(GaiaChunk::chunkZ).thenComparingInt(GaiaChunk::chunkX);
 
   private final UUID id;
 
@@ -52,34 +52,34 @@ public class GaiaChunk implements Metadatable {
   public GaiaChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region) {
     this.id = Objects.requireNonNull(id);
     this.parent = Objects.requireNonNull(parent);
-    chunkX = region.getMinimumPoint().getX() / 16;
-    chunkZ = region.getMinimumPoint().getZ() / 16;
+    chunkX = region.min().getX() / 16;
+    chunkZ = region.min().getZ() / 16;
     chunk = region;
     reverting = false;
     parent.addSubRegion(this);
   }
 
-  public @NonNull UUID getId() {
+  public @NonNull UUID id() {
     return id;
   }
 
-  public @NonNull Arena getParent() {
+  public @NonNull Arena parent() {
     return parent;
   }
 
-  public int getX() {
+  public int chunkX() {
     return chunkX;
   }
 
-  public int getZ() {
+  public int chunkZ() {
     return chunkZ;
   }
 
-  public @NonNull GaiaRegion getRegion() {
+  public @NonNull GaiaRegion region() {
     return chunk;
   }
 
-  public boolean isReverting() {
+  public boolean reverting() {
     return reverting;
   }
 
@@ -91,13 +91,14 @@ public class GaiaChunk implements Metadatable {
     reverting = false;
   }
 
-  public synchronized boolean isAnalyzed() {
+  public synchronized boolean analyzed() {
     return meta != null && meta.hash != null && !meta.hash.isEmpty();
   }
 
+  @Override
   public @NonNull Iterator<BlockVector3> iterator() {
     return new Iterator<>() {
-      private final BlockVector3 max = chunk.getVector();
+      private final BlockVector3 max = chunk.size();
       private int nextX = 0;
       private int nextY = 0;
       private int nextZ = 0;
@@ -128,12 +129,12 @@ public class GaiaChunk implements Metadatable {
   }
 
   @Override
-  public @MonotonicNonNull GaiaMetadata getMetadata() {
+  public @MonotonicNonNull GaiaMetadata metadata() {
     return meta;
   }
 
   @Override
-  public void setMetadata(@NotNull GaiaMetadata meta) {
+  public void metadata(@NotNull GaiaMetadata meta) {
     this.meta = (ChunkMetadata) meta;
   }
 }

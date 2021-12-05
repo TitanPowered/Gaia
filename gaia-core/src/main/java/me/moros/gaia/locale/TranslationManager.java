@@ -1,20 +1,20 @@
 /*
- *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
+ * Copyright 2020-2021 Moros
  *
- *    This file is part of Gaia.
+ * This file is part of Gaia.
  *
- *    Gaia is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * Gaia is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *    Gaia is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * Gaia is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.moros.gaia.locale;
@@ -32,7 +32,6 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,6 +41,7 @@ import net.kyori.adventure.translation.TranslationRegistry;
 import net.kyori.adventure.translation.Translator;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.slf4j.Logger;
 
 public class TranslationManager {
   public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
@@ -91,14 +91,14 @@ public class TranslationManager {
     String localeString = removeFileExtension(path);
     Locale locale = Translator.parseLocale(localeString);
     if (locale == null) {
-      logger.warning("Unknown locale: " + localeString);
+      logger.warn("Unknown locale: " + localeString);
       return;
     }
     PropertyResourceBundle bundle;
     try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
       bundle = new PropertyResourceBundle(reader);
     } catch (IOException e) {
-      logger.warning("Error loading locale file: " + localeString);
+      logger.warn("Error loading locale file: " + localeString);
       return;
     }
     registry.registerAll(locale, bundle, false);

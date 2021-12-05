@@ -18,7 +18,6 @@ Gaia makes use of [Paper's](https://github.com/PaperMC/Paper) async chunk API.
 3. Wait for confirmation and you are done!
 
 ## A couple notes
-Gaia has been tested with PaperMC 1.16.x but should work with other versions (within reason).
 Arenas are automatically split into sub-regions which are saved individually on your server's storage.
 It's recommended you use an SSD to ensure disk IO is not bottlenecking Gaia.
 Only basic information about arenas is kept in memory, making the plugin extremely lightweight.
@@ -32,13 +31,15 @@ All commands except `/gaia version` default to OP only.
 
 `gaia.admin`: Gives access to all Gaia commands
 
-| Command               | Permission             | Description                                |
-|-----------------------|------------------------|--------------------------------------------|
-| `/gaia help`          | `gaia.command.help`    | View list of Gaia commands                 |
-| `/gaia version`       | `gaia.command.version` | Show plugin version and author             |
-| `/gaia list`          | `gaia.command.list`    | List all Gaia arenas                       |
-| `/gaia info [name]`   | `gaia.command.info`    | View info about the specified arena        |
-| `/gaia create <name>` | `gaia.command.create`  | Create a new arena with the specified name |
-| `/gaia remove <name>` | `gaia.command.remove`  | Remove the specified arena                 |
-| `/gaia revert <name>` | `gaia.command.revert`  | Revert the specified arena                 |
-| `/gaia cancel [name]` | `gaia.command.cancel`  | Cancel reverting the the specified arena   |
+If no arena is specified, Gaia will attempt to select the one the player is currently standing in.
+
+| Command                | Permission             | Description                                |
+|------------------------|------------------------|--------------------------------------------|
+| `/gaia help`           | `gaia.command.help`    | View list of Gaia commands                 |
+| `/gaia version`        | `gaia.command.version` | Show plugin version and author             |
+| `/gaia list [page]`    | `gaia.command.list`    | List all Gaia arenas                       |
+| `/gaia info [arena]`   | `gaia.command.info`    | View info about the specified arena        |
+| `/gaia remove [arena]` | `gaia.command.remove`  | Remove the specified arena                 |
+| `/gaia revert [arena]` | `gaia.command.revert`  | Revert the specified arena                 |
+| `/gaia cancel [arena]` | `gaia.command.cancel`  | Cancel reverting the specified arena       |
+| `/gaia create <name>`  | `gaia.command.create`  | Create a new arena with the specified name |

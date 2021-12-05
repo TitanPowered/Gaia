@@ -1,20 +1,20 @@
 /*
- *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
+ * Copyright 2020-2021 Moros
  *
- *    This file is part of Gaia.
+ * This file is part of Gaia.
  *
- *    Gaia is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * Gaia is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *    Gaia is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * Gaia is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.moros.gaia.io;
@@ -93,7 +93,7 @@ public final class GaiaIO {
     return Files.exists(IO.arenaDir);
   }
 
-  public static GaiaIO getInstance() {
+  public static GaiaIO instance() {
     return IO;
   }
 
@@ -152,12 +152,12 @@ public final class GaiaIO {
     try (JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8))) {
       ArenaMetadata meta = gson.fromJson(reader, ArenaMetadata.class);
       if (meta == null || !meta.isValidMetadata()) {
-        plugin.getLog().warning("Invalid arena metadata: " + path);
+        plugin.logger().warn("Invalid arena metadata: " + path);
         return;
       }
       int amount = meta.amount;
       UUID worldId = UUID.fromString(meta.world);
-      World w = plugin.getWorld(worldId);
+      World w = plugin.findWorld(worldId);
       if (w == null) {
         return;
       }
@@ -169,14 +169,14 @@ public final class GaiaIO {
           new GaiaChunk(id, arena, new GaiaRegion(m.min, m.max));
         }
       });
-      if (debug && arena.getSubRegions().size() != amount) {
-        plugin.getLog().warning("Incomplete loading for arena: " + arena.getName());
+      if (debug && arena.amount() != amount) {
+        plugin.logger().warn("Incomplete loading for arena: " + arena.name());
       }
       if (arena.finalizeArena()) {
         if (debug) {
-          plugin.getLog().info("Loaded arena: " + arena.getName() + " (" + (System.currentTimeMillis() - time) + "ms)");
+          plugin.logger().info("Loaded arena: " + arena.name() + " (" + (System.currentTimeMillis() - time) + "ms)");
         }
-        plugin.getArenaManager().addArena(arena);
+        plugin.arenaManager().add(arena);
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -185,12 +185,12 @@ public final class GaiaIO {
 
   public @NonNull CompletableFuture<@NonNull Boolean> saveArena(@NonNull Arena arena) {
     return CompletableFuture.supplyAsync(() -> {
-      ArenaMetadata meta = (ArenaMetadata) arena.getMetadata();
-      arena.getSubRegions().forEach(c -> meta.addChunkMetadata((ChunkMetadata) c.getMetadata()));
+      ArenaMetadata meta = (ArenaMetadata) arena.metadata();
+      arena.forEach(c -> meta.addChunkMetadata((ChunkMetadata) c.metadata()));
       Path path = Paths.get(arenaDir.toString(), meta.name + ARENA_SUFFIX);
       try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
         gson.toJson(meta, writer);
-        plugin.getLog().info(meta.name + " has been stored successfully.");
+        plugin.logger().info(meta.name + " has been stored successfully.");
         return true;
       } catch (IOException e) {
         e.printStackTrace();
@@ -201,7 +201,7 @@ public final class GaiaIO {
 
   public @NonNull CompletableFuture<@Nullable GaiaData> loadData(@NonNull GaiaChunk chunk) {
     return CompletableFuture.supplyAsync(() -> {
-      Path path = Paths.get(arenaDir.toString(), chunk.getParent().getName(), chunk.getId() + DATA_SUFFIX);
+      Path path = Paths.get(arenaDir.toString(), chunk.parent().name(), chunk.id() + DATA_SUFFIX);
       try (Closer closer = Closer.create()) {
         FileInputStream fis = closer.register(new FileInputStream(path.toFile()));
         BufferedInputStream bis = closer.register(new BufferedInputStream(fis));
@@ -216,7 +216,7 @@ public final class GaiaIO {
 
   public @NonNull CompletableFuture<@NonNull String> saveData(@NonNull GaiaChunk chunk, @NonNull GaiaData data) {
     return CompletableFuture.supplyAsync(() -> {
-      Path path = Paths.get(arenaDir.toString(), chunk.getParent().getName(), chunk.getId() + DATA_SUFFIX);
+      Path path = Paths.get(arenaDir.toString(), chunk.parent().name(), chunk.id() + DATA_SUFFIX);
       DigestOutputStream hos;
       try (Closer closer = Closer.create()) {
         FileOutputStream fos = closer.register(new FileOutputStream(path.toFile()));
@@ -230,7 +230,7 @@ public final class GaiaIO {
       }
       byte[] hashBytes = hos.getMessageDigest().digest();
       String checksum = Util.toHex(hashBytes);
-      chunk.setMetadata(new ChunkMetadata(chunk, checksum));
+      chunk.metadata(new ChunkMetadata(chunk, checksum));
       return checksum;
     }, plugin.executor());
   }
@@ -239,18 +239,18 @@ public final class GaiaIO {
     if (!path.getFileName().toString().endsWith(DATA_SUFFIX)) {
       return false;
     }
-    final String actualChecksum = getFileChecksum(path);
+    final String actualChecksum = calculateChecksum(path);
     final boolean match = checksum.equals(actualChecksum);
     if (debug && !match) {
-      plugin.getLog().warning("Checksums don't match for file: " + path);
-      plugin.getLog().info("Expected: " + checksum);
-      plugin.getLog().info("Found: " + actualChecksum);
-      plugin.getLog().warning("Your data might be corrupted. Arena won't load for safety reasons.");
+      plugin.logger().warn("Checksums don't match for file: " + path);
+      plugin.logger().info("Expected: " + checksum);
+      plugin.logger().info("Found: " + actualChecksum);
+      plugin.logger().warn("Your data might be corrupted. Arena won't load for safety reasons.");
     }
     return match;
   }
 
-  private String getFileChecksum(Path filePath) {
+  private String calculateChecksum(Path filePath) {
     byte[] buffer = new byte[65536];
     try (FileInputStream stream = new FileInputStream(filePath.toFile())) {
       MessageDigest md = MessageDigest.getInstance(ALGORITHM);

@@ -5,7 +5,11 @@ plugins {
 dependencies {
     implementation(project(":gaia-core"))
     implementation("org.bstats", "bstats-bukkit", "2.2.1")
-    implementation("co.aikar", "acf-paper", "0.5.0-SNAPSHOT")
+    implementation("org.spongepowered", "configurate-hocon", "4.1.2")
+    implementation("cloud.commandframework","cloud-paper", "1.6.0")
+    implementation("cloud.commandframework","cloud-minecraft-extras", "1.6.0") {
+        exclude(group = "net.kyori")
+    }
     compileOnly("io.papermc.paper", "paper-api", "1.17.1-R0.1-SNAPSHOT")
     compileOnly("com.sk89q.worldedit", "worldedit-bukkit", "7.2.0")
 }
@@ -16,8 +20,10 @@ tasks {
         archiveBaseName.set(rootProject.name)
         dependencies {
             relocate("org.bstats", "me.moros.gaia.bstats")
-            relocate("co.aikar.commands", "me.moros.gaia.internal.acf")
-            relocate("co.aikar.locales", "me.moros.gaia.internal.locales")
+            relocate("cloud.commandframework", "me.moros.gaia.internal.cf")
+            relocate("io.leangen", "me.moros.gaia.internal.leangen")
+            relocate("com.typesafe", "me.moros.gaia.internal.typesafe")
+            relocate("org.spongepowered.configurate", "me.moros.gaia.internal.configurate")
         }
         minimize()
     }

@@ -1,20 +1,20 @@
 /*
- *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
+ * Copyright 2020-2021 Moros
  *
- *    This file is part of Gaia.
+ * This file is part of Gaia.
  *
- *    Gaia is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * Gaia is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *    Gaia is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * Gaia is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.moros.gaia.io;
@@ -47,9 +47,9 @@ public class GaiaWriter implements Closeable {
   }
 
   public void write(@NonNull GaiaData data) throws IOException {
-    int width = data.getVector().getX();
-    int height = data.getVector().getY();
-    int length = data.getVector().getZ();
+    int width = data.size().getX();
+    int height = data.size().getY();
+    int length = data.size().getZ();
 
     Map<String, Tag> schematic = new HashMap<>();
     schematic.put("Width", new ShortTag((short) width));
@@ -62,7 +62,7 @@ public class GaiaWriter implements Closeable {
     for (int y = 0; y < height; y++) {
       for (int z = 0; z < length; z++) {
         for (int x = 0; x < width; x++) {
-          String blockKey = data.getDataAt(x, y, z).getAsString();
+          String blockKey = data.get(x, y, z).getAsString();
           int blockId;
           if (palette.containsKey(blockKey)) {
             blockId = palette.get(blockKey);

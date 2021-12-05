@@ -1,20 +1,20 @@
 /*
- *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
+ * Copyright 2020-2021 Moros
  *
- *    This file is part of Gaia.
+ * This file is part of Gaia.
  *
- *    Gaia is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * Gaia is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *    Gaia is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * Gaia is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.moros.gaia.io;
@@ -68,7 +68,7 @@ public class GaiaReader implements Closeable {
 
     for (String palettePart : paletteObject.keySet()) {
       int id = requireTag(paletteObject, palettePart, IntTag.class).getValue();
-      palette.put(id, platform.getBlockDataFromString(palettePart));
+      palette.put(id, platform.parseBlockData(palettePart));
     }
 
     byte[] blocks = requireTag(schematic, "BlockData", ByteArrayTag.class).getValue();
@@ -96,7 +96,7 @@ public class GaiaReader implements Closeable {
       int y = index / (width * length);
       int z = (index % (width * length)) / width;
       int x = (index % (width * length)) % width;
-      data.setDataAt(x, y, z, palette.get(value));
+      data.set(x, y, z, palette.get(value));
       index++;
     }
     return data;

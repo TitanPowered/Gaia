@@ -1,20 +1,20 @@
 /*
- *   Copyright 2020-2021 Moros <https://github.com/PrimordialMoros>
+ * Copyright 2020-2021 Moros
  *
- *    This file is part of Gaia.
+ * This file is part of Gaia.
  *
- *    Gaia is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * Gaia is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *    Gaia is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * Gaia is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with Gaia.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.moros.gaia.api;
@@ -36,45 +36,33 @@ public final class GaiaRegion {
     diff = maxPoint.subtract(minPoint).add(1, 1, 1);
   }
 
-  public @NonNull BlockVector3 getMinimumPoint() {
+  public @NonNull BlockVector3 min() {
     return minPoint;
   }
 
-  public @NonNull BlockVector3 getMaximumPoint() {
+  public @NonNull BlockVector3 max() {
     return maxPoint;
   }
 
-  public @NonNull BlockVector3 getVector() {
+  public @NonNull BlockVector3 size() {
     return diff;
   }
 
-  public int getWidth() {
-    return diff.getX();
-  }
-
-  public int getHeight() {
-    return diff.getY();
-  }
-
-  public int getLength() {
-    return diff.getZ();
-  }
-
-  public int getVolume() {
+  public int volume() {
     return diff.getX() * diff.getY() * diff.getZ();
   }
 
-  public @NonNull BlockVector3 getCenter() {
-    return getMinimumPoint().add(getMaximumPoint()).divide(2);
+  public @NonNull BlockVector3 center() {
+    return min().add(max()).divide(2);
   }
 
   public boolean contains(@NonNull BlockVector3 vector) {
-    return vector.containedWithin(getMinimumPoint(), getMaximumPoint());
+    return vector.containedWithin(min(), max());
   }
 
   public boolean intersects(@NonNull GaiaRegion region) {
-    return (getMinimumPoint().getX() <= region.getMaximumPoint().getX() && getMaximumPoint().getX() >= region.getMinimumPoint().getX()) &&
-      (getMinimumPoint().getY() <= region.getMaximumPoint().getY() && getMaximumPoint().getY() >= region.getMinimumPoint().getY()) &&
-      (getMinimumPoint().getZ() <= region.getMaximumPoint().getZ() && getMaximumPoint().getZ() >= region.getMinimumPoint().getZ());
+    return (min().getX() <= region.max().getX() && max().getX() >= region.min().getX()) &&
+      (min().getY() <= region.max().getY() && max().getY() >= region.min().getY()) &&
+      (min().getZ() <= region.max().getZ() && max().getZ() >= region.min().getZ());
   }
 }
