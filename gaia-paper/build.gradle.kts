@@ -18,6 +18,7 @@ tasks {
     shadowJar {
         archiveClassifier.set("")
         archiveBaseName.set(rootProject.name)
+        destinationDirectory.set(rootProject.buildDir)
         dependencies {
             relocate("org.bstats", "me.moros.gaia.bstats")
             relocate("cloud.commandframework", "me.moros.gaia.internal.cf")
@@ -36,5 +37,8 @@ tasks {
     }
     named<Copy>("processResources") {
         expand("pluginVersion" to project.version)
+        from("../LICENSE") {
+            rename { "${rootProject.name.toUpperCase()}_${it}"}
+        }
     }
 }
