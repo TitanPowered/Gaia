@@ -90,7 +90,8 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     long startTime = System.currentTimeMillis();
     GaiaIO.instance().loadAllArenas().thenRun(() -> {
       long delta = System.currentTimeMillis() - startTime;
-      logger.info("Successfully loaded " + arenaManager.amount() + " arenas in (" + delta + "ms)");
+      int size = arenaManager.size();
+      logger.info("Successfully loaded " + size + (size == 1 ? " arena" : " arenas") + " (" + delta + "ms)");
     });
     try {
       commandManager = new GaiaCommandManager(this);

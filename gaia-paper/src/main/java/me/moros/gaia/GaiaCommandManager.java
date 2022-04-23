@@ -38,7 +38,6 @@ import cloud.commandframework.minecraft.extras.MinecraftHelp;
 import cloud.commandframework.minecraft.extras.MinecraftHelp.HelpColors;
 import cloud.commandframework.paper.PaperCommandManager;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.math.BlockVector3;
 import io.leangen.geantyref.TypeToken;
 import me.moros.gaia.api.Arena;
@@ -47,6 +46,7 @@ import me.moros.gaia.command.GaiaCommand;
 import me.moros.gaia.locale.Message;
 import me.moros.gaia.util.Util;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
@@ -109,6 +109,7 @@ public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
 
   private void registerParsers() {
     getParserRegistry().registerParserSupplier(TypeToken.get(Arena.class), options -> new ArenaParser());
+    getParserRegistry().registerParserSupplier(TypeToken.get(GaiaUser.class), options -> new GaiaUserParser());
   }
 
   private final class ArenaParser implements ArgumentParser<GaiaUser, Arena> {
@@ -123,10 +124,9 @@ public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
       Supplier<ArgumentParseResult<Arena>> failure = () -> ArgumentParseResult.failure(new Exception("Could not find the specified arena."));
       if (sanitized.equalsIgnoreCase("cur")) {
         if (commandContext.getSender().isPlayer()) {
-          org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((BukkitGaiaUser) commandContext.getSender()).sender();
-          Player player = BukkitAdapter.adapt(bukkitPlayer);
+          Player bukkitPlayer = (Player) ((BukkitGaiaUser) commandContext.getSender()).sender();
           UUID worldId = bukkitPlayer.getWorld().getUID();
-          BlockVector3 point = player.getLocation().toVector().toBlockPoint();
+          BlockVector3 point = BukkitAdapter.adapt(bukkitPlayer).getLocation().toVector().toBlockPoint();
           return plugin.arenaManager().stream()
             .filter(a -> a.worldUID().equals(worldId) && a.region().contains(point)).findAny()
             .map(ArgumentParseResult::success).orElseGet(failure);
@@ -140,6 +140,31 @@ public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
     @Override
     public @NonNull List<@NonNull String> suggestions(final @NonNull CommandContext<GaiaUser> commandContext, final @NonNull String input) {
       return plugin.arenaManager().sortedNames();
+    }
+  }
+
+  private final class GaiaUserParser implements ArgumentParser<GaiaUser, GaiaUser> {
+    @Override
+    public @NonNull ArgumentParseResult<GaiaUser> parse(@NonNull CommandContext<@NonNull GaiaUser> commandContext, @NonNull Queue<@NonNull String> inputQueue) {
+      String input = inputQueue.peek();
+      if (input == null) {
+        return ArgumentParseResult.success(commandContext.getSender());
+      }
+      inputQueue.remove();
+      String sanitized = Util.sanitizeInput(input);
+      if (sanitized.equalsIgnoreCase("me")) {
+        return ArgumentParseResult.success(commandContext.getSender());
+      }
+      Player player = plugin.getServer().getPlayer(sanitized);
+      if (player == null) {
+        return ArgumentParseResult.success(commandContext.getSender());
+      }
+      return ArgumentParseResult.success(new BukkitGaiaUser(player));
+    }
+
+    @Override
+    public @NonNull List<@NonNull String> suggestions(final @NonNull CommandContext<GaiaUser> commandContext, final @NonNull String input) {
+      return plugin.getServer().getOnlinePlayers().stream().map(Player::getName).toList();
     }
   }
 }

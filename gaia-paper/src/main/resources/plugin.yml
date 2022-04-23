@@ -21,3 +21,4 @@ permissions:
       gaia.command.revert: true
       gaia.command.cancel: true
       gaia.command.version: true
+      gaia.command.bypass: true

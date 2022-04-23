@@ -59,7 +59,7 @@ public abstract class ArenaManager implements Iterable<Arena> {
     return arenas.values().stream();
   }
 
-  public int amount() {
+  public int size() {
     return arenas.size();
   }
 

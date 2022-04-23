@@ -57,6 +57,8 @@ public final class GaiaCommand {
   private void construct() {
     var arenaArg = manager.argumentBuilder(Arena.class, "arena")
       .asOptionalWithDefault("cur");
+    var targetArg = manager.argumentBuilder(GaiaUser.class, "target")
+      .asOptionalWithDefault("me");
 
     //noinspection ConstantConditions
     manager
@@ -89,7 +91,8 @@ public final class GaiaCommand {
         .meta(CommandMeta.DESCRIPTION, "Revert the specified arena")
         .permission(CommandPermissions.REVERT)
         .argument(arenaArg.build())
-        .handler(c -> onRevert(c.getSender(), c.get("arena")))
+        .argument(targetArg.build())
+        .handler(c -> onRevert(c.get("target"), c.get("arena")))
       ).command(builder.literal("cancel", "abort")
         .meta(CommandMeta.DESCRIPTION, "Cancel reverting the specified arena")
         .permission(CommandPermissions.CANCEL)
@@ -113,7 +116,7 @@ public final class GaiaCommand {
   }
 
   private void onList(GaiaUser user, Integer page) {
-    int count = plugin.arenaManager().amount();
+    int count = plugin.arenaManager().size();
     if (count == 0) {
       Message.LIST_NOT_FOUND.send(user);
       return;
@@ -174,7 +177,7 @@ public final class GaiaCommand {
   }
 
   private void onRevert(GaiaUser user, Arena arena) {
-    if (user.isPlayer()) {
+    if (user.isPlayer() && !user.hasPermission(CommandPermissions.BYPASS.toString())) {
       long deltaTime = plugin.arenaManager().nextRevertTime(arena) - System.currentTimeMillis();
       if (deltaTime > 0) {
         Message.REVERT_COOLDOWN.send(user, deltaTime);

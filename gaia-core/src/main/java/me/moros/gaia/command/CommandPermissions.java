@@ -35,6 +35,7 @@ public final class CommandPermissions {
   public static CommandPermission REVERT = create("revert");
   public static CommandPermission CANCEL = create("cancel");
   public static CommandPermission VERSION = create("version");
+  public static CommandPermission BYPASS = create("bypass");
 
   private static Permission create(@NonNull String node) {
     return Permission.of("gaia.command." + node);
