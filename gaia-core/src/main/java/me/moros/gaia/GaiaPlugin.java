@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.block.BlockState;
+import me.moros.gaia.api.ArenaPoint;
 import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.config.ConfigManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -49,5 +50,9 @@ public interface GaiaPlugin {
 
   @NonNull Executor executor();
 
+  @Nullable ArenaPoint pointFromUser(@NonNull GaiaUser user);
+
   void queryCommands(@NonNull String rawQuery, @NonNull GaiaUser recipient);
+
+  void teleport(@NonNull GaiaUser user, @NonNull UUID worldUid, @NonNull ArenaPoint point);
 }

@@ -19,29 +19,31 @@
 
 package me.moros.gaia;
 
-import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.block.BlockState;
+import me.moros.gaia.api.ArenaPoint;
 import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.config.ConfigManager;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.locale.TranslationManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
+
+import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Gaia extends JavaPlugin implements GaiaPlugin {
   private BlockState AIR;
@@ -172,7 +174,29 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     return executor;
   }
 
+  @Override
+  public @Nullable ArenaPoint pointFromUser(@NonNull GaiaUser user) {
+    if (!user.isPlayer()) {
+      return null;
+    }
+    Location loc = ((org.bukkit.entity.Player) ((BukkitGaiaUser) user).sender()).getLocation();
+    return new ArenaPoint(BukkitAdapter.asVector(loc), loc.getYaw(), loc.getPitch());
+  }
+
+  @Override
   public void queryCommands(@NonNull String rawQuery, @NonNull GaiaUser recipient) {
     commandManager.help().queryCommands(rawQuery, recipient);
+  }
+
+  @Override
+  public void teleport(@NonNull GaiaUser user, @NonNull UUID worldUid, @NonNull ArenaPoint point) {
+    final org.bukkit.World world = Bukkit.getWorld(worldUid);
+    if (!user.isPlayer() || world == null) {
+      return;
+    }
+    Location loc = BukkitAdapter.adapt(world, point.v());
+    loc.setYaw(point.yaw());
+    loc.setPitch(point.pitch());
+    ((org.bukkit.entity.Player) ((BukkitGaiaUser) user).sender()).teleportAsync(loc);
   }
 }

@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import me.moros.gaia.api.Arena;
+import me.moros.gaia.api.ArenaPoint;
 import me.moros.gaia.util.Util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -38,6 +39,7 @@ public class ArenaMetadata extends GaiaMetadata {
 
   public int amount;
   public List<ChunkMetadata> chunks;
+  public List<ArenaPoint> points;
 
   public ArenaMetadata(@NonNull Arena arena) {
     version = VERSION;
@@ -47,6 +49,7 @@ public class ArenaMetadata extends GaiaMetadata {
     max = arena.region().max();
     amount = arena.amount();
     chunks = new ArrayList<>(amount);
+    points = arena.points();
   }
 
   @Override

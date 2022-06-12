@@ -20,6 +20,7 @@
 package me.moros.gaia.api;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -47,6 +48,7 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
   private final Component info;
 
   private final List<GaiaChunk> subRegions;
+  private final List<ArenaPoint> points;
 
   private boolean reverting;
   private boolean finalized;
@@ -62,12 +64,25 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
     this.region = region;
     info = createInfo(this);
     subRegions = new ArrayList<>();
+    points = new ArrayList<>();
     reverting = false;
     finalized = false;
   }
 
   public void addSubRegion(@NonNull GaiaChunk chunk) {
     subRegions.add(chunk);
+  }
+
+  public void addPoint(@NonNull ArenaPoint point) {
+    this.points.add(point);
+  }
+
+  public void addPoints(@NonNull Collection<@NonNull ArenaPoint> points) {
+    this.points.addAll(points);
+  }
+
+  public void clearPoints() {
+    this.points.clear();
   }
 
   public boolean finalizeArena() {
@@ -105,6 +120,10 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
 
   public @NonNull Component info() {
     return info;
+  }
+
+  public @NonNull List<@NonNull ArenaPoint> points() {
+    return List.copyOf(points);
   }
 
   public boolean reverting() {

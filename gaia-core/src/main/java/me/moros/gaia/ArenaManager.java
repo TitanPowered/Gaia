@@ -33,6 +33,7 @@ import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.io.GaiaIO;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class ArenaManager implements Iterable<Arena> {
   private final Map<String, Arena> arenas = new ConcurrentHashMap<>();
@@ -85,6 +86,8 @@ public abstract class ArenaManager implements Iterable<Arena> {
   public abstract boolean create(@NonNull GaiaUser user, @NonNull String arenaName);
 
   public abstract long nextRevertTime(@NonNull Arena arena);
+
+  public abstract @Nullable Arena standingArena(@NonNull GaiaUser user);
 
   public @NonNull Iterator<Arena> iterator() {
     return Collections.unmodifiableCollection(arenas.values()).iterator();

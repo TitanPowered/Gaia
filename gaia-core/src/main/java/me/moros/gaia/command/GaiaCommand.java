@@ -19,8 +19,6 @@
 
 package me.moros.gaia.command;
 
-import java.util.Comparator;
-
 import cloud.commandframework.Command.Builder;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.arguments.standard.IntegerArgument;
@@ -29,15 +27,24 @@ import cloud.commandframework.arguments.standard.StringArgument.StringMode;
 import cloud.commandframework.meta.CommandMeta;
 import me.moros.gaia.GaiaPlugin;
 import me.moros.gaia.api.Arena;
+import me.moros.gaia.api.ArenaPoint;
 import me.moros.gaia.api.GaiaUser;
+import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.locale.Message;
 import me.moros.gaia.util.Util;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class GaiaCommand {
   private static final int AMOUNT_PER_PAGE = 12;
@@ -103,6 +110,21 @@ public final class GaiaCommand {
         .permission(CommandPermissions.HELP)
         .argument(StringArgument.optional("query", StringMode.GREEDY))
         .handler(c -> plugin.queryCommands(c.getOrDefault("query", ""), c.getSender()))
+      ).command(builder.literal("addpoint", "add", "a")
+        .meta(CommandMeta.DESCRIPTION, "Add a new point")
+        .permission(CommandPermissions.POINT)
+        .handler(c -> onPointAdd(c.getSender()))
+      ).command(builder.literal("clearpoints", "clearpoint", "clear")
+        .meta(CommandMeta.DESCRIPTION, "Clear all points for the specified arena")
+        .permission(CommandPermissions.POINT)
+        .argument(arenaArg.build())
+        .handler(c -> onPointClear(c.getSender(), c.get("arena")))
+      ).command(builder.literal("teleport", "tp")
+        .meta(CommandMeta.DESCRIPTION, "Teleport to a point in the specified arena")
+        .permission(CommandPermissions.TELEPORT)
+        .argument(arenaArg.build())
+        .argument(IntegerArgument.optional("id", 0))
+        .handler(c -> onPointTeleport(c.getSender(), c.get("arena"), c.get("id")))
       );
   }
 
@@ -148,6 +170,27 @@ public final class GaiaCommand {
 
   private void onInfo(GaiaUser user, Arena arena) {
     user.sendMessage(arena.info());
+    List<ArenaPoint> points = arena.points();
+    if (points.isEmpty()) {
+      Message.NO_POINTS.send(user, arena.displayName());
+      return;
+    }
+    ListIterator<ArenaPoint> it = points.listIterator();
+    List<Component> components = new ArrayList<>();
+    while (it.hasNext()) {
+      ArenaPoint point = it.next();
+      int index = it.nextIndex();
+      components.add(Component.text()
+        .append(Component.text("[", NamedTextColor.DARK_GRAY))
+        .append(Component.text(index, NamedTextColor.DARK_AQUA))
+        .append(Component.text("]", NamedTextColor.DARK_GRAY))
+        .hoverEvent(HoverEvent.showText(point.details()))
+        .clickEvent(ClickEvent.runCommand("/gaia point teleport " + arena.name() + " " + index))
+        .build());
+    }
+    JoinConfiguration sep = JoinConfiguration.separator(Component.text(", ", NamedTextColor.GRAY));
+    Message.LIST_POINTS.send(user, arena.displayName());
+    user.sendMessage(Component.join(sep, components));
   }
 
   private void onCreate(GaiaUser user, String name) {
@@ -203,6 +246,42 @@ public final class GaiaCommand {
     } else {
       Message.CANCEL_FAIL.send(user, arena.displayName());
     }
+  }
+
+  private void onPointAdd(GaiaUser user) {
+    Arena arena = plugin.arenaManager().standingArena(user);
+    if (arena == null) {
+      Message.ADD_POINT_FAIL_AREA.send(user);
+      return;
+    }
+    ArenaPoint point = plugin.pointFromUser(user);
+    if (point != null) {
+      arena.addPoint(point);
+      GaiaIO.instance().updateArenaPoints(arena);
+      Message.ADD_POINT_SUCCESS.send(user);
+    } else {
+      Message.ADD_POINT_FAIL.send(user);
+    }
+  }
+
+  private void onPointClear(GaiaUser user, Arena arena) {
+    arena.clearPoints();
+    GaiaIO.instance().updateArenaPoints(arena);
+    Message.CLEAR_POINTS.send(user, arena.displayName());
+  }
+
+  private void onPointTeleport(GaiaUser user, Arena arena, Integer id) {
+    List<ArenaPoint> points = arena.points();
+    if (points.isEmpty()) {
+      Message.NO_POINTS.send(user, arena.displayName());
+      return;
+    }
+    if (id < 0 || id > points.size()) {
+      Message.INVALID_POINT.send(user);
+      return;
+    }
+    ArenaPoint pointToTeleport = points.get(id == 0 ? ThreadLocalRandom.current().nextInt(points.size()) : id - 1);
+    plugin.teleport(user, arena.worldUID(), pointToTeleport);
   }
 
   private static Component generatePaging(boolean forward, int page) {

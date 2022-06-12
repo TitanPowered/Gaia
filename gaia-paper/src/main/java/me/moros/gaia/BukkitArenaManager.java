@@ -19,8 +19,6 @@
 
 package me.moros.gaia;
 
-import java.util.UUID;
-
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -39,7 +37,10 @@ import me.moros.gaia.util.metadata.ArenaMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
+
+import java.util.UUID;
 
 public class BukkitArenaManager extends ArenaManager {
   private final long timeout;
@@ -151,6 +152,18 @@ public class BukkitArenaManager extends ArenaManager {
   @Override
   public long nextRevertTime(@NonNull Arena arena) {
     return arena.lastReverted() + cooldown;
+  }
+
+  @Override
+  public @Nullable Arena standingArena(@NonNull GaiaUser user) {
+    if (!user.isPlayer()) {
+      return null;
+    }
+    org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((BukkitGaiaUser) user).sender();
+    UUID worldId = bukkitPlayer.getWorld().getUID();
+    BlockVector3 point = BukkitAdapter.adapt(bukkitPlayer).getLocation().toVector().toBlockPoint();
+    return plugin.arenaManager().stream()
+      .filter(a -> a.worldUID().equals(worldId) && a.region().contains(point)).findAny().orElse(null);
   }
 
   private boolean splitIntoChunks(@NonNull Arena arena) {

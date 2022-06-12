@@ -89,6 +89,17 @@ public interface Message {
     .append(newline()).append(newline())
     .append(translatable("gaia.command.version.hover.open-link", GRAY));
 
+  Args1<Component> NO_POINTS = arena -> brand(translatable("gaia.command.point.empty", YELLOW)
+    .args(arena));
+  Args1<Component> LIST_POINTS = arena -> brand(translatable("gaia.command.point.header", YELLOW)
+    .args(arena));
+  Args0 INVALID_POINT = () -> brand(translatable("gaia.command.point.list.invalid-point", RED));
+  Args0 ADD_POINT_SUCCESS = () -> brand(translatable("gaia.command.point.add.success", GREEN));
+  Args0 ADD_POINT_FAIL = () -> brand(translatable("gaia.command.point.add.fail", RED));
+  Args0 ADD_POINT_FAIL_AREA = () -> brand(translatable("gaia.command.point.add.fail.area", YELLOW));
+  Args1<Component> CLEAR_POINTS = arena -> brand(translatable("gaia.command.point.clear", GREEN)
+    .args(arena));
+
   static Component brand(ComponentLike message) {
     return PREFIX.asComponent().append(message);
   }

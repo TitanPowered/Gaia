@@ -34,6 +34,7 @@ import java.nio.file.Paths;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.zip.GZIPInputStream;
@@ -49,9 +50,12 @@ import com.sk89q.worldedit.util.io.Closer;
 import com.sk89q.worldedit.world.World;
 import me.moros.gaia.GaiaPlugin;
 import me.moros.gaia.api.Arena;
+import me.moros.gaia.api.ArenaPoint;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaData;
 import me.moros.gaia.api.GaiaRegion;
+import me.moros.gaia.io.GaiaAdapter.GaiaBlockVectorAdapter;
+import me.moros.gaia.io.GaiaAdapter.GaiaPointAdapter;
 import me.moros.gaia.util.Util;
 import me.moros.gaia.util.metadata.ArenaMetadata;
 import me.moros.gaia.util.metadata.ChunkMetadata;
@@ -75,7 +79,10 @@ public final class GaiaIO {
     this.plugin = plugin;
     this.arenaDir = arenaDir;
     this.debug = debug;
-    gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(BlockVector3.class, new GaiaAdapter()).create();
+    gson = new GsonBuilder().setPrettyPrinting()
+      .registerTypeAdapter(BlockVector3.class, new GaiaBlockVectorAdapter())
+      .registerTypeAdapter(ArenaPoint.class, new GaiaPointAdapter())
+      .create();
   }
 
   public static boolean createInstance(@NonNull GaiaPlugin plugin, @NonNull String parentDirectory, boolean debug) {
@@ -169,6 +176,9 @@ public final class GaiaIO {
           new GaiaChunk(id, arena, new GaiaRegion(m.min, m.max));
         }
       });
+      if (meta.points != null) {
+        arena.addPoints(meta.points);
+      }
       if (debug && arena.amount() != amount) {
         plugin.logger().warn("Incomplete loading for arena: " + arena.name());
       }
@@ -183,6 +193,24 @@ public final class GaiaIO {
     }
   }
 
+  public void updateArenaPoints(@NonNull Arena arena) {
+    final List<ArenaPoint> points = arena.points();
+    CompletableFuture.runAsync(() -> {
+      Path path = Paths.get(arenaDir.toString(), arena.name() + ARENA_SUFFIX);
+      try (JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8))) {
+        ArenaMetadata meta = gson.fromJson(reader, ArenaMetadata.class);
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
+          meta.points = points;
+          gson.toJson(meta, writer);
+        }
+      } catch (IOException ignore) {
+      }
+    }, plugin.executor()).exceptionally(e -> {
+      e.printStackTrace();
+      return null;
+    });
+  }
+
   public @NonNull CompletableFuture<@NonNull Boolean> saveArena(@NonNull Arena arena) {
     return CompletableFuture.supplyAsync(() -> {
       ArenaMetadata meta = (ArenaMetadata) arena.metadata();
@@ -192,11 +220,13 @@ public final class GaiaIO {
         gson.toJson(meta, writer);
         plugin.logger().info(meta.name + " has been stored successfully.");
         return true;
-      } catch (IOException e) {
-        e.printStackTrace();
+      } catch (IOException ignore) {
       }
       return false;
-    }, plugin.executor());
+    }, plugin.executor()).exceptionally(e -> {
+      e.printStackTrace();
+      return false;
+    });
   }
 
   public @NonNull CompletableFuture<@Nullable GaiaData> loadData(@NonNull GaiaChunk chunk) {
@@ -207,11 +237,13 @@ public final class GaiaIO {
         BufferedInputStream bis = closer.register(new BufferedInputStream(fis));
         GaiaReader reader = closer.register(new GaiaReader(plugin, new NBTInputStream(new GZIPInputStream(bis))));
         return reader.read();
-      } catch (IOException e) {
-        e.printStackTrace();
+      } catch (IOException ignore) {
       }
       return null;
-    }, plugin.executor());
+    }, plugin.executor()).exceptionally(e -> {
+      e.printStackTrace();
+      return null;
+    });
   }
 
   public @NonNull CompletableFuture<@NonNull String> saveData(@NonNull GaiaChunk chunk, @NonNull GaiaData data) {
@@ -225,14 +257,16 @@ public final class GaiaIO {
         GaiaWriter writer = closer.register(new GaiaWriter(new NBTOutputStream(new GZIPOutputStream(bos))));
         writer.write(data);
       } catch (IOException | NoSuchAlgorithmException e) {
-        e.printStackTrace();
         return "";
       }
       byte[] hashBytes = hos.getMessageDigest().digest();
       String checksum = Util.toHex(hashBytes);
       chunk.metadata(new ChunkMetadata(chunk, checksum));
       return checksum;
-    }, plugin.executor());
+    }, plugin.executor()).exceptionally(e -> {
+      e.printStackTrace();
+      return "";
+    });
   }
 
   private boolean isValidFile(Path path, String checksum) {

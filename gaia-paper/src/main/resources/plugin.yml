@@ -22,3 +22,5 @@ permissions:
       gaia.command.cancel: true
       gaia.command.version: true
       gaia.command.bypass: true
+      gaia.command.point: true
+      gaia.command.teleport: true
