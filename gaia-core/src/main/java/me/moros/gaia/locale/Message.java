@@ -28,7 +28,6 @@ import net.kyori.adventure.translation.GlobalTranslator;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import static net.kyori.adventure.text.Component.*;
-import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 
 /**

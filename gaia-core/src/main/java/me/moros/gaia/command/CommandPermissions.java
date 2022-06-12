@@ -27,15 +27,15 @@ public final class CommandPermissions {
   private CommandPermissions() {
   }
 
-  public static CommandPermission HELP = create("help");
-  public static CommandPermission LIST = create("list");
-  public static CommandPermission INFO = create("info");
-  public static CommandPermission CREATE = create("create");
-  public static CommandPermission REMOVE = create("remove");
-  public static CommandPermission REVERT = create("revert");
-  public static CommandPermission CANCEL = create("cancel");
-  public static CommandPermission VERSION = create("version");
-  public static CommandPermission BYPASS = create("bypass");
+  public static final CommandPermission HELP = create("help");
+  public static final CommandPermission LIST = create("list");
+  public static final CommandPermission INFO = create("info");
+  public static final CommandPermission CREATE = create("create");
+  public static final CommandPermission REMOVE = create("remove");
+  public static final CommandPermission REVERT = create("revert");
+  public static final CommandPermission CANCEL = create("cancel");
+  public static final CommandPermission VERSION = create("version");
+  public static final CommandPermission BYPASS = create("bypass");
 
   private static Permission create(@NonNull String node) {
     return Permission.of("gaia.command." + node);

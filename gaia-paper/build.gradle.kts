@@ -1,5 +1,5 @@
 plugins {
-    id("com.github.johnrengelman.shadow").version("7.1.0")
+    id("com.github.johnrengelman.shadow").version("7.1.2")
 }
 
 dependencies {
@@ -11,7 +11,7 @@ dependencies {
         exclude(group = "net.kyori")
     }
     compileOnly("io.papermc.paper", "paper-api", "1.17.1-R0.1-SNAPSHOT")
-    compileOnly("com.sk89q.worldedit", "worldedit-bukkit", "7.2.0")
+    compileOnly("com.sk89q.worldedit", "worldedit-bukkit", "7.2.6")
 }
 
 tasks {

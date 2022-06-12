@@ -1,6 +1,6 @@
 allprojects {
     group = "me.moros"
-    version = "1.6.0"
+    version = "1.7.0"
 
     apply(plugin = "java")
 
