@@ -72,27 +72,25 @@ public final class GaiaIO {
 
   private final GaiaPlugin plugin;
   private final Path arenaDir;
-  private final boolean debug;
   private final Gson gson;
 
-  private GaiaIO(GaiaPlugin plugin, Path arenaDir, boolean debug) {
+  private GaiaIO(GaiaPlugin plugin, Path arenaDir) {
     this.plugin = plugin;
     this.arenaDir = arenaDir;
-    this.debug = debug;
     gson = new GsonBuilder().setPrettyPrinting()
       .registerTypeAdapter(BlockVector3.class, new GaiaBlockVectorAdapter())
       .registerTypeAdapter(ArenaPoint.class, new GaiaPointAdapter())
       .create();
   }
 
-  public static boolean createInstance(@NonNull GaiaPlugin plugin, @NonNull String parentDirectory, boolean debug) {
+  public static boolean createInstance(@NonNull GaiaPlugin plugin, @NonNull String parentDirectory) {
     if (IO != null) {
       return false;
     }
     try {
       Path arenaDir = Paths.get(parentDirectory, "Arenas");
       Files.createDirectories(arenaDir);
-      IO = new GaiaIO(plugin, arenaDir, debug);
+      IO = new GaiaIO(plugin, arenaDir);
     } catch (IOException e) {
       e.printStackTrace();
       return false;
@@ -156,6 +154,7 @@ public final class GaiaIO {
 
   private void loadArena(@NonNull Path path) {
     final long time = System.currentTimeMillis();
+    boolean debug = plugin.configManager().config().debug();
     try (JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8))) {
       ArenaMetadata meta = gson.fromJson(reader, ArenaMetadata.class);
       if (meta == null || !meta.isValidMetadata()) {
@@ -275,7 +274,7 @@ public final class GaiaIO {
     }
     final String actualChecksum = calculateChecksum(path);
     final boolean match = checksum.equals(actualChecksum);
-    if (debug && !match) {
+    if (!match && plugin.configManager().config().debug()) {
       plugin.logger().warn("Checksums don't match for file: " + path);
       plugin.logger().info("Expected: " + checksum);
       plugin.logger().info("Found: " + actualChecksum);

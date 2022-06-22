@@ -35,6 +35,7 @@ public final class CommandPermissions {
   public static final CommandPermission REVERT = create("revert");
   public static final CommandPermission CANCEL = create("cancel");
   public static final CommandPermission VERSION = create("version");
+  public static final CommandPermission RELOAD = create("reload");
   public static final CommandPermission BYPASS = create("bypass");
   public static final CommandPermission POINT = create("point");
   public static final CommandPermission TELEPORT = create("teleport");

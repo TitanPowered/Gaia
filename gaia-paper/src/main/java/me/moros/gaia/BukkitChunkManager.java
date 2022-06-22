@@ -27,41 +27,55 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.World;
 import me.moros.gaia.api.GaiaChunk;
+import me.moros.gaia.config.Config;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.util.functional.AnalyzeOperation;
 import me.moros.gaia.util.functional.GaiaOperation;
 import me.moros.gaia.util.functional.RevertOperation;
 import org.bukkit.Bukkit;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.spongepowered.configurate.ConfigurationNode;
 
 public class BukkitChunkManager implements ChunkManager {
+  private final GaiaPlugin plugin;
   private final Map<GaiaChunk, GaiaOperation> tasks;
   private final ConcurrentLinkedQueue<GaiaChunk> queue;
-  private final int concurrentChunks;
-  private final int concurrentTransactions;
+
+  private Limits limits;
+  private boolean updatedConfig;
 
   protected BukkitChunkManager(@NonNull Gaia plugin) {
-    ConfigurationNode config = plugin.configManager().config();
-    concurrentChunks = config.node("ConcurrentChunks").getInt(4);
-    concurrentTransactions = config.node("ConcurrentTransactions").getInt(32768);
-    tasks = new ConcurrentHashMap<>(concurrentChunks);
+    this.plugin = plugin;
+    limits = setupLimits();
+    tasks = new ConcurrentHashMap<>(limits.concurrentChunks * 2);
     queue = new ConcurrentLinkedQueue<>();
     Bukkit.getScheduler().runTaskTimer(plugin, this::processTasks, 0, 1);
   }
 
+  void updatedConfig() {
+    updatedConfig = true;
+  }
+
+  private Limits setupLimits() {
+    Config c = plugin.configManager().config();
+    return new Limits(c.concurrentChunks(), c.concurrentTransactions());
+  }
+
   private void processTasks() {
     if (queue.isEmpty() && tasks.isEmpty()) {
+      if (updatedConfig) {
+        limits = setupLimits();
+        updatedConfig = false;
+      }
       return;
     }
     Iterator<GaiaChunk> it = queue.iterator();
     int counter = 0;
-    while (counter < concurrentChunks && it.hasNext()) {
+    while (counter < limits.concurrentChunks() && it.hasNext()) {
       GaiaChunk chunk = it.next();
       GaiaOperation operation = tasks.get(chunk);
       if (operation != null) {
         runAfterChunkLoad(chunk, () -> {
-          GaiaOperation newOperation = operation.process(concurrentTransactions);
+          GaiaOperation newOperation = operation.process(limits.concurrentTransactions());
           if (newOperation != null) {
             tasks.replace(chunk, operation, newOperation);
           } else {
@@ -124,5 +138,8 @@ public class BukkitChunkManager implements ChunkManager {
   private void runAfterChunkLoad(GaiaChunk chunk, Runnable runnable) {
     BukkitAdapter.adapt(chunk.parent().world()).getChunkAtAsync(chunk.chunkX(), chunk.chunkZ())
       .thenRun(runnable);
+  }
+
+  private record Limits(int concurrentChunks, int concurrentTransactions) {
   }
 }

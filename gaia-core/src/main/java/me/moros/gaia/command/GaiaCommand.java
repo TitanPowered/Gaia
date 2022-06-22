@@ -19,6 +19,12 @@
 
 package me.moros.gaia.command;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.concurrent.ThreadLocalRandom;
+
 import cloud.commandframework.Command.Builder;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.arguments.standard.IntegerArgument;
@@ -39,12 +45,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.concurrent.ThreadLocalRandom;
 
 public final class GaiaCommand {
   private static final int AMOUNT_PER_PAGE = 12;
@@ -74,6 +74,10 @@ public final class GaiaCommand {
         .meta(CommandMeta.DESCRIPTION, "View version info about the plugin")
         .permission(CommandPermissions.VERSION)
         .handler(c -> onVersion(c.getSender()))
+      ).command(builder.literal("reload", "rel")
+        .meta(CommandMeta.DESCRIPTION, "Reload the plugin and its config")
+        .permission(CommandPermissions.RELOAD)
+        .handler(c -> onReload(c.getSender()))
       ).command(builder.literal("list", "ls")
         .meta(CommandMeta.DESCRIPTION, "List all Gaia arenas")
         .permission(CommandPermissions.LIST)
@@ -135,6 +139,11 @@ public final class GaiaCommand {
       .hoverEvent(HoverEvent.showText(Message.VERSION_COMMAND_HOVER.build(plugin.author(), link)))
       .clickEvent(ClickEvent.openUrl(link));
     user.sendMessage(version);
+  }
+
+  private void onReload(GaiaUser user) {
+    plugin.reload();
+    Message.CONFIG_RELOAD.send(user);
   }
 
   private void onList(GaiaUser user, Integer page) {

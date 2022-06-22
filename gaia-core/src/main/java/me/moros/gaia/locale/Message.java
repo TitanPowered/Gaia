@@ -88,6 +88,7 @@ public interface Message {
     .args(text(author, DARK_AQUA), text(link, LINK_COLOR), text("GPLv3", BLUE))
     .append(newline()).append(newline())
     .append(translatable("gaia.command.version.hover.open-link", GRAY));
+  Args0 CONFIG_RELOAD = () -> translatable("gaia.command.config-reload", GREEN);
 
   Args1<Component> NO_POINTS = arena -> brand(translatable("gaia.command.point.empty", YELLOW)
     .args(arena));

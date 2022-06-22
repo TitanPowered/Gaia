@@ -19,6 +19,8 @@
 
 package me.moros.gaia;
 
+import java.util.UUID;
+
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -38,19 +40,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.configurate.ConfigurationNode;
-
-import java.util.UUID;
 
 public class BukkitArenaManager extends ArenaManager {
-  private final long timeout;
-  private final long cooldown;
-
   BukkitArenaManager(@NonNull Gaia plugin) {
     super(plugin);
-    ConfigurationNode config = plugin.configManager().config();
-    this.timeout = config.node("Analysis", "Timeout").getLong(30_000);
-    this.cooldown = config.node("Cooldown").getLong(5000);
   }
 
   @Override
@@ -124,7 +117,7 @@ public class BukkitArenaManager extends ArenaManager {
       return false;
     }
     arena.metadata(new ArenaMetadata(arena));
-    final long timeoutMoment = System.currentTimeMillis() + this.timeout;
+    final long timeoutMoment = System.currentTimeMillis() + plugin.configManager().config().timeout();
     Bukkit.getScheduler().runTaskTimer((Plugin) plugin, task -> {
       if (System.currentTimeMillis() > timeoutMoment) {
         arena.forEach(plugin.chunkManager()::cancel);
@@ -151,7 +144,7 @@ public class BukkitArenaManager extends ArenaManager {
 
   @Override
   public long nextRevertTime(@NonNull Arena arena) {
-    return arena.lastReverted() + cooldown;
+    return arena.lastReverted() + plugin.configManager().config().cooldown();
   }
 
   @Override

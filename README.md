@@ -38,6 +38,7 @@ If no point is specified, Gaia will pick a random point from the ones available 
 |-------------------------------|-------------------------|---------------------------------------------------|
 | `/gaia help`                  | `gaia.command.help`     | View list of Gaia commands                        |
 | `/gaia version`               | `gaia.command.version`  | Show plugin version and author                    |
+| `/gaia reload`                | `gaia.command.reload`   | Reload the plugin and its config                  |
 | `/gaia list [page]`           | `gaia.command.list`     | List all Gaia arenas                              |
 | `/gaia info [arena]`          | `gaia.command.info`     | View info about the specified arena               |
 | `/gaia remove [arena]`        | `gaia.command.remove`   | Remove the specified arena                        |

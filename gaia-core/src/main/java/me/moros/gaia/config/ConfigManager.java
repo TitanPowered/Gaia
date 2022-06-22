@@ -34,6 +34,7 @@ public final class ConfigManager {
   private final GaiaPlugin plugin;
 
   private CommentedConfigurationNode configRoot;
+  private Config config;
 
   public ConfigManager(@NonNull GaiaPlugin plugin, @NonNull String directory) {
     this.plugin = plugin;
@@ -41,7 +42,7 @@ public final class ConfigManager {
     loader = HoconConfigurationLoader.builder().path(path).build();
     try {
       Files.createDirectories(path.getParent());
-      configRoot = loader.load();
+      reload();
     } catch (IOException e) {
       plugin.logger().warn(e.getMessage(), e);
     }
@@ -50,6 +51,8 @@ public final class ConfigManager {
   public void reload() {
     try {
       configRoot = loader.load();
+      config = new Config(configRoot);
+      plugin.logger().info("Debugging is " + (config.debug() ? "enabled." : "disabled."));
     } catch (IOException e) {
       plugin.logger().warn(e.getMessage(), e);
     }
@@ -64,7 +67,7 @@ public final class ConfigManager {
     }
   }
 
-  public @NonNull CommentedConfigurationNode config() {
-    return configRoot;
+  public @NonNull Config config() {
+    return config;
   }
 }

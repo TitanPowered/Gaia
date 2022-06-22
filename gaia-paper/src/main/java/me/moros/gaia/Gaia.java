@@ -19,6 +19,12 @@
 
 package me.moros.gaia;
 
+import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extension.input.InputParseException;
@@ -39,12 +45,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 
-import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 public class Gaia extends JavaPlugin implements GaiaPlugin {
   private BlockState AIR;
 
@@ -52,6 +52,7 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
   private ParserContext parserContext;
   private ConfigManager configManager;
   private GaiaCommandManager commandManager;
+  private TranslationManager translationManager;
   private BukkitArenaManager arenaManager;
   private BukkitChunkManager chunkManager;
   private String author;
@@ -68,23 +69,20 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     String dir = getDataFolder().toString();
     configManager = new ConfigManager(this, dir);
 
-    executor = Executors.newFixedThreadPool(configManager.config().node("ConcurrentChunks").getInt(4));
+    int threads = Math.max(8, 2 * configManager.config().concurrentChunks());
+    executor = Executors.newFixedThreadPool(threads);
     parserContext = new ParserContext();
     parserContext.setRestricted(false);
     parserContext.setTryLegacy(false);
     parserContext.setPreferringWildcard(false);
     AIR = BukkitAdapter.adapt(Material.AIR.createBlockData());
 
-    new TranslationManager(logger, dir);
+    translationManager = new TranslationManager(logger, dir);
 
     arenaManager = new BukkitArenaManager(this);
     chunkManager = new BukkitChunkManager(this);
 
-    boolean debug = configManager.config().node("Debug").getBoolean(false);
-    if (debug) {
-      logger.info("Debugging is enabled");
-    }
-    if (!GaiaIO.createInstance(this, getDataFolder().getPath(), debug)) {
+    if (!GaiaIO.createInstance(this, getDataFolder().getPath())) {
       logger.error("Could not create Arenas folder! Aborting plugin load.");
       setEnabled(false);
       return;
@@ -198,5 +196,12 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     loc.setYaw(point.yaw());
     loc.setPitch(point.pitch());
     ((org.bukkit.entity.Player) ((BukkitGaiaUser) user).sender()).teleportAsync(loc);
+  }
+
+  @Override
+  public void reload() {
+    configManager.reload();
+    chunkManager.updatedConfig();
+    translationManager.reload();
   }
 }

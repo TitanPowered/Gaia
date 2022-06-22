@@ -55,4 +55,6 @@ public interface GaiaPlugin {
   void queryCommands(@NonNull String rawQuery, @NonNull GaiaUser recipient);
 
   void teleport(@NonNull GaiaUser user, @NonNull UUID worldUid, @NonNull ArenaPoint point);
+
+  void reload();
 }

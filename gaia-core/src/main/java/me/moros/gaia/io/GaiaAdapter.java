@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Moros
+ * Copyright 2020-2022 Moros
  *
  * This file is part of Gaia.
  *
@@ -57,6 +57,7 @@ public class GaiaAdapter {
       return v;
     }
   }
+
   public static final class GaiaPointAdapter implements JsonSerializer<ArenaPoint>, JsonDeserializer<ArenaPoint> {
     @Override
     public @NonNull JsonElement serialize(@NonNull ArenaPoint src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
