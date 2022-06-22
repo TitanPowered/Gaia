@@ -194,7 +194,7 @@ public final class GaiaCommand {
         .append(Component.text(index, NamedTextColor.DARK_AQUA))
         .append(Component.text("]", NamedTextColor.DARK_GRAY))
         .hoverEvent(HoverEvent.showText(point.details()))
-        .clickEvent(ClickEvent.runCommand("/gaia point teleport " + arena.name() + " " + index))
+        .clickEvent(ClickEvent.runCommand("/gaia teleport " + arena.name() + " " + index))
         .build());
     }
     JoinConfiguration sep = JoinConfiguration.separator(Component.text(", ", NamedTextColor.GRAY));
