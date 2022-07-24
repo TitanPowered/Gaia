@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Moros
+ * Copyright 2020-2022 Moros
  *
  * This file is part of Gaia.
  *
@@ -62,7 +62,7 @@ public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
     this.plugin = plugin;
     registerExceptionHandler();
     registerAsynchronousCompletions();
-    setCommandSuggestionProcessor(this::suggestionProvider);
+    commandSuggestionProcessor(this::suggestionProvider);
     registerParsers();
     new GaiaCommand(plugin, this);
     this.help = MinecraftHelp.createNative("/gaia help", this);
@@ -108,8 +108,8 @@ public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
   }
 
   private void registerParsers() {
-    getParserRegistry().registerParserSupplier(TypeToken.get(Arena.class), options -> new ArenaParser());
-    getParserRegistry().registerParserSupplier(TypeToken.get(GaiaUser.class), options -> new GaiaUserParser());
+    parserRegistry().registerParserSupplier(TypeToken.get(Arena.class), options -> new ArenaParser());
+    parserRegistry().registerParserSupplier(TypeToken.get(GaiaUser.class), options -> new GaiaUserParser());
   }
 
   private final class ArenaParser implements ArgumentParser<GaiaUser, Arena> {

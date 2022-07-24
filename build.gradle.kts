@@ -1,6 +1,6 @@
 allprojects {
     group = "me.moros"
-    version = "1.7.0"
+    version = "1.8.0-SNAPSHOT"
 
     apply(plugin = "java")
 
@@ -14,9 +14,8 @@ allprojects {
 subprojects {
     repositories {
         mavenCentral()
-        maven("https://papermc.io/repo/repository/maven-public/")
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://repo.papermc.io/repository/maven-public/")
         maven("https://maven.enginehub.org/repo/")
-        maven("https://repo.codemc.org/repository/maven-public")
     }
 }
