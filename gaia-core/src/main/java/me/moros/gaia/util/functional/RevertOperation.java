@@ -25,8 +25,6 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.SideEffectSet;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaData;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class RevertOperation extends GaiaOperation {
   private final GaiaData data;
@@ -37,27 +35,19 @@ public class RevertOperation extends GaiaOperation {
   }
 
   @Override
-  public @Nullable GaiaOperation process(int maxTransactions) {
-    BlockVector3 relative, real;
-    int counter = 0;
-    while (++counter <= maxTransactions && it.hasNext()) {
-      relative = it.next();
-      real = chunk.region().min().add(relative);
-      try {
-        world.setBlock(real, data.get(relative), SideEffectSet.none());
-      } catch (Exception e) {
-        // Ignore
-      }
-    }
-    if (it.hasNext()) {
-      return this;
-    } else {
-      chunk.cancelReverting();
-      return null;
+  public void process(BlockVector3 relative) {
+    try {
+      world.setBlock(chunk.region().min().add(relative), data.get(relative), SideEffectSet.none());
+    } catch (Exception ignore) {
     }
   }
 
-  public static @NonNull RevertOperation create(@NonNull GaiaChunk chunk, @NonNull GaiaData data) {
+  @Override
+  public void onFinish() {
+    chunk.cancelReverting();
+  }
+
+  public static RevertOperation create(GaiaChunk chunk, GaiaData data) {
     Objects.requireNonNull(chunk);
     Objects.requireNonNull(data);
     return new RevertOperation(chunk, data);

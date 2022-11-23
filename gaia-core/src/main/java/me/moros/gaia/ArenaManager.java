@@ -32,7 +32,6 @@ import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.io.GaiaIO;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class ArenaManager implements Iterable<Arena> {
@@ -40,23 +39,23 @@ public abstract class ArenaManager implements Iterable<Arena> {
 
   protected final GaiaPlugin plugin;
 
-  protected ArenaManager(@NonNull GaiaPlugin plugin) {
+  protected ArenaManager(GaiaPlugin plugin) {
     this.plugin = plugin;
   }
 
-  public Optional<Arena> arena(@NonNull String name) {
+  public Optional<Arena> arena(String name) {
     return Optional.ofNullable(arenas.get(name));
   }
 
-  public boolean contains(@NonNull String name) {
+  public boolean contains(String name) {
     return arenas.containsKey(name) || GaiaIO.instance().arenaFileExists(name);
   }
 
-  public @NonNull List<@NonNull String> sortedNames() {
+  public List<String> sortedNames() {
     return arenas.keySet().stream().sorted().collect(Collectors.toList());
   }
 
-  public @NonNull Stream<@NonNull Arena> stream() {
+  public Stream<Arena> stream() {
     return arenas.values().stream();
   }
 
@@ -64,11 +63,11 @@ public abstract class ArenaManager implements Iterable<Arena> {
     return arenas.size();
   }
 
-  public void add(@NonNull Arena arena) {
+  public void add(Arena arena) {
     arenas.putIfAbsent(arena.name(), arena);
   }
 
-  public boolean remove(@NonNull String name) {
+  public boolean remove(String name) {
     Arena arena = arenas.remove(name);
     if (arena != null) {
       arena.forEach(plugin.chunkManager()::cancel);
@@ -76,20 +75,20 @@ public abstract class ArenaManager implements Iterable<Arena> {
     return GaiaIO.instance().deleteArena(name); // Cleanup files
   }
 
-  public void cancelRevert(@NonNull Arena arena) {
+  public void cancelRevert(Arena arena) {
     arena.reverting(false);
     arena.forEach(GaiaChunk::cancelReverting);
   }
 
-  public abstract void revert(@NonNull GaiaUser user, @NonNull Arena arena);
+  public abstract void revert(GaiaUser user, Arena arena);
 
-  public abstract boolean create(@NonNull GaiaUser user, @NonNull String arenaName);
+  public abstract boolean create(GaiaUser user, String arenaName);
 
-  public abstract long nextRevertTime(@NonNull Arena arena);
+  public abstract long nextRevertTime(Arena arena);
 
-  public abstract @Nullable Arena standingArena(@NonNull GaiaUser user);
+  public abstract @Nullable Arena standingArena(GaiaUser user);
 
-  public @NonNull Iterator<Arena> iterator() {
+  public Iterator<Arena> iterator() {
     return Collections.unmodifiableCollection(arenas.values()).iterator();
   }
 }

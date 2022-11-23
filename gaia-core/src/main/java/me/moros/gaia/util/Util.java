@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.checkerframework.checker.index.qual.Positive;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class Util {
@@ -38,7 +37,7 @@ public class Util {
    * @param input the input string to sanitize
    * @return the sanitized output string
    */
-  public static @NonNull String sanitizeInput(@Nullable String input) {
+  public static String sanitizeInput(@Nullable String input) {
     if (input == null) {
       return "";
     }
@@ -46,24 +45,24 @@ public class Util {
     return output.length() > 32 ? output.substring(0, 32) : output;
   }
 
-  public static boolean validateInput(@NonNull String input) {
+  public static boolean validateInput(String input) {
     return VALID.matcher(input).matches();
   }
 
-  public static @NonNull String generateLine(int count) {
+  public static String generateLine(int count) {
     char[] line = new char[count];
     Arrays.fill(line, '-');
     return new String(line);
   }
 
-  public static @NonNull String capitalize(@NonNull String input) {
+  public static String capitalize(String input) {
     if (input.length() < 2) {
       return input.toUpperCase();
     }
     return input.substring(0, 1).toUpperCase() + input.substring(1);
   }
 
-  public static @NonNull String description(int size) {
+  public static String description(int size) {
     if (size <= 32768) {
       return "Tiny";
     } else if (size <= 262144) {
@@ -77,7 +76,7 @@ public class Util {
     }
   }
 
-  public static @NonNull String formatDuration(@Positive long deltaTime) {
+  public static String formatDuration(@Positive long deltaTime) {
     Duration duration = Duration.ofMillis(deltaTime);
     List<String> parts = new ArrayList<>();
     long days = duration.toDaysPart();
@@ -97,7 +96,7 @@ public class Util {
     return String.join(" ", parts);
   }
 
-  public static @NonNull String toHex(byte[] bytes) {
+  public static String toHex(byte[] bytes) {
     StringBuilder hexString = new StringBuilder();
     for (byte b : bytes) {
       String hex = Integer.toHexString(0xff & b);

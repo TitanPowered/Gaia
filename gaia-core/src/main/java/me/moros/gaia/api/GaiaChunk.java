@@ -24,13 +24,13 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import me.moros.gaia.util.metadata.ChunkMetadata;
 import me.moros.gaia.util.metadata.GaiaMetadata;
 import me.moros.gaia.util.metadata.Metadatable;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -47,23 +47,23 @@ public class GaiaChunk implements Metadatable, Iterable<BlockVector3> {
 
   private ChunkMetadata meta;
 
-  private boolean reverting;
+  private final AtomicBoolean reverting;
 
-  public GaiaChunk(@NonNull UUID id, @NonNull Arena parent, @NonNull GaiaRegion region) {
+  public GaiaChunk(UUID id, Arena parent, GaiaRegion region) {
     this.id = Objects.requireNonNull(id);
     this.parent = Objects.requireNonNull(parent);
     chunkX = region.min().getX() / 16;
     chunkZ = region.min().getZ() / 16;
     chunk = region;
-    reverting = false;
+    reverting = new AtomicBoolean(false);
     parent.addSubRegion(this);
   }
 
-  public @NonNull UUID id() {
+  public UUID id() {
     return id;
   }
 
-  public @NonNull Arena parent() {
+  public Arena parent() {
     return parent;
   }
 
@@ -75,20 +75,20 @@ public class GaiaChunk implements Metadatable, Iterable<BlockVector3> {
     return chunkZ;
   }
 
-  public @NonNull GaiaRegion region() {
+  public GaiaRegion region() {
     return chunk;
   }
 
   public boolean reverting() {
-    return reverting;
+    return reverting.get();
   }
 
   public void startReverting() {
-    reverting = true;
+    reverting.set(true);
   }
 
   public void cancelReverting() {
-    reverting = false;
+    reverting.set(false);
   }
 
   public synchronized boolean analyzed() {
@@ -96,7 +96,7 @@ public class GaiaChunk implements Metadatable, Iterable<BlockVector3> {
   }
 
   @Override
-  public @NonNull Iterator<BlockVector3> iterator() {
+  public Iterator<BlockVector3> iterator() {
     return new Iterator<>() {
       private final BlockVector3 max = chunk.size();
       private int nextX = 0;

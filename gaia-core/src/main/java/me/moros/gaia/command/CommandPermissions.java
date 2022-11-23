@@ -21,7 +21,6 @@ package me.moros.gaia.command;
 
 import cloud.commandframework.permission.CommandPermission;
 import cloud.commandframework.permission.Permission;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class CommandPermissions {
   private CommandPermissions() {
@@ -40,7 +39,7 @@ public final class CommandPermissions {
   public static final CommandPermission POINT = create("point");
   public static final CommandPermission TELEPORT = create("teleport");
 
-  private static Permission create(@NonNull String node) {
+  private static Permission create(String node) {
     return Permission.of("gaia.command." + node);
   }
 }

@@ -37,6 +37,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -59,7 +61,6 @@ import me.moros.gaia.io.GaiaAdapter.GaiaPointAdapter;
 import me.moros.gaia.util.Util;
 import me.moros.gaia.util.metadata.ArenaMetadata;
 import me.moros.gaia.util.metadata.ChunkMetadata;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class GaiaIO {
@@ -83,7 +84,7 @@ public final class GaiaIO {
       .create();
   }
 
-  public static boolean createInstance(@NonNull GaiaPlugin plugin, @NonNull String parentDirectory) {
+  public static boolean createInstance(GaiaPlugin plugin, String parentDirectory) {
     if (IO != null) {
       return false;
     }
@@ -92,7 +93,7 @@ public final class GaiaIO {
       Files.createDirectories(arenaDir);
       IO = new GaiaIO(plugin, arenaDir);
     } catch (IOException e) {
-      e.printStackTrace();
+      plugin.logger().error(e.getMessage(), e);
       return false;
     }
     return Files.exists(IO.arenaDir);
@@ -102,12 +103,12 @@ public final class GaiaIO {
     return IO;
   }
 
-  public boolean arenaFileExists(@NonNull String name) {
+  public boolean arenaFileExists(String name) {
     Path file = Paths.get(arenaDir.toString(), name + ARENA_SUFFIX);
     return Files.exists(file);
   }
 
-  public boolean createArenaFiles(@NonNull String name) {
+  public boolean createArenaFiles(String name) {
     try {
       Path file = Paths.get(arenaDir.toString(), name + ARENA_SUFFIX);
       Path directory = Paths.get(arenaDir.toString(), name);
@@ -115,21 +116,21 @@ public final class GaiaIO {
       Files.createFile(file);
       return true;
     } catch (IOException e) {
-      e.printStackTrace();
+      plugin.logger().error(e.getMessage(), e);
     }
     return false;
   }
 
-  public boolean deleteArena(@NonNull String name) {
-    Path file = Paths.get(arenaDir.toString(), name + ARENA_SUFFIX);
-    Path directory = Paths.get(arenaDir.toString(), name);
-    try {
-      Files.walk(directory, 1).filter(IO::isData).map(Path::toFile).forEach(File::delete);
+  public boolean deleteArena(String name) {
+    Path file = arenaDir.resolve(name + ARENA_SUFFIX);
+    Path directory = arenaDir.resolve(name);
+    try (Stream<Path> stream = Files.walk(directory, 1)) {
+      stream.filter(IO::isData).map(Path::toFile).forEach(File::delete);
       Files.deleteIfExists(directory);
       Files.deleteIfExists(file);
       return true;
     } catch (IOException e) {
-      e.printStackTrace();
+      plugin.logger().error(e.getMessage(), e);
     }
     return false;
   }
@@ -142,17 +143,22 @@ public final class GaiaIO {
     return path.getFileName().toString().endsWith(DATA_SUFFIX);
   }
 
-  public @NonNull CompletableFuture<Void> loadAllArenas() {
-    return CompletableFuture.runAsync(() -> {
-      try {
-        Files.walk(arenaDir, 1).filter(IO::isJson).forEach(IO::loadArena);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }, plugin.executor());
+  private Void logError(Throwable t) {
+    plugin.logger().error(t.getMessage(), t);
+    return null;
   }
 
-  private void loadArena(@NonNull Path path) {
+  public CompletableFuture<Void> loadAllArenas() {
+    return CompletableFuture.runAsync(() -> {
+      try (Stream<Path> stream = Files.walk(arenaDir, 1)) {
+        stream.filter(IO::isJson).forEach(IO::loadArena);
+      } catch (IOException e) {
+        throw new CompletionException(e);
+      }
+    }, plugin.executor()).exceptionally(this::logError);
+  }
+
+  private void loadArena(Path path) {
     final long time = System.currentTimeMillis();
     boolean debug = plugin.configManager().config().debug();
     try (JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8))) {
@@ -188,29 +194,26 @@ public final class GaiaIO {
         plugin.arenaManager().add(arena);
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      plugin.logger().error(e.getMessage(), e);
     }
   }
 
-  public void updateArenaPoints(@NonNull Arena arena) {
+  public void updateArenaPoints(Arena arena) {
     final List<ArenaPoint> points = arena.points();
     CompletableFuture.runAsync(() -> {
       Path path = Paths.get(arenaDir.toString(), arena.name() + ARENA_SUFFIX);
-      try (JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8))) {
+      try (JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8));
+           OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
         ArenaMetadata meta = gson.fromJson(reader, ArenaMetadata.class);
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
-          meta.points = points;
-          gson.toJson(meta, writer);
-        }
-      } catch (IOException ignore) {
+        meta.points = points;
+        gson.toJson(meta, writer);
+      } catch (IOException e) {
+        throw new CompletionException(e);
       }
-    }, plugin.executor()).exceptionally(e -> {
-      e.printStackTrace();
-      return null;
-    });
+    }, plugin.executor()).exceptionally(this::logError);
   }
 
-  public @NonNull CompletableFuture<@NonNull Boolean> saveArena(@NonNull Arena arena) {
+  public CompletableFuture<Boolean> saveArena(Arena arena) {
     return CompletableFuture.supplyAsync(() -> {
       ArenaMetadata meta = (ArenaMetadata) arena.metadata();
       arena.forEach(c -> meta.addChunkMetadata((ChunkMetadata) c.metadata()));
@@ -219,16 +222,16 @@ public final class GaiaIO {
         gson.toJson(meta, writer);
         plugin.logger().info(meta.name + " has been stored successfully.");
         return true;
-      } catch (IOException ignore) {
+      } catch (IOException e) {
+        throw new CompletionException(e);
       }
-      return false;
     }, plugin.executor()).exceptionally(e -> {
-      e.printStackTrace();
+      plugin.logger().error(e.getMessage(), e);
       return false;
     });
   }
 
-  public @NonNull CompletableFuture<@Nullable GaiaData> loadData(@NonNull GaiaChunk chunk) {
+  public CompletableFuture<@Nullable GaiaData> loadData(GaiaChunk chunk) {
     return CompletableFuture.supplyAsync(() -> {
       Path path = Paths.get(arenaDir.toString(), chunk.parent().name(), chunk.id() + DATA_SUFFIX);
       try (Closer closer = Closer.create()) {
@@ -236,16 +239,16 @@ public final class GaiaIO {
         BufferedInputStream bis = closer.register(new BufferedInputStream(fis));
         GaiaReader reader = closer.register(new GaiaReader(plugin, new NBTInputStream(new GZIPInputStream(bis))));
         return reader.read();
-      } catch (IOException ignore) {
+      } catch (IOException e) {
+        throw new CompletionException(e);
       }
-      return null;
     }, plugin.executor()).exceptionally(e -> {
-      e.printStackTrace();
+      plugin.logger().error(e.getMessage(), e);
       return null;
     });
   }
 
-  public @NonNull CompletableFuture<@NonNull String> saveData(@NonNull GaiaChunk chunk, @NonNull GaiaData data) {
+  public CompletableFuture<String> saveData(GaiaChunk chunk, GaiaData data) {
     return CompletableFuture.supplyAsync(() -> {
       Path path = Paths.get(arenaDir.toString(), chunk.parent().name(), chunk.id() + DATA_SUFFIX);
       DigestOutputStream hos;
@@ -263,7 +266,7 @@ public final class GaiaIO {
       chunk.metadata(new ChunkMetadata(chunk, checksum));
       return checksum;
     }, plugin.executor()).exceptionally(e -> {
-      e.printStackTrace();
+      plugin.logger().error(e.getMessage(), e);
       return "";
     });
   }
@@ -275,10 +278,13 @@ public final class GaiaIO {
     final String actualChecksum = calculateChecksum(path);
     final boolean match = checksum.equals(actualChecksum);
     if (!match && plugin.configManager().config().debug()) {
-      plugin.logger().warn("Checksums don't match for file: " + path);
-      plugin.logger().info("Expected: " + checksum);
-      plugin.logger().info("Found: " + actualChecksum);
-      plugin.logger().warn("Your data might be corrupted. Arena won't load for safety reasons.");
+      String msg = """
+        Checksums don't match for file: %s
+        Expected: %s
+        Found:    %s
+        Your data might be corrupted. Arena won't load for safety reasons.
+        """;
+      plugin.logger().warn(String.format(msg, path, checksum, actualChecksum));
     }
     return match;
   }
@@ -293,7 +299,7 @@ public final class GaiaIO {
       }
       return Util.toHex(md.digest());
     } catch (IOException | NoSuchAlgorithmException e) {
-      e.printStackTrace();
+      plugin.logger().error(e.getMessage(), e);
     }
     return "";
   }

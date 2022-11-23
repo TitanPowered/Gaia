@@ -24,10 +24,9 @@ import java.text.NumberFormat;
 import com.sk89q.worldedit.math.Vector3;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public record ArenaPoint(Vector3 v, float yaw, float pitch) {
-  public @NonNull Component details() {
+  public Component details() {
     NumberFormat nf = NumberFormat.getInstance();
     nf.setMaximumFractionDigits(2);
 

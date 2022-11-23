@@ -27,34 +27,33 @@ import com.sk89q.worldedit.world.block.BlockState;
 import me.moros.gaia.api.ArenaPoint;
 import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.config.ConfigManager;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 
 public interface GaiaPlugin {
-  @NonNull String author();
+  String author();
 
-  @NonNull String version();
+  String version();
 
-  @NonNull Logger logger();
+  Logger logger();
 
-  @NonNull ConfigManager configManager();
+  ConfigManager configManager();
 
-  @NonNull ArenaManager arenaManager();
+  ArenaManager arenaManager();
 
-  @NonNull ChunkManager chunkManager();
+  ChunkManager chunkManager();
 
-  @NonNull BlockState parseBlockData(@Nullable String value);
+  BlockState parseBlockData(@Nullable String value);
 
-  @Nullable World findWorld(@NonNull UUID uid);
+  @Nullable World findWorld(UUID uid);
 
-  @NonNull Executor executor();
+  Executor executor();
 
-  @Nullable ArenaPoint pointFromUser(@NonNull GaiaUser user);
+  @Nullable ArenaPoint pointFromUser(GaiaUser user);
 
-  void queryCommands(@NonNull String rawQuery, @NonNull GaiaUser recipient);
+  void queryCommands(String rawQuery, GaiaUser recipient);
 
-  void teleport(@NonNull GaiaUser user, @NonNull UUID worldUid, @NonNull ArenaPoint point);
+  void teleport(GaiaUser user, UUID worldUid, ArenaPoint point);
 
   void reload();
 }

@@ -36,22 +36,22 @@ import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.locale.Message;
 import me.moros.gaia.util.metadata.ArenaMetadata;
+import net.kyori.adventure.identity.Identity;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BukkitArenaManager extends ArenaManager {
-  BukkitArenaManager(@NonNull Gaia plugin) {
+  BukkitArenaManager(Gaia plugin) {
     super(plugin);
   }
 
   @Override
-  public void revert(@NonNull GaiaUser user, @NonNull Arena arena) {
+  public void revert(GaiaUser user, Arena arena) {
     long startTime = System.currentTimeMillis();
     arena.reverting(true);
     arena.forEach(gcr -> plugin.chunkManager().revert(gcr, arena.world()));
-    Bukkit.getScheduler().runTaskTimer((Plugin) plugin, task -> {
+    Bukkit.getScheduler().runTaskTimerAsynchronously((Plugin) plugin, task -> {
       if (!arena.reverting()) {
         Message.CANCEL_SUCCESS.send(user, arena.displayName());
         task.cancel();
@@ -67,7 +67,7 @@ public class BukkitArenaManager extends ArenaManager {
   }
 
   @Override
-  public boolean create(@NonNull GaiaUser user, @NonNull String arenaName) {
+  public boolean create(GaiaUser user, String arenaName) {
     if (!user.isPlayer()) {
       return false;
     }
@@ -143,23 +143,24 @@ public class BukkitArenaManager extends ArenaManager {
   }
 
   @Override
-  public long nextRevertTime(@NonNull Arena arena) {
+  public long nextRevertTime(Arena arena) {
     return arena.lastReverted() + plugin.configManager().config().cooldown();
   }
 
   @Override
-  public @Nullable Arena standingArena(@NonNull GaiaUser user) {
+  public @Nullable Arena standingArena(GaiaUser user) {
     if (!user.isPlayer()) {
       return null;
     }
-    org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) ((BukkitGaiaUser) user).sender();
+    org.bukkit.entity.Player bukkitPlayer = user.pointers().get(Identity.UUID).map(Bukkit::getPlayer)
+      .orElseThrow(() -> new IllegalArgumentException("User is not a valid player!"));
     UUID worldId = bukkitPlayer.getWorld().getUID();
     BlockVector3 point = BukkitAdapter.adapt(bukkitPlayer).getLocation().toVector().toBlockPoint();
     return plugin.arenaManager().stream()
       .filter(a -> a.worldUID().equals(worldId) && a.region().contains(point)).findAny().orElse(null);
   }
 
-  private boolean splitIntoChunks(@NonNull Arena arena) {
+  private boolean splitIntoChunks(Arena arena) {
     final int minX = arena.region().min().getX();
     final int maxX = arena.region().max().getX();
     final int minY = arena.region().min().getY();

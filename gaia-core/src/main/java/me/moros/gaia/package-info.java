@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2022 Moros
  *
  * This file is part of Gaia.
  *
@@ -17,12 +17,13 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.util.metadata;
+/**
+ * Base package for Gaia.
+ */
+@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.PARAMETER)
+@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.RETURN)
+package me.moros.gaia;
 
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-
-public interface Metadatable {
-  @MonotonicNonNull GaiaMetadata metadata();
-
-  void metadata(GaiaMetadata meta);
-}
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.framework.qual.DefaultQualifier;
+import org.checkerframework.framework.qual.TypeUseLocation;

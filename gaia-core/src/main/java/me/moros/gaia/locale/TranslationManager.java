@@ -40,7 +40,6 @@ import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.TranslationRegistry;
 import net.kyori.adventure.translation.Translator;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 
 public class TranslationManager {
@@ -51,7 +50,7 @@ public class TranslationManager {
   private TranslationRegistry registry;
   private final Logger logger;
 
-  public TranslationManager(@NonNull Logger logger, @NonNull String directory) {
+  public TranslationManager(Logger logger, String directory) {
     this.logger = logger;
     translationsDirectory = Paths.get(directory, "translations");
     reload();

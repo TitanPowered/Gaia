@@ -21,16 +21,15 @@ package me.moros.gaia;
 
 import com.sk89q.worldedit.world.World;
 import me.moros.gaia.api.GaiaChunk;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface ChunkManager {
   void shutdown();
 
   int remainingTasks();
 
-  void cancel(@NonNull GaiaChunk chunk);
+  void cancel(GaiaChunk chunk);
 
-  void revert(@NonNull GaiaChunk chunk, @NonNull World world);
+  void revert(GaiaChunk chunk, World world);
 
-  void analyze(@NonNull GaiaChunk chunk, @NonNull World world);
+  void analyze(GaiaChunk chunk, World world);
 }

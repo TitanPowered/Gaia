@@ -25,8 +25,6 @@ import com.sk89q.worldedit.math.BlockVector3;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaData;
 import me.moros.gaia.io.GaiaIO;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class AnalyzeOperation extends GaiaOperation {
   private final GaiaData data;
@@ -37,23 +35,16 @@ public class AnalyzeOperation extends GaiaOperation {
   }
 
   @Override
-  public @Nullable GaiaOperation process(int maxTransactions) {
-    BlockVector3 relative, real;
-    int counter = 0;
-    while (++counter <= maxTransactions && it.hasNext()) {
-      relative = it.next();
-      real = chunk.region().min().add(relative);
-      data.set(relative, world.getBlock(real));
-    }
-    if (it.hasNext()) {
-      return this;
-    } else {
-      GaiaIO.instance().saveData(chunk, data);
-      return null;
-    }
+  public void process(BlockVector3 relative) {
+    data.set(relative, world.getBlock(chunk.region().min().add(relative)));
   }
 
-  public static @NonNull AnalyzeOperation create(@NonNull GaiaChunk chunk) {
+  @Override
+  public void onFinish() {
+    GaiaIO.instance().saveData(chunk, data);
+  }
+
+  public static AnalyzeOperation create(GaiaChunk chunk) {
     Objects.requireNonNull(chunk);
     return new AnalyzeOperation(chunk);
   }

@@ -21,34 +21,33 @@ package me.moros.gaia.api;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class GaiaData {
   private final BlockState[][][] data;
   private final BlockVector3 size;
 
-  public GaiaData(@NonNull BlockVector3 size) {
+  public GaiaData(BlockVector3 size) {
     this.data = new BlockState[size.getX()][size.getY()][size.getZ()];
     this.size = size;
   }
 
-  public @NonNull BlockState get(@NonNull BlockVector3 v) {
+  public BlockState get(BlockVector3 v) {
     return get(v.getX(), v.getY(), v.getZ());
   }
 
-  public @NonNull BlockState get(int x, int y, int z) {
+  public BlockState get(int x, int y, int z) {
     return data[x][y][z];
   }
 
-  public void set(@NonNull BlockVector3 v, @NonNull BlockState gaiaBlockData) {
+  public void set(BlockVector3 v, BlockState gaiaBlockData) {
     set(v.getX(), v.getY(), v.getZ(), gaiaBlockData);
   }
 
-  public void set(int x, int y, int z, @NonNull BlockState gaiaBlockData) {
+  public void set(int x, int y, int z, BlockState gaiaBlockData) {
     data[x][y][z] = gaiaBlockData;
   }
 
-  public @NonNull BlockVector3 size() {
+  public BlockVector3 size() {
     return size;
   }
 }

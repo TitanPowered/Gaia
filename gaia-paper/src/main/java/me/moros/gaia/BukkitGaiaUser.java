@@ -29,18 +29,13 @@ public class BukkitGaiaUser implements GaiaUser {
   private final CommandSender sender;
   private final boolean isPlayer;
 
-  public BukkitGaiaUser(@NonNull CommandSender sender) {
+  public BukkitGaiaUser(CommandSender sender) {
     this.sender = sender;
     isPlayer = sender instanceof Player;
   }
 
-  public @NonNull CommandSender sender() {
+  public CommandSender sender() {
     return this.sender;
-  }
-
-  @Override
-  public @NonNull String name() {
-    return sender.getName();
   }
 
   @Override
@@ -49,12 +44,7 @@ public class BukkitGaiaUser implements GaiaUser {
   }
 
   @Override
-  public boolean hasLocale() {
-    return isPlayer;
-  }
-
-  @Override
-  public boolean hasPermission(@NonNull String permission) {
+  public boolean hasPermission(String permission) {
     return sender.hasPermission(permission);
   }
 

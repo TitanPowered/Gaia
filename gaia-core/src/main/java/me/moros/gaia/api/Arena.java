@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import com.sk89q.worldedit.math.BlockVector3;
@@ -38,7 +39,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class Arena implements Metadatable, Iterable<GaiaChunk> {
   private final String name;
@@ -50,14 +50,14 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
   private final List<GaiaChunk> subRegions;
   private final List<ArenaPoint> points;
 
-  private boolean reverting;
-  private boolean finalized;
+  private final AtomicBoolean reverting;
+  private final AtomicBoolean finalized;
 
   private ArenaMetadata meta;
 
   private long lastReverted = 0;
 
-  public Arena(@NonNull String name, @NonNull World world, @NonNull UUID worldId, @NonNull GaiaRegion region) {
+  public Arena(String name, World world, UUID worldId, GaiaRegion region) {
     this.name = name.toLowerCase();
     this.world = world;
     this.worldId = worldId;
@@ -65,19 +65,19 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
     info = createInfo(this);
     subRegions = new ArrayList<>();
     points = new ArrayList<>();
-    reverting = false;
-    finalized = false;
+    reverting = new AtomicBoolean(false);
+    finalized = new AtomicBoolean(false);
   }
 
-  public void addSubRegion(@NonNull GaiaChunk chunk) {
+  public void addSubRegion(GaiaChunk chunk) {
     subRegions.add(chunk);
   }
 
-  public void addPoint(@NonNull ArenaPoint point) {
+  public void addPoint(ArenaPoint point) {
     this.points.add(point);
   }
 
-  public void addPoints(@NonNull Collection<@NonNull ArenaPoint> points) {
+  public void addPoints(Collection<ArenaPoint> points) {
     this.points.addAll(points);
   }
 
@@ -86,11 +86,11 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
   }
 
   public boolean finalizeArena() {
-    if (subRegions.isEmpty() || finalized) {
+    if (subRegions.isEmpty() || finalized.get()) {
       return false;
     }
     subRegions.sort(GaiaChunk.ZX_ORDER);
-    finalized = true;
+    finalized.set(true);
     return true;
   }
 
@@ -98,44 +98,44 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
     return subRegions.size();
   }
 
-  public @NonNull String name() {
+  public String name() {
     return name;
   }
 
-  public @NonNull Component displayName() {
+  public Component displayName() {
     return Component.text(name(), NamedTextColor.GOLD);
   }
 
-  public @NonNull World world() {
+  public World world() {
     return world;
   }
 
-  public @NonNull UUID worldUID() {
+  public UUID worldUID() {
     return worldId;
   }
 
-  public @NonNull GaiaRegion region() {
+  public GaiaRegion region() {
     return region;
   }
 
-  public @NonNull Component info() {
+  public Component info() {
     return info;
   }
 
-  public @NonNull List<@NonNull ArenaPoint> points() {
+  public List<ArenaPoint> points() {
     return List.copyOf(points);
   }
 
   public boolean reverting() {
-    return reverting;
+    return reverting.get();
   }
 
   public void reverting(boolean value) {
-    reverting = value;
+    reverting.set(value);
   }
 
   public boolean finalized() {
-    return finalized;
+    return finalized.get();
   }
 
   private static Component createInfo(Arena arena) {
@@ -163,7 +163,7 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
       .build();
   }
 
-  public @NonNull String dimensions() {
+  public String dimensions() {
     return region.size().getX() + " x " + region.size().getY() + " x " + region.size().getZ();
   }
 
@@ -181,16 +181,16 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
   }
 
   @Override
-  public void metadata(@NonNull GaiaMetadata meta) {
+  public void metadata(GaiaMetadata meta) {
     this.meta = (ArenaMetadata) meta;
   }
 
-  public @NonNull Stream<GaiaChunk> stream() {
+  public Stream<GaiaChunk> stream() {
     return subRegions.stream();
   }
 
   @Override
-  public @NonNull Iterator<GaiaChunk> iterator() {
+  public Iterator<GaiaChunk> iterator() {
     return Collections.unmodifiableList(subRegions).iterator();
   }
 }

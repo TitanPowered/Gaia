@@ -23,7 +23,6 @@ import java.util.Objects;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import me.moros.gaia.api.GaiaChunk;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ChunkMetadata extends GaiaMetadata {
   public BlockVector3 min;
@@ -32,7 +31,7 @@ public class ChunkMetadata extends GaiaMetadata {
   public String id;
   public String hash;
 
-  public ChunkMetadata(@NonNull GaiaChunk region, @NonNull String hash) {
+  public ChunkMetadata(GaiaChunk region, String hash) {
     min = region.region().min();
     max = region.region().max();
     this.id = region.id().toString();

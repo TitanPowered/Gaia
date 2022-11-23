@@ -6,11 +6,11 @@ dependencies {
     implementation(project(":gaia-core"))
     implementation("org.bstats", "bstats-bukkit", "2.2.1")
     implementation("org.spongepowered", "configurate-hocon", "4.1.2")
-    implementation("cloud.commandframework","cloud-paper", "1.7.0")
-    implementation("cloud.commandframework","cloud-minecraft-extras", "1.7.0") {
+    implementation("cloud.commandframework","cloud-paper", "1.7.1")
+    implementation("cloud.commandframework","cloud-minecraft-extras", "1.7.1") {
         exclude(group = "net.kyori")
     }
-    compileOnly("io.papermc.paper", "paper-api", "1.17.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper", "paper-api", "1.18.2-R0.1-SNAPSHOT")
     compileOnly("com.sk89q.worldedit", "worldedit-bukkit", "7.2.6")
 }
 

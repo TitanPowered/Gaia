@@ -19,40 +19,19 @@
 
 package me.moros.gaia.config;
 
-import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
-public class Config {
-  private final long timeout;
-  private final long cooldown;
-  private final int concurrentChunks;
-  private final int concurrentTransactions;
-  private final boolean debug;
-
-  Config(CommentedConfigurationNode rootNode) {
-    timeout = rootNode.node("Analysis", "Timeout").getLong(30_000);
-    cooldown = rootNode.node("Cooldown").getLong(5000);
-    concurrentChunks = rootNode.node("ConcurrentChunks").getInt(4);
-    concurrentTransactions = rootNode.node("ConcurrentTransactions").getInt(32768);
-    debug = rootNode.node("Debug").getBoolean(false);
+@ConfigSerializable
+public record Config(long timeout, long cooldown, int concurrentChunks, int concurrentTransactions, boolean debug) {
+  public Config(long timeout, long cooldown, int concurrentChunks, int concurrentTransactions, boolean debug) {
+    this.timeout = timeout > 0 ? timeout : 30_000;
+    this.cooldown = cooldown > 0 ? cooldown : 5000;
+    this.concurrentChunks = concurrentChunks > 0 ? concurrentChunks : 4;
+    this.concurrentTransactions = concurrentTransactions > 0 ? concurrentTransactions : 32_768;
+    this.debug = debug;
   }
 
-  public long timeout() {
-    return timeout;
-  }
-
-  public long cooldown() {
-    return cooldown;
-  }
-
-  public int concurrentChunks() {
-    return concurrentChunks;
-  }
-
-  public int concurrentTransactions() {
-    return concurrentTransactions;
-  }
-
-  public boolean debug() {
-    return debug;
+  Config() {
+    this(30_000, 5000, 4, 32_768, false);
   }
 }

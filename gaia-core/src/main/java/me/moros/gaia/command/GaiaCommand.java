@@ -44,7 +44,6 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class GaiaCommand {
   private static final int AMOUNT_PER_PAGE = 12;
@@ -53,7 +52,7 @@ public final class GaiaCommand {
   private final CommandManager<GaiaUser> manager;
   private final Builder<GaiaUser> builder;
 
-  public GaiaCommand(@NonNull GaiaPlugin plugin, @NonNull CommandManager<GaiaUser> manager) {
+  public GaiaCommand(GaiaPlugin plugin, CommandManager<GaiaUser> manager) {
     this.plugin = plugin;
     this.manager = manager;
     this.builder = manager.commandBuilder("gaia", "g", "arena", "arenas")

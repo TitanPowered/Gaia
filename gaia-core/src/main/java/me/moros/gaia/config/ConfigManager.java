@@ -22,52 +22,61 @@ package me.moros.gaia.config;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import me.moros.gaia.GaiaPlugin;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.slf4j.Logger;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.NodePath;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.reactive.Subscriber;
+import org.spongepowered.configurate.reference.ConfigurationReference;
+import org.spongepowered.configurate.reference.ValueReference;
+import org.spongepowered.configurate.reference.WatchServiceListener;
 
 public final class ConfigManager {
-  private final HoconConfigurationLoader loader;
-  private final GaiaPlugin plugin;
+  private final Config defaultConfig;
 
-  private CommentedConfigurationNode configRoot;
-  private Config config;
+  private final Logger logger;
+  private final WatchServiceListener listener;
+  private final ConfigurationReference<CommentedConfigurationNode> reference;
+  private final ValueReference<Config, CommentedConfigurationNode> configReference;
 
-  public ConfigManager(@NonNull GaiaPlugin plugin, @NonNull String directory) {
-    this.plugin = plugin;
-    Path path = Paths.get(directory, "gaia.conf");
-    loader = HoconConfigurationLoader.builder().path(path).build();
+  public ConfigManager(Logger logger, String directory) {
+    this.logger = logger;
+    this.defaultConfig = new Config();
+    Path path = Path.of(directory, "gaia.conf");
     try {
       Files.createDirectories(path.getParent());
-      reload();
+      listener = WatchServiceListener.create();
+      reference = listener.listenToConfiguration(f -> HoconConfigurationLoader.builder().path(f).build(), path);
+      configReference = reference.referenceTo(Config.class, NodePath.path(), defaultConfig);
     } catch (IOException e) {
-      plugin.logger().warn(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
-  public void reload() {
-    try {
-      configRoot = loader.load();
-      config = new Config(configRoot);
-      plugin.logger().info("Debugging is " + (config.debug() ? "enabled." : "disabled."));
-    } catch (IOException e) {
-      plugin.logger().warn(e.getMessage(), e);
-    }
+  public void subscribe(Subscriber<? super CommentedConfigurationNode> subscriber) {
+    reference.updates().subscribe(subscriber);
   }
 
   public void save() {
     try {
-      plugin.logger().info("Saving gaia config");
-      loader.save(configRoot);
+      reference.save();
     } catch (IOException e) {
-      plugin.logger().warn(e.getMessage(), e);
+      logger.warn(e.getMessage(), e);
     }
   }
 
-  public @NonNull Config config() {
-    return config;
+  public void close() {
+    try {
+      reference.close();
+      listener.close();
+    } catch (IOException e) {
+      logger.warn(e.getMessage(), e);
+    }
+  }
+
+  public Config config() {
+    Config config = configReference.get();
+    return config == null ? defaultConfig : config;
   }
 }

@@ -20,16 +20,9 @@
 package me.moros.gaia.api;
 
 import net.kyori.adventure.audience.ForwardingAudience;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public interface GaiaUser extends ForwardingAudience.Single {
-  @NonNull String name();
-
   boolean isPlayer();
 
-  boolean hasPermission(@NonNull String permission);
-
-  default boolean hasLocale() {
-    return false;
-  }
+  boolean hasPermission(String permission);
 }

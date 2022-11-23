@@ -36,12 +36,13 @@ import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.config.ConfigManager;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.locale.TranslationManager;
+import net.kyori.adventure.identity.Identity;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 
@@ -67,7 +68,7 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     author = getDescription().getAuthors().get(0);
 
     String dir = getDataFolder().toString();
-    configManager = new ConfigManager(this, dir);
+    configManager = new ConfigManager(logger, dir);
 
     int threads = Math.max(8, 2 * configManager.config().concurrentChunks());
     executor = Executors.newFixedThreadPool(threads);
@@ -96,7 +97,7 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     try {
       commandManager = new GaiaCommandManager(this);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error(e.getMessage(), e);
     }
     configManager.save();
   }
@@ -107,7 +108,7 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     try {
       executor.awaitTermination(1, TimeUnit.MINUTES);
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage(), e);
     }
     getServer().getScheduler().cancelTasks(this);
     if (chunkManager != null) {
@@ -116,37 +117,37 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
   }
 
   @Override
-  public @NonNull String author() {
+  public String author() {
     return author;
   }
 
   @Override
-  public @NonNull String version() {
+  public String version() {
     return version;
   }
 
   @Override
-  public @NonNull Logger logger() {
+  public Logger logger() {
     return logger;
   }
 
   @Override
-  public @NonNull ConfigManager configManager() {
+  public ConfigManager configManager() {
     return configManager;
   }
 
   @Override
-  public @NonNull BukkitArenaManager arenaManager() {
+  public BukkitArenaManager arenaManager() {
     return arenaManager;
   }
 
   @Override
-  public @NonNull BukkitChunkManager chunkManager() {
+  public BukkitChunkManager chunkManager() {
     return chunkManager;
   }
 
   @Override
-  public @NonNull BlockState parseBlockData(@Nullable String value) {
+  public BlockState parseBlockData(@Nullable String value) {
     if (value != null) {
       try {
         return WorldEdit.getInstance().getBlockFactory().parseFromInput(value, parserContext).toImmutableState();
@@ -158,7 +159,7 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
   }
 
   @Override
-  public @Nullable World findWorld(@NonNull UUID uid) {
+  public @Nullable World findWorld(UUID uid) {
     final org.bukkit.World world = Bukkit.getWorld(uid);
     if (world == null) {
       logger.warn("Couldn't find world with UID " + uid);
@@ -168,26 +169,26 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
   }
 
   @Override
-  public @NonNull Executor executor() {
+  public Executor executor() {
     return executor;
   }
 
   @Override
-  public @Nullable ArenaPoint pointFromUser(@NonNull GaiaUser user) {
+  public @Nullable ArenaPoint pointFromUser(GaiaUser user) {
     if (!user.isPlayer()) {
       return null;
     }
-    Location loc = ((org.bukkit.entity.Player) ((BukkitGaiaUser) user).sender()).getLocation();
+    Location loc = adapt(user).getLocation();
     return new ArenaPoint(BukkitAdapter.asVector(loc), loc.getYaw(), loc.getPitch());
   }
 
   @Override
-  public void queryCommands(@NonNull String rawQuery, @NonNull GaiaUser recipient) {
+  public void queryCommands(String rawQuery, GaiaUser recipient) {
     commandManager.help().queryCommands(rawQuery, recipient);
   }
 
   @Override
-  public void teleport(@NonNull GaiaUser user, @NonNull UUID worldUid, @NonNull ArenaPoint point) {
+  public void teleport(GaiaUser user, UUID worldUid, ArenaPoint point) {
     final org.bukkit.World world = Bukkit.getWorld(worldUid);
     if (!user.isPlayer() || world == null) {
       return;
@@ -195,13 +196,16 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     Location loc = BukkitAdapter.adapt(world, point.v());
     loc.setYaw(point.yaw());
     loc.setPitch(point.pitch());
-    ((org.bukkit.entity.Player) ((BukkitGaiaUser) user).sender()).teleportAsync(loc);
+    adapt(user).teleportAsync(loc);
+  }
+
+  private Player adapt(GaiaUser user) {
+    return user.pointers().get(Identity.UUID).map(getServer()::getPlayer)
+      .orElseThrow(() -> new IllegalArgumentException("User is not a valid player!"));
   }
 
   @Override
   public void reload() {
-    configManager.reload();
-    chunkManager.updatedConfig();
     translationManager.reload();
   }
 }

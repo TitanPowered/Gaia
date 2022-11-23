@@ -35,7 +35,6 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 import me.moros.gaia.GaiaPlugin;
 import me.moros.gaia.api.GaiaData;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class GaiaReader implements Closeable {
   private final GaiaPlugin platform;
@@ -45,12 +44,12 @@ public class GaiaReader implements Closeable {
    * Create a new instance.
    * @param inputStream the input stream to read from
    */
-  protected GaiaReader(@NonNull GaiaPlugin platform, @NonNull NBTInputStream inputStream) {
+  protected GaiaReader(GaiaPlugin platform, NBTInputStream inputStream) {
     this.platform = Objects.requireNonNull(platform);
     this.inputStream = Objects.requireNonNull(inputStream);
   }
 
-  protected @NonNull GaiaData read() throws IOException {
+  protected GaiaData read() throws IOException {
     CompoundTag schematicTag = (CompoundTag) inputStream.readNamedTag().getTag();
     Map<String, Tag> schematic = schematicTag.getValue();
 

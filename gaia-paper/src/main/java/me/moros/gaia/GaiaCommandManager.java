@@ -47,13 +47,12 @@ import me.moros.gaia.locale.Message;
 import me.moros.gaia.util.Util;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
   private final Gaia plugin;
   private final MinecraftHelp<GaiaUser> help;
 
-  GaiaCommandManager(@NonNull Gaia plugin) throws Exception {
+  GaiaCommandManager(Gaia plugin) throws Exception {
     super(plugin,
       CommandExecutionCoordinator.simpleCoordinator(),
       BukkitGaiaUser::new,
@@ -76,7 +75,7 @@ public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
     );
   }
 
-  public @NonNull MinecraftHelp<GaiaUser> help() {
+  public MinecraftHelp<GaiaUser> help() {
     return help;
   }
 
@@ -114,7 +113,7 @@ public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
 
   private final class ArenaParser implements ArgumentParser<GaiaUser, Arena> {
     @Override
-    public @NonNull ArgumentParseResult<Arena> parse(@NonNull CommandContext<@NonNull GaiaUser> commandContext, @NonNull Queue<@NonNull String> inputQueue) {
+    public ArgumentParseResult<Arena> parse(CommandContext<GaiaUser> commandContext, Queue<String> inputQueue) {
       String input = inputQueue.peek();
       if (input == null) {
         return ArgumentParseResult.failure(new NoInputProvidedException(ArenaParser.class, commandContext));
@@ -138,14 +137,14 @@ public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
     }
 
     @Override
-    public @NonNull List<@NonNull String> suggestions(final @NonNull CommandContext<GaiaUser> commandContext, final @NonNull String input) {
+    public List<String> suggestions(final CommandContext<GaiaUser> commandContext, final String input) {
       return plugin.arenaManager().sortedNames();
     }
   }
 
   private final class GaiaUserParser implements ArgumentParser<GaiaUser, GaiaUser> {
     @Override
-    public @NonNull ArgumentParseResult<GaiaUser> parse(@NonNull CommandContext<@NonNull GaiaUser> commandContext, @NonNull Queue<@NonNull String> inputQueue) {
+    public ArgumentParseResult<GaiaUser> parse(CommandContext<GaiaUser> commandContext, Queue<String> inputQueue) {
       String input = inputQueue.peek();
       if (input == null) {
         return ArgumentParseResult.success(commandContext.getSender());
@@ -163,7 +162,7 @@ public final class GaiaCommandManager extends PaperCommandManager<GaiaUser> {
     }
 
     @Override
-    public @NonNull List<@NonNull String> suggestions(final @NonNull CommandContext<GaiaUser> commandContext, final @NonNull String input) {
+    public List<String> suggestions(final CommandContext<GaiaUser> commandContext, final String input) {
       return plugin.getServer().getOnlinePlayers().stream().map(Player::getName).toList();
     }
   }

@@ -26,7 +26,6 @@ import com.sk89q.worldedit.math.BlockVector3;
 import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.ArenaPoint;
 import me.moros.gaia.util.Util;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ArenaMetadata extends GaiaMetadata {
   public int version;
@@ -41,7 +40,7 @@ public class ArenaMetadata extends GaiaMetadata {
   public List<ChunkMetadata> chunks;
   public List<ArenaPoint> points;
 
-  public ArenaMetadata(@NonNull Arena arena) {
+  public ArenaMetadata(Arena arena) {
     version = VERSION;
     name = arena.name();
     world = arena.worldUID().toString();
@@ -69,7 +68,7 @@ public class ArenaMetadata extends GaiaMetadata {
     return amount > 0 && chunks.size() == amount;
   }
 
-  public synchronized void addChunkMetadata(@NonNull ChunkMetadata metadata) {
+  public synchronized void addChunkMetadata(ChunkMetadata metadata) {
     chunks.add(metadata);
   }
 }

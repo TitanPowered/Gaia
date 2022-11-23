@@ -20,7 +20,6 @@
 package me.moros.gaia.api;
 
 import com.sk89q.worldedit.math.BlockVector3;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * An axis-aligned immutable cuboid. It can be defined using a world and two corners of the cuboid.
@@ -28,7 +27,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 public final class GaiaRegion {
   private final BlockVector3 minPoint, maxPoint, diff;
 
-  public GaiaRegion(@NonNull BlockVector3 pos1, @NonNull BlockVector3 pos2) {
+  public GaiaRegion(BlockVector3 pos1, BlockVector3 pos2) {
     BlockVector3.checkLongPackable(pos1);
     BlockVector3.checkLongPackable(pos2);
     minPoint = pos1.getMinimum(pos2);
@@ -36,15 +35,15 @@ public final class GaiaRegion {
     diff = maxPoint.subtract(minPoint).add(1, 1, 1);
   }
 
-  public @NonNull BlockVector3 min() {
+  public BlockVector3 min() {
     return minPoint;
   }
 
-  public @NonNull BlockVector3 max() {
+  public BlockVector3 max() {
     return maxPoint;
   }
 
-  public @NonNull BlockVector3 size() {
+  public BlockVector3 size() {
     return diff;
   }
 
@@ -52,15 +51,15 @@ public final class GaiaRegion {
     return diff.getX() * diff.getY() * diff.getZ();
   }
 
-  public @NonNull BlockVector3 center() {
+  public BlockVector3 center() {
     return min().add(max()).divide(2);
   }
 
-  public boolean contains(@NonNull BlockVector3 vector) {
+  public boolean contains(BlockVector3 vector) {
     return vector.containedWithin(min(), max());
   }
 
-  public boolean intersects(@NonNull GaiaRegion region) {
+  public boolean intersects(GaiaRegion region) {
     return (min().getX() <= region.max().getX() && max().getX() >= region.min().getX()) &&
       (min().getY() <= region.max().getY() && max().getY() >= region.min().getY()) &&
       (min().getZ() <= region.max().getZ() && max().getZ() >= region.min().getZ());

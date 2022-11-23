@@ -33,7 +33,6 @@ import com.sk89q.jnbt.NBTOutputStream;
 import com.sk89q.jnbt.ShortTag;
 import com.sk89q.jnbt.Tag;
 import me.moros.gaia.api.GaiaData;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class GaiaWriter implements Closeable {
   private final NBTOutputStream outputStream;
@@ -42,11 +41,11 @@ public class GaiaWriter implements Closeable {
    * Create a new schematic writer.
    * @param outputStream the output stream to write to
    */
-  protected GaiaWriter(@NonNull NBTOutputStream outputStream) {
+  protected GaiaWriter(NBTOutputStream outputStream) {
     this.outputStream = Objects.requireNonNull(outputStream);
   }
 
-  public void write(@NonNull GaiaData data) throws IOException {
+  public void write(GaiaData data) throws IOException {
     int width = data.size().getX();
     int height = data.size().getY();
     int length = data.size().getZ();

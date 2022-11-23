@@ -24,8 +24,6 @@ import java.util.Iterator;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.World;
 import me.moros.gaia.api.GaiaChunk;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class GaiaOperation {
   protected final World world;
@@ -33,14 +31,29 @@ public abstract class GaiaOperation {
   protected final Iterator<BlockVector3> it;
   protected final long startTime;
 
-  protected GaiaOperation(@NonNull GaiaChunk chunk) {
+  protected GaiaOperation(GaiaChunk chunk) {
     this.world = chunk.parent().world();
     this.chunk = chunk;
     this.it = chunk.iterator();
     this.startTime = System.currentTimeMillis();
   }
 
-  public abstract @Nullable GaiaOperation process(int maxTransactions);
+  public final boolean update(int maxTransactions) {
+    int counter = 0;
+    while (++counter <= maxTransactions && it.hasNext()) {
+      process(it.next());
+    }
+    if (it.hasNext()) {
+      return false;
+    } else {
+      onFinish();
+      return true;
+    }
+  }
+
+  public abstract void process(BlockVector3 relative);
+
+  public abstract void onFinish();
 
   public long getStartTime() {
     return startTime;

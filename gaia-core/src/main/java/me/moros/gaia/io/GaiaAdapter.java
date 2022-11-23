@@ -31,12 +31,11 @@ import com.google.gson.JsonSerializer;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.Vector3;
 import me.moros.gaia.api.ArenaPoint;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class GaiaAdapter {
   public static final class GaiaBlockVectorAdapter implements JsonSerializer<BlockVector3>, JsonDeserializer<BlockVector3> {
     @Override
-    public @NonNull JsonElement serialize(@NonNull BlockVector3 src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
+    public JsonElement serialize(BlockVector3 src, Type typeOfSrc, JsonSerializationContext context) {
       JsonArray array = new JsonArray();
       array.add(src.getX());
       array.add(src.getY());
@@ -45,7 +44,7 @@ public class GaiaAdapter {
     }
 
     @Override
-    public @NonNull BlockVector3 deserialize(@NonNull JsonElement json, @NonNull Type typeOfT, @NonNull JsonDeserializationContext context) throws JsonParseException {
+    public BlockVector3 deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
       JsonArray array = json.getAsJsonArray();
       if (array.size() != 3) {
         throw new JsonParseException("Invalid Vector: Expected array length 3");
@@ -60,7 +59,7 @@ public class GaiaAdapter {
 
   public static final class GaiaPointAdapter implements JsonSerializer<ArenaPoint>, JsonDeserializer<ArenaPoint> {
     @Override
-    public @NonNull JsonElement serialize(@NonNull ArenaPoint src, @NonNull Type typeOfSrc, @NonNull JsonSerializationContext context) {
+    public JsonElement serialize(ArenaPoint src, Type typeOfSrc, JsonSerializationContext context) {
       JsonArray array = new JsonArray();
       array.add(src.v().getX());
       array.add(src.v().getY());
@@ -71,7 +70,7 @@ public class GaiaAdapter {
     }
 
     @Override
-    public @NonNull ArenaPoint deserialize(@NonNull JsonElement json, @NonNull Type typeOfT, @NonNull JsonDeserializationContext context) throws JsonParseException {
+    public ArenaPoint deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
       JsonArray array = json.getAsJsonArray();
       if (array.size() != 5) {
         throw new JsonParseException("Invalid Point: Expected array length 5");
