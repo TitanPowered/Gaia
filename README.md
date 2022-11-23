@@ -5,8 +5,8 @@
 [![GitHub release](https://img.shields.io/github/v/release/PrimordialMoros/Gaia?style=flat-square)](https://github.com/PrimordialMoros/Gaia/releases)
 
 ## Requirements
-- `Java 16 or newer`
-- `PaperMC 1.17.1 or newer`
+- `Java 17 or newer`
+- `PaperMC 1.18.2 or newer`
 - `WorldEdit 7.2.6 or newer`
 
 Gaia is a lightweight arena management plugin.
