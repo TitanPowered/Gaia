@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import me.moros.gaia.api.GaiaChunkPos;
+import me.moros.gaia.api.GaiaRegion;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -106,5 +108,34 @@ public class Util {
       hexString.append(hex);
     }
     return hexString.toString();
+  }
+
+  public static List<GaiaChunkPos> spiralChunks(GaiaRegion region) {
+    int sizeX = (region.max().getX() >> 4) - (region.min().getX() >> 4);
+    int sizeZ = (region.max().getZ() >> 4) - (region.min().getZ() >> 4);
+
+    int centerX = region.center().getX() >> 4;
+    int centerZ = region.center().getZ() >> 4;
+
+    int halfX = sizeX / 2;
+    int halfZ = sizeZ / 2;
+
+    int x = 0, z = 0, dx = 0, dz = -1;
+    int t = Math.max(sizeX, sizeZ);
+    int maxI = t * t;
+    List<GaiaChunkPos> result = new ArrayList<>();
+    for (int i = 0; i < maxI; i++) {
+      if ((-halfX <= x) && (x <= halfX) && (-halfZ <= z) && (z <= halfZ)) {
+        result.add(GaiaChunkPos.at(centerX + x, centerZ + z));
+      }
+      if (x == z || (x < 0 && x == -z) || (x > 0 && x == 1 - z)) {
+        t = dx;
+        dx = -dz;
+        dz = t;
+      }
+      x += dx;
+      z += dz;
+    }
+    return result;
   }
 }

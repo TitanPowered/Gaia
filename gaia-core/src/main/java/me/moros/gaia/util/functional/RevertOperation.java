@@ -21,10 +21,12 @@ package me.moros.gaia.util.functional;
 
 import java.util.Objects;
 
+import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.SideEffectSet;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaData;
+import me.moros.gaia.event.ChunkRevertEvent;
 
 public class RevertOperation extends GaiaOperation {
   private final GaiaData data;
@@ -45,6 +47,8 @@ public class RevertOperation extends GaiaOperation {
   @Override
   public void onFinish() {
     chunk.cancelReverting();
+    long delta = System.currentTimeMillis() - startTime;
+    WorldEdit.getInstance().getEventBus().post(new ChunkRevertEvent(chunk, delta));
   }
 
   public static RevertOperation create(GaiaChunk chunk, GaiaData data) {

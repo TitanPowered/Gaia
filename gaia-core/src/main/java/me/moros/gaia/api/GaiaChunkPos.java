@@ -17,13 +17,14 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * Base package for Gaia.
- */
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.PARAMETER)
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.RETURN)
-package me.moros.gaia;
+package me.moros.gaia.api;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.framework.qual.DefaultQualifier;
-import org.checkerframework.framework.qual.TypeUseLocation;
+public interface GaiaChunkPos {
+  int x();
+
+  int z();
+
+  static GaiaChunkPos at(int x, int z) {
+    return new SimpleChunkPos(x, z);
+  }
+}

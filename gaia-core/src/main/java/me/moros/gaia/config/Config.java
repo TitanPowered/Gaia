@@ -19,19 +19,23 @@
 
 package me.moros.gaia.config;
 
+import me.moros.gaia.LightFixer.Mode;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public record Config(long timeout, long cooldown, int concurrentChunks, int concurrentTransactions, boolean debug) {
-  public Config(long timeout, long cooldown, int concurrentChunks, int concurrentTransactions, boolean debug) {
+public record Config(long timeout, long cooldown, int concurrentChunks, int concurrentTransactions, boolean debug,
+                     Mode lightFixer) {
+  public Config(long timeout, long cooldown, int concurrentChunks, int concurrentTransactions, boolean debug, @Nullable Mode lightFixer) {
     this.timeout = timeout > 0 ? timeout : 30_000;
     this.cooldown = cooldown > 0 ? cooldown : 5000;
     this.concurrentChunks = concurrentChunks > 0 ? concurrentChunks : 4;
     this.concurrentTransactions = concurrentTransactions > 0 ? concurrentTransactions : 32_768;
     this.debug = debug;
+    this.lightFixer = lightFixer == null ? Mode.POST_ARENA : lightFixer;
   }
 
   Config() {
-    this(30_000, 5000, 4, 32_768, false);
+    this(30_000, 5000, 4, 32_768, false, Mode.POST_ARENA);
   }
 }

@@ -17,13 +17,36 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * Base package for Gaia.
- */
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.PARAMETER)
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.RETURN)
-package me.moros.gaia;
+package me.moros.gaia.event;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.framework.qual.DefaultQualifier;
-import org.checkerframework.framework.qual.TypeUseLocation;
+import com.sk89q.worldedit.event.Cancellable;
+import com.sk89q.worldedit.event.Event;
+import me.moros.gaia.api.Arena;
+
+public class ArenaAnalyzeEvent extends Event implements Cancellable {
+  private final Arena arena;
+  private final long analyzeTime;
+  private boolean cancelled;
+
+  public ArenaAnalyzeEvent(Arena arena, long analyzeTime) {
+    this.arena = arena;
+    this.analyzeTime = analyzeTime;
+  }
+
+  public Arena arena() {
+    return arena;
+  }
+
+  public long analyzeTime() {
+    return analyzeTime;
+  }
+
+  @Override
+  public boolean isCancelled() {
+    return cancelled;
+  }
+
+  @Override
+  public void setCancelled(boolean cancelled) {
+  }
+}

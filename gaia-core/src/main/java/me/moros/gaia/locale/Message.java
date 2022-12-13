@@ -74,7 +74,7 @@ public interface Message {
     .args(arena));
   Args1<Long> REVERT_COOLDOWN = time -> brand(translatable("gaia.command.revert.on-cooldown", DARK_AQUA)
     .args(text(Util.formatDuration(time), YELLOW)));
-  Args2<Component, String> FINISHED_REVERT = (arena, time) -> brand(translatable("gaia.command.revert.finished", GREEN)
+  Args2<Component, Long> FINISHED_REVERT = (arena, time) -> brand(translatable("gaia.command.revert.finished", GREEN)
     .args(arena, text(time, GREEN)));
 
   Args1<Component> CANCEL_FAIL = arena -> brand(translatable("gaia.command.cancel.fail", RED)

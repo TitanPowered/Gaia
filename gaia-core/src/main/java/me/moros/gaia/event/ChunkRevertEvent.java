@@ -17,13 +17,19 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * Base package for Gaia.
- */
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.PARAMETER)
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.RETURN)
-package me.moros.gaia;
+package me.moros.gaia.event;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.framework.qual.DefaultQualifier;
-import org.checkerframework.framework.qual.TypeUseLocation;
+import com.sk89q.worldedit.event.Event;
+import me.moros.gaia.api.GaiaChunk;
+
+public class ChunkRevertEvent extends Event {
+  private final GaiaChunk chunk;
+
+  public ChunkRevertEvent(GaiaChunk chunk, long revertTime) {
+    this.chunk = chunk;
+  }
+
+  public GaiaChunk chunk() {
+    return chunk;
+  }
+}

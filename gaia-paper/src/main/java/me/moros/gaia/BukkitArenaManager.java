@@ -33,6 +33,8 @@ import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaChunk;
 import me.moros.gaia.api.GaiaRegion;
 import me.moros.gaia.api.GaiaUser;
+import me.moros.gaia.event.ArenaAnalyzeEvent;
+import me.moros.gaia.event.ArenaRevertEvent;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.locale.Message;
 import me.moros.gaia.util.metadata.ArenaMetadata;
@@ -42,7 +44,7 @@ import org.bukkit.plugin.Plugin;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BukkitArenaManager extends ArenaManager {
-  BukkitArenaManager(Gaia plugin) {
+  BukkitArenaManager(GaiaPlugin plugin) {
     super(plugin);
   }
 
@@ -53,14 +55,17 @@ public class BukkitArenaManager extends ArenaManager {
     arena.forEach(gcr -> plugin.chunkManager().revert(gcr, arena.world()));
     Bukkit.getScheduler().runTaskTimerAsynchronously((Plugin) plugin, task -> {
       if (!arena.reverting()) {
+        final long deltaTime = System.currentTimeMillis() - startTime;
         Message.CANCEL_SUCCESS.send(user, arena.displayName());
         task.cancel();
+        WorldEdit.getInstance().getEventBus().post(new ArenaRevertEvent(arena, deltaTime, true));
       } else {
         if (arena.stream().noneMatch(GaiaChunk::reverting)) {
           final long deltaTime = System.currentTimeMillis() - startTime;
-          Message.FINISHED_REVERT.send(user, arena.displayName(), String.valueOf(deltaTime));
+          Message.FINISHED_REVERT.send(user, arena.displayName(), deltaTime);
           arena.reverting(false);
           task.cancel();
+          WorldEdit.getInstance().getEventBus().post(new ArenaRevertEvent(arena, deltaTime));
         }
       }
     }, 1, 1);
@@ -111,26 +116,29 @@ public class BukkitArenaManager extends ArenaManager {
       return false;
     }
     Message.CREATE_ANALYZING.send(user, arena.displayName());
+    long startTime = System.currentTimeMillis();
     if (!splitIntoChunks(arena)) {
       arena.forEach(plugin.chunkManager()::cancel);
       Message.CREATE_FAIL.send(user, arena.displayName());
       return false;
     }
     arena.metadata(new ArenaMetadata(arena));
-    final long timeoutMoment = System.currentTimeMillis() + plugin.configManager().config().timeout();
+    final long timeoutMoment = startTime + plugin.configManager().config().timeout();
     Bukkit.getScheduler().runTaskTimer((Plugin) plugin, task -> {
-      if (System.currentTimeMillis() > timeoutMoment) {
+      final long time = System.currentTimeMillis();
+      if (time > timeoutMoment) {
         arena.forEach(plugin.chunkManager()::cancel);
         Message.CREATE_FAIL_TIMEOUT.send(user, arena.displayName());
         remove(arena.name());
         task.cancel();
       } else {
         if (arena.stream().allMatch(GaiaChunk::analyzed) && arena.finalizeArena()) {
+          WorldEdit.getInstance().getEventBus().post(new ArenaAnalyzeEvent(arena, time - startTime));
           GaiaIO.instance().saveArena(arena).thenAccept(result -> {
             if (result) {
               Message.CREATE_SUCCESS.send(user, arena.displayName());
             } else {
-              arena.forEach(plugin.chunkManager()::cancel);
+              remove(arena.name());
               Message.CREATE_FAIL.send(user, arena.displayName());
             }
           });
@@ -158,35 +166,5 @@ public class BukkitArenaManager extends ArenaManager {
     BlockVector3 point = BukkitAdapter.adapt(bukkitPlayer).getLocation().toVector().toBlockPoint();
     return plugin.arenaManager().stream()
       .filter(a -> a.worldUID().equals(worldId) && a.region().contains(point)).findAny().orElse(null);
-  }
-
-  private boolean splitIntoChunks(Arena arena) {
-    final int minX = arena.region().min().getX();
-    final int maxX = arena.region().max().getX();
-    final int minY = arena.region().min().getY();
-    final int maxY = arena.region().max().getY();
-    final int minZ = arena.region().min().getZ();
-    final int maxZ = arena.region().max().getZ();
-
-    int tempX, tempZ;
-    BlockVector3 v1, v2;
-    for (int x = minX >> 4; x <= maxX >> 4; ++x) {
-      tempX = x * 16;
-      for (int z = minZ >> 4; z <= maxZ >> 4; ++z) {
-        tempZ = z * 16;
-        v1 = atXZClamped(tempX, minY, tempZ, minX, maxX, minZ, maxZ);
-        v2 = atXZClamped(tempX + 15, maxY, tempZ + 15, minX, maxX, minZ, maxZ);
-        final GaiaChunk chunkRegion = new GaiaChunk(UUID.randomUUID(), arena, new GaiaRegion(v1, v2));
-        plugin.chunkManager().analyze(chunkRegion, arena.world());
-      }
-    }
-    return arena.amount() > 0;
-  }
-
-  private static BlockVector3 atXZClamped(int x, int y, int z, int minX, int maxX, int minZ, int maxZ) {
-    if (minX > maxX || minZ > maxZ) {
-      throw new IllegalArgumentException("Minimum cannot be greater than maximum");
-    }
-    return BlockVector3.at(Math.max(minX, Math.min(maxX, x)), y, Math.max(minZ, Math.min(maxZ, z)));
   }
 }

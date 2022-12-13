@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A chunk aligned GaiaRegion.
  */
-public class GaiaChunk implements Metadatable, Iterable<BlockVector3> {
+public class GaiaChunk implements GaiaChunkPos, Metadatable, Iterable<BlockVector3> {
   public static final Comparator<GaiaChunk> ZX_ORDER = Comparator.comparingInt(GaiaChunk::chunkZ).thenComparingInt(GaiaChunk::chunkX);
 
   private final UUID id;
@@ -65,6 +65,16 @@ public class GaiaChunk implements Metadatable, Iterable<BlockVector3> {
 
   public Arena parent() {
     return parent;
+  }
+
+  @Override
+  public int x() {
+    return chunkX();
+  }
+
+  @Override
+  public int z() {
+    return chunkZ();
   }
 
   public int chunkX() {

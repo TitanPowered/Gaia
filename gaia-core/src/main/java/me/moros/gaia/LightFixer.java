@@ -17,13 +17,21 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * Base package for Gaia.
- */
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.PARAMETER)
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.RETURN)
 package me.moros.gaia;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.framework.qual.DefaultQualifier;
-import org.checkerframework.framework.qual.TypeUseLocation;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+
+import me.moros.gaia.api.GaiaChunkPos;
+
+@FunctionalInterface
+public interface LightFixer extends BiConsumer<UUID, Collection<GaiaChunkPos>> {
+  enum Mode {DISABLED, POST_CHUNK, POST_ARENA}
+
+  default void onChunkRelight(int x, int z) {
+  }
+
+  default void onComplete(int affected) {
+  }
+}

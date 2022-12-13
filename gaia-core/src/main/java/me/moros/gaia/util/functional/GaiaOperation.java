@@ -55,7 +55,7 @@ public abstract class GaiaOperation {
 
   public abstract void onFinish();
 
-  public long getStartTime() {
+  public long startTime() {
     return startTime;
   }
 }

@@ -80,6 +80,7 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
 
     translationManager = new TranslationManager(logger, dir);
 
+    loadLightFixer(this);
     arenaManager = new BukkitArenaManager(this);
     chunkManager = new BukkitChunkManager(this);
 
@@ -113,6 +114,28 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     getServer().getScheduler().cancelTasks(this);
     if (chunkManager != null) {
       chunkManager.shutdown();
+    }
+  }
+
+  private void loadLightFixer(Gaia plugin) {
+    String fullName = plugin.getServer().getClass().getPackageName();
+    String nmsVersion = fullName.substring(1 + fullName.lastIndexOf("."));
+    String className = "me.moros.gaia.nms." + nmsVersion + ".LightFixerImpl";
+    try {
+      Class<?> cls = Class.forName(className);
+      if (!cls.isSynthetic() && LightFixer.class.isAssignableFrom(cls)) {
+        new RevertListener(this, (LightFixer) cls.getDeclaredConstructor().newInstance());
+      }
+    } catch (Exception ignore) {
+      String s = String.format("""
+
+        ****************************************************************
+        * Unable to find native module for version %s.
+        * Chunk relighting will not be available during this session.
+        ****************************************************************
+
+        """, nmsVersion);
+      plugin.logger().warn(s);
     }
   }
 

@@ -24,12 +24,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sk89q.worldedit.math.BlockVector3;
 import me.moros.gaia.api.Arena;
 import me.moros.gaia.api.GaiaChunk;
+import me.moros.gaia.api.GaiaRegion;
 import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.io.GaiaIO;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -90,5 +93,35 @@ public abstract class ArenaManager implements Iterable<Arena> {
 
   public Iterator<Arena> iterator() {
     return Collections.unmodifiableCollection(arenas.values()).iterator();
+  }
+
+  protected boolean splitIntoChunks(Arena arena) {
+    final int minX = arena.region().min().getX();
+    final int maxX = arena.region().max().getX();
+    final int minY = arena.region().min().getY();
+    final int maxY = arena.region().max().getY();
+    final int minZ = arena.region().min().getZ();
+    final int maxZ = arena.region().max().getZ();
+
+    int tempX, tempZ;
+    BlockVector3 v1, v2;
+    for (int x = minX >> 4; x <= maxX >> 4; ++x) {
+      tempX = x * 16;
+      for (int z = minZ >> 4; z <= maxZ >> 4; ++z) {
+        tempZ = z * 16;
+        v1 = atXZClamped(tempX, minY, tempZ, minX, maxX, minZ, maxZ);
+        v2 = atXZClamped(tempX + 15, maxY, tempZ + 15, minX, maxX, minZ, maxZ);
+        final GaiaChunk chunkRegion = new GaiaChunk(UUID.randomUUID(), arena, new GaiaRegion(v1, v2));
+        plugin.chunkManager().analyze(chunkRegion, arena.world());
+      }
+    }
+    return arena.amount() > 0;
+  }
+
+  private BlockVector3 atXZClamped(int x, int y, int z, int minX, int maxX, int minZ, int maxZ) {
+    if (minX > maxX || minZ > maxZ) {
+      throw new IllegalArgumentException("Minimum cannot be greater than maximum");
+    }
+    return BlockVector3.at(Math.max(minX, Math.min(maxX, x)), y, Math.max(minZ, Math.min(maxZ, z)));
   }
 }
