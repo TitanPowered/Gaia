@@ -1,12 +1,12 @@
 plugins {
     java
-    id("com.github.johnrengelman.shadow").version("7.1.2")
-    id("org.checkerframework").version("0.6.20")
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.checker)
 }
 
 allprojects {
     group = "me.moros"
-    version = "1.8.1-SNAPSHOT"
+    version = "1.8.1"
 
     apply(plugin = "java")
     apply(plugin = "org.checkerframework")

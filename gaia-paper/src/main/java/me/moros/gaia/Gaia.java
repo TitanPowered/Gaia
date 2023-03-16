@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2020-2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -24,7 +24,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
+import cloud.commandframework.execution.CommandExecutionCoordinator;
+import cloud.commandframework.paper.PaperCommandManager;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extension.input.InputParseException;
@@ -33,6 +36,7 @@ import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.block.BlockState;
 import me.moros.gaia.api.ArenaPoint;
 import me.moros.gaia.api.GaiaUser;
+import me.moros.gaia.command.Commander;
 import me.moros.gaia.config.ConfigManager;
 import me.moros.gaia.io.GaiaIO;
 import me.moros.gaia.locale.TranslationManager;
@@ -52,10 +56,10 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
   private ExecutorService executor;
   private ParserContext parserContext;
   private ConfigManager configManager;
-  private GaiaCommandManager commandManager;
+  private Commander commander;
   private TranslationManager translationManager;
-  private BukkitArenaManager arenaManager;
-  private BukkitChunkManager chunkManager;
+  private ArenaManager arenaManager;
+  private ChunkManager chunkManager;
   private String author;
   private String version;
   private Logger logger;
@@ -96,7 +100,13 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
       logger.info("Successfully loaded " + size + (size == 1 ? " arena" : " arenas") + " (" + delta + "ms)");
     });
     try {
-      commandManager = new GaiaCommandManager(this);
+      PaperCommandManager<GaiaUser> manager = new PaperCommandManager<>(this,
+        CommandExecutionCoordinator.simpleCoordinator(),
+        c -> new BukkitGaiaUser(this, c),
+        u -> ((BukkitGaiaUser) u).sender()
+      );
+      manager.registerAsynchronousCompletions();
+      commander = Commander.create(manager, this);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
@@ -160,12 +170,17 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
   }
 
   @Override
-  public BukkitArenaManager arenaManager() {
+  public TranslationManager translationManager() {
+    return translationManager;
+  }
+
+  @Override
+  public ArenaManager arenaManager() {
     return arenaManager;
   }
 
   @Override
-  public BukkitChunkManager chunkManager() {
+  public ChunkManager chunkManager() {
     return chunkManager;
   }
 
@@ -192,6 +207,24 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
   }
 
   @Override
+  public @Nullable GaiaUser findUser(String input) {
+    Player player = getServer().getPlayer(input);
+    if (player == null) {
+      try {
+        UUID uuid = UUID.fromString(input);
+        player = getServer().getPlayer(uuid);
+      } catch (Exception ignore) {
+      }
+    }
+    return player == null ? null : new BukkitGaiaUser(this, player);
+  }
+
+  @Override
+  public Stream<String> users() {
+    return getServer().getOnlinePlayers().stream().map(Player::getName);
+  }
+
+  @Override
   public Executor executor() {
     return executor;
   }
@@ -203,11 +236,6 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
     }
     Location loc = adapt(user).getLocation();
     return new ArenaPoint(BukkitAdapter.asVector(loc), loc.getYaw(), loc.getPitch());
-  }
-
-  @Override
-  public void queryCommands(String rawQuery, GaiaUser recipient) {
-    commandManager.help().queryCommands(rawQuery, recipient);
   }
 
   @Override
@@ -228,7 +256,7 @@ public class Gaia extends JavaPlugin implements GaiaPlugin {
   }
 
   @Override
-  public void reload() {
-    translationManager.reload();
+  public void repeat(Runnable task, long delay, long period) {
+    getServer().getScheduler().runTaskTimer(this, task, delay, period);
   }
 }

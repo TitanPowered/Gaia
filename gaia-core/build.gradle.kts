@@ -3,14 +3,14 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.8.2")
-    testImplementation("org.junit.jupiter", "junit-jupiter-engine", "5.8.2")
-    compileOnly("org.spongepowered", "configurate-hocon", "4.1.2")
-    compileOnly("org.slf4j", "slf4j-api", "1.7.36")
-    compileOnly("cloud.commandframework", "cloud-core", "1.7.1")
-    compileOnly("net.kyori", "adventure-api", "4.11.0")
-    compileOnly("com.sk89q.worldedit", "worldedit-core", "7.2.6")
-    compileOnly("com.google.code.gson", "gson", "2.9.0")
+    testImplementation(libs.bundles.junit)
+    compileOnly(libs.configurate.hocon)
+    compileOnly(libs.slf4j.api)
+    compileOnly(libs.gson)
+    compileOnly(libs.adventure)
+    compileOnly(libs.worldedit.core)
+    compileOnly(libs.cloud.core)
+    compileOnly(libs.cloud.minecraft)
 }
 
 tasks.test {

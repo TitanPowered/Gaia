@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2020-2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -19,7 +19,11 @@
 
 package me.moros.gaia.api;
 
+import java.util.Comparator;
+
 public interface GaiaChunkPos {
+  Comparator<GaiaChunkPos> ZX_ORDER = Comparator.comparingInt(GaiaChunkPos::x).thenComparingInt(GaiaChunkPos::z);
+
   int x();
 
   int z();

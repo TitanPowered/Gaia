@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2020-2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -19,7 +19,6 @@
 
 package me.moros.gaia.api;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -37,13 +36,12 @@ import org.jetbrains.annotations.NotNull;
  * A chunk aligned GaiaRegion.
  */
 public class GaiaChunk implements GaiaChunkPos, Metadatable, Iterable<BlockVector3> {
-  public static final Comparator<GaiaChunk> ZX_ORDER = Comparator.comparingInt(GaiaChunk::chunkZ).thenComparingInt(GaiaChunk::chunkX);
-
   private final UUID id;
 
   private final Arena parent;
   private final GaiaRegion chunk;
-  private final int chunkX, chunkZ;
+  private final int x, z;
+  private final int hashcode;
 
   private ChunkMetadata meta;
 
@@ -52,11 +50,12 @@ public class GaiaChunk implements GaiaChunkPos, Metadatable, Iterable<BlockVecto
   public GaiaChunk(UUID id, Arena parent, GaiaRegion region) {
     this.id = Objects.requireNonNull(id);
     this.parent = Objects.requireNonNull(parent);
-    chunkX = region.min().getX() / 16;
-    chunkZ = region.min().getZ() / 16;
+    x = region.min().getX() >> 4;
+    z = region.min().getZ() >> 4;
     chunk = region;
     reverting = new AtomicBoolean(false);
     parent.addSubRegion(this);
+    hashcode = Objects.hash(x, z, parent, region);
   }
 
   public UUID id() {
@@ -69,20 +68,12 @@ public class GaiaChunk implements GaiaChunkPos, Metadatable, Iterable<BlockVecto
 
   @Override
   public int x() {
-    return chunkX();
+    return x;
   }
 
   @Override
   public int z() {
-    return chunkZ();
-  }
-
-  public int chunkX() {
-    return chunkX;
-  }
-
-  public int chunkZ() {
-    return chunkZ;
+    return z;
   }
 
   public GaiaRegion region() {
@@ -146,5 +137,21 @@ public class GaiaChunk implements GaiaChunkPos, Metadatable, Iterable<BlockVecto
   @Override
   public void metadata(@NotNull GaiaMetadata meta) {
     this.meta = (ChunkMetadata) meta;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof GaiaChunk other) {
+      return x() == other.x() && z() == other.z() && region().equals(other.region()) && parent().equals(other.parent());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return hashcode;
   }
 }

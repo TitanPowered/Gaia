@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2020-2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -19,37 +19,32 @@
 
 package me.moros.gaia;
 
+import java.util.UUID;
+
 import me.moros.gaia.api.GaiaUser;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class BukkitGaiaUser implements GaiaUser {
-  private final CommandSender sender;
-  private final boolean isPlayer;
-
-  public BukkitGaiaUser(CommandSender sender) {
-    this.sender = sender;
-    isPlayer = sender instanceof Player;
-  }
-
-  public CommandSender sender() {
-    return this.sender;
+public record BukkitGaiaUser(GaiaPlugin parent, CommandSender sender, boolean isPlayer) implements GaiaUser {
+  public BukkitGaiaUser(GaiaPlugin parent, CommandSender sender) {
+    this(parent, sender, sender instanceof Player);
   }
 
   @Override
-  public boolean isPlayer() {
-    return isPlayer;
+  public @Nullable UUID worldUUID() {
+    return isPlayer ? ((Player) sender).getWorld().getUID() : null;
   }
 
   @Override
   public boolean hasPermission(String permission) {
-    return sender.hasPermission(permission);
+    return sender().hasPermission(permission);
   }
 
   @Override
   public @NonNull Audience audience() {
-    return sender;
+    return sender();
   }
 }

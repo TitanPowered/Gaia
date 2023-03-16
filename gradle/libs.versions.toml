@@ -1,0 +1,37 @@
+[versions]
+junit = "5.8.2"
+shadow = "8.1.0"
+adventure = "4.12.0"
+configurate = "4.1.2"
+cloud = "1.8.3"
+worldedit = "7.2.6"
+paper = "1.18.2-R0.1-SNAPSHOT"
+
+[libraries]
+gson = { module = "com.google.code.gson:gson", version = "2.9.0" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version = "1.7.36" }
+
+cloud-core = { module = "cloud.commandframework:cloud-core", version.ref = "cloud" }
+cloud-minecraft = { module = "cloud.commandframework:cloud-minecraft-extras", version.ref = "cloud" }
+cloud-paper = { module = "cloud.commandframework:cloud-paper", version.ref = "cloud" }
+
+configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
+
+adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+
+worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version = "7.2.6" }
+worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version = "7.2.6" }
+
+paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
+bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.0.1" }
+
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+
+[bundles]
+junit = ["junit-api", "junit-engine"]
+
+[plugins]
+checker = { id = "org.checkerframework", version = "0.6.25" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+userdev = { id = "io.papermc.paperweight.userdev", version = "1.5.3" }

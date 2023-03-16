@@ -3,14 +3,12 @@ dependencies {
     project.project(":gaia-paper:nms").subprojects.forEach {
         implementation(project(it.path, "reobf"))
     }
-    implementation("org.bstats", "bstats-bukkit", "2.2.1")
-    implementation("org.spongepowered", "configurate-hocon", "4.1.2")
-    implementation("cloud.commandframework", "cloud-paper", "1.7.1")
-    implementation("cloud.commandframework", "cloud-minecraft-extras", "1.7.1") {
-        isTransitive = false
-    }
-    compileOnly("io.papermc.paper", "paper-api", "1.18.2-R0.1-SNAPSHOT")
-    compileOnly("com.sk89q.worldedit", "worldedit-bukkit", "7.2.6")
+    implementation(libs.bstats.bukkit)
+    implementation(libs.configurate.hocon)
+    implementation(libs.cloud.paper)
+    implementation(libs.cloud.minecraft) { isTransitive = false }
+    compileOnly(libs.paper)
+    compileOnly(libs.worldedit.bukkit)
 }
 
 tasks {
@@ -33,7 +31,7 @@ tasks {
     named<Copy>("processResources") {
         expand("pluginVersion" to project.version)
         from("../LICENSE") {
-            rename { "${rootProject.name.toUpperCase()}_${it}" }
+            rename { "${rootProject.name.uppercase()}_${it}" }
         }
     }
 }

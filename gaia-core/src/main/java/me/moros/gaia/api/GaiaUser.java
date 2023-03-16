@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2020-2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -19,9 +19,17 @@
 
 package me.moros.gaia.api;
 
+import java.util.UUID;
+
+import me.moros.gaia.GaiaPlugin;
 import net.kyori.adventure.audience.ForwardingAudience;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface GaiaUser extends ForwardingAudience.Single {
+  GaiaPlugin parent();
+
+  @Nullable UUID worldUUID();
+
   boolean isPlayer();
 
   boolean hasPermission(String permission);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2020-2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -21,12 +21,14 @@ package me.moros.gaia;
 
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.stream.Stream;
 
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.block.BlockState;
 import me.moros.gaia.api.ArenaPoint;
 import me.moros.gaia.api.GaiaUser;
 import me.moros.gaia.config.ConfigManager;
+import me.moros.gaia.locale.TranslationManager;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 
@@ -39,6 +41,8 @@ public interface GaiaPlugin {
 
   ConfigManager configManager();
 
+  TranslationManager translationManager();
+
   ArenaManager arenaManager();
 
   ChunkManager chunkManager();
@@ -47,13 +51,15 @@ public interface GaiaPlugin {
 
   @Nullable World findWorld(UUID uid);
 
+  @Nullable GaiaUser findUser(String input);
+
+  Stream<String> users();
+
   Executor executor();
 
   @Nullable ArenaPoint pointFromUser(GaiaUser user);
 
-  void queryCommands(String rawQuery, GaiaUser recipient);
-
   void teleport(GaiaUser user, UUID worldUid, ArenaPoint point);
 
-  void reload();
+  void repeat(Runnable task, long delay, long period);
 }

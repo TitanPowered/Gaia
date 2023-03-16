@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2020-2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -89,7 +89,7 @@ public class Arena implements Metadatable, Iterable<GaiaChunk> {
     if (subRegions.isEmpty() || finalized.get()) {
       return false;
     }
-    subRegions.sort(GaiaChunk.ZX_ORDER);
+    subRegions.sort(GaiaChunkPos.ZX_ORDER);
     finalized.set(true);
     return true;
   }

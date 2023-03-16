@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2020-2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -19,6 +19,8 @@
 
 package me.moros.gaia;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.sk89q.worldedit.world.World;
 import me.moros.gaia.api.GaiaChunk;
 
@@ -32,4 +34,8 @@ public interface ChunkManager {
   void revert(GaiaChunk chunk, World world);
 
   void analyze(GaiaChunk chunk, World world);
+
+  CompletableFuture<?> asyncLoad(GaiaChunk chunk);
+
+  void onChunkOperationComplete(GaiaChunk chunk);
 }

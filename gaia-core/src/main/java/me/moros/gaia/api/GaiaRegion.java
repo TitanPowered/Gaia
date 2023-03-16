@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Moros
+ * Copyright 2020-2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -22,33 +22,23 @@ package me.moros.gaia.api;
 import com.sk89q.worldedit.math.BlockVector3;
 
 /**
- * An axis-aligned immutable cuboid. It can be defined using a world and two corners of the cuboid.
+ * An axis-aligned immutable cuboid defined by it's 2 opposing corners.
  */
-public final class GaiaRegion {
-  private final BlockVector3 minPoint, maxPoint, diff;
-
-  public GaiaRegion(BlockVector3 pos1, BlockVector3 pos2) {
-    BlockVector3.checkLongPackable(pos1);
-    BlockVector3.checkLongPackable(pos2);
-    minPoint = pos1.getMinimum(pos2);
-    maxPoint = pos2.getMaximum(pos2);
-    diff = maxPoint.subtract(minPoint).add(1, 1, 1);
-  }
-
-  public BlockVector3 min() {
-    return minPoint;
-  }
-
-  public BlockVector3 max() {
-    return maxPoint;
+public record GaiaRegion(BlockVector3 min, BlockVector3 max) {
+  public GaiaRegion(BlockVector3 min, BlockVector3 max) {
+    BlockVector3.checkLongPackable(min);
+    BlockVector3.checkLongPackable(max);
+    this.min = min.getMinimum(max);
+    this.max = max.getMaximum(max);
   }
 
   public BlockVector3 size() {
-    return diff;
+    return max().subtract(min()).add(1, 1, 1);
   }
 
   public int volume() {
-    return diff.getX() * diff.getY() * diff.getZ();
+    BlockVector3 size = size();
+    return size.getX() * size.getY() * size.getZ();
   }
 
   public BlockVector3 center() {
