@@ -3,6 +3,12 @@ plugins {
     alias(libs.plugins.fabric.loom)
 }
 
+repositories {
+    maven("https://maven.fabricmc.net/") {
+        mavenContent { includeGroup("net.fabricmc") }
+    }
+}
+
 dependencies {
     minecraft(libs.fabric.minecraft)
     mappings(loom.officialMojangMappings())
@@ -14,7 +20,6 @@ dependencies {
     implementation(include(libs.cloud.minecraft.get())!!)
     gaiaImplementation(projects.gaiaCommon)
     gaiaImplementation(libs.tasker.fabric)
-    gaiaImplementation(libs.configurate.hocon)
 }
 
 loom {

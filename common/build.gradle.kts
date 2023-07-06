@@ -8,11 +8,9 @@ minecraft {
 
 dependencies {
     api(projects.gaiaApi)
-    api(libs.tasker.core)
-    api(libs.eventbus)
-    api(libs.linbus)
-    compileOnlyApi(libs.worldedit.core)
-    compileOnlyApi(libs.configurate.hocon)
+    implementation(libs.eventbus)
+    implementation(libs.linbus)
+    implementation(libs.configurate.hocon)
     compileOnlyApi(libs.bundles.cloud)
-    compileOnlyApi(libs.gson)
+    compileOnly(libs.worldedit.core)
 }

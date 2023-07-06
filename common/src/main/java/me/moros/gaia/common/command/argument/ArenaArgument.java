@@ -90,11 +90,11 @@ public final class ArenaArgument extends CommandArgument<GaiaUser, Arena> {
         var user = commandContext.getSender();
         var levelKey = user.level().orElse(null);
         if (levelKey != null) {
-          return user.parent().coordinator().arenaService().arena(levelKey, user.position().toVector3i())
+          return user.parent().arenaService().arena(levelKey, user.position().toVector3i())
             .map(ArgumentParseResult::success).orElseGet(failure);
         }
       } else {
-        return commandContext.getSender().parent().coordinator().arenaService().arena(sanitized)
+        return commandContext.getSender().parent().arenaService().arena(sanitized)
           .map(ArgumentParseResult::success).orElseGet(failure);
       }
       return failure.get();
@@ -102,7 +102,7 @@ public final class ArenaArgument extends CommandArgument<GaiaUser, Arena> {
 
     @Override
     public List<String> suggestions(CommandContext<GaiaUser> commandContext, String input) {
-      return commandContext.getSender().parent().coordinator().arenaService()
+      return commandContext.getSender().parent().arenaService()
         .stream().map(Arena::name).sorted().collect(Collectors.toList());
     }
   }

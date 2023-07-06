@@ -9,7 +9,6 @@ dependencies {
     gaiaImplementation(projects.gaiaCommon)
     gaiaImplementation(libs.bstats.bukkit)
     gaiaImplementation(libs.tasker.bukkit)
-    gaiaImplementation(libs.configurate.hocon) {}
     gaiaImplementation(libs.cloud.paper)
     gaiaImplementation(libs.cloud.minecraft) { isTransitive = false }
     compileOnly(libs.worldedit.bukkit)

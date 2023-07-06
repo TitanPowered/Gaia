@@ -59,7 +59,7 @@ public record PointCommand(Commander commander) implements GaiaCommand {
   }
 
   private void onPointAdd(GaiaUser user) {
-    Arena arena = user.level().flatMap(l -> user.parent().coordinator().arenaService().arena(l, user.position()))
+    Arena arena = user.level().flatMap(l -> user.parent().arenaService().arena(l, user.position()))
       .orElse(null);
     if (arena == null) {
       Message.ADD_POINT_FAIL_AREA.send(user);
@@ -68,7 +68,7 @@ public record PointCommand(Commander commander) implements GaiaCommand {
     Point point = user.createPoint().orElse(null);
     if (point != null) {
       arena.addPoint(point);
-      user.parent().coordinator().storage().saveArena(arena);
+      user.parent().storage().saveArena(arena);
       Message.ADD_POINT_SUCCESS.send(user);
     } else {
       Message.ADD_POINT_FAIL.send(user);
@@ -77,7 +77,7 @@ public record PointCommand(Commander commander) implements GaiaCommand {
 
   private void onPointClear(GaiaUser user, Arena arena) {
     arena.clearPoints();
-    user.parent().coordinator().storage().saveArena(arena);
+    user.parent().storage().saveArena(arena);
     Message.CLEAR_POINTS.send(user, arena.displayName());
   }
 

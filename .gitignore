@@ -14,5 +14,3 @@ gradle-app.setting
 
 .idea/
 *.iml
-
-libs/

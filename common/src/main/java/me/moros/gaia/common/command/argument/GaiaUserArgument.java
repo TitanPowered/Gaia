@@ -82,7 +82,7 @@ public final class GaiaUserArgument extends CommandArgument<GaiaUser, GaiaUser> 
       if (input.equalsIgnoreCase("me")) {
         return ArgumentParseResult.success(commandContext.getSender());
       }
-      var user = commandContext.getSender().parent().coordinator().userService().findUser(input);
+      var user = commandContext.getSender().parent().userService().findUser(input);
       if (user != null) {
         return ArgumentParseResult.success(user);
       } else {
@@ -92,7 +92,7 @@ public final class GaiaUserArgument extends CommandArgument<GaiaUser, GaiaUser> 
 
     @Override
     public List<String> suggestions(CommandContext<GaiaUser> commandContext, String input) {
-      return commandContext.getSender().parent().coordinator().userService().users().toList();
+      return commandContext.getSender().parent().userService().users().toList();
     }
   }
 }

@@ -19,24 +19,32 @@
 
 package me.moros.gaia.api;
 
-import java.nio.file.Path;
-
-import me.moros.gaia.api.config.ConfigManager;
-import me.moros.gaia.api.service.Coordinator;
-import org.slf4j.Logger;
+import me.moros.gaia.api.event.EventBus;
+import me.moros.gaia.api.service.ArenaService;
+import me.moros.gaia.api.service.LevelService;
+import me.moros.gaia.api.service.OperationService;
+import me.moros.gaia.api.service.SelectionService;
+import me.moros.gaia.api.service.UserService;
+import me.moros.gaia.api.storage.Storage;
+import me.moros.gaia.api.util.PluginInfo;
+import me.moros.tasker.executor.CompositeExecutor;
 
 public interface Gaia {
-  void reload();
+  CompositeExecutor executor();
 
-  String author();
+  Storage storage();
 
-  String version();
+  EventBus eventBus();
 
-  Path path();
+  UserService userService();
 
-  Logger logger();
+  SelectionService selectionService();
 
-  ConfigManager configManager();
+  LevelService levelService();
 
-  Coordinator coordinator();
+  OperationService operationService();
+
+  ArenaService arenaService();
+
+  PluginInfo pluginInfo();
 }

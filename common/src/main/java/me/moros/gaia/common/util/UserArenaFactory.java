@@ -23,27 +23,22 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.arena.region.Region;
 import me.moros.gaia.api.operation.GaiaOperation;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.api.platform.Level;
-import me.moros.gaia.api.service.ArenaService;
 import me.moros.gaia.api.util.ChunkUtil;
 import me.moros.gaia.api.util.TextUtil;
+import me.moros.gaia.common.config.ConfigManager;
 import me.moros.gaia.common.locale.Message;
 
 public final class UserArenaFactory {
-  private final Gaia plugin;
   private final GaiaUser user;
-  private final ArenaService arenaService;
 
   public UserArenaFactory(GaiaUser user) {
-    this.plugin = user.parent();
     this.user = user;
-    this.arenaService = plugin.coordinator().arenaService();
   }
 
   public boolean tryCreate(String name) {
@@ -52,7 +47,7 @@ public final class UserArenaFactory {
       Message.CREATE_ERROR_VALIDATION.send(user);
       return false;
     }
-    if (arenaService.contains(arenaName)) {
+    if (user.parent().arenaService().contains(arenaName)) {
       Message.CREATE_ERROR_EXISTS.send(user, arenaName);
       return false;
     }
@@ -60,12 +55,12 @@ public final class UserArenaFactory {
   }
 
   private boolean withValidName(String arenaName) {
-    Level level = user.level().map(plugin.coordinator().levelService()::findLevel).orElse(null);
+    Level level = user.level().map(user.parent().levelService()::findLevel).orElse(null);
     if (level == null) {
       Message.PLAYER_REQUIRED.send(user);
       return false;
     }
-    var region = plugin.coordinator().selectionService().selection(user).orElse(null);
+    var region = user.parent().selectionService().selection(user).orElse(null);
     if (region == null) {
       Message.CREATE_ERROR_SELECTION.send(user);
       return false;
@@ -79,16 +74,16 @@ public final class UserArenaFactory {
       Message.CREATE_ERROR_DISTANCE.send(user);
       return false;
     }
-    if (arenaService.stream().filter(a -> a.level().equals(level.key())).map(Arena::region).anyMatch(region::intersects)) {
+    if (user.parent().arenaService().arena(level.key(), region).isPresent()) {
       Message.CREATE_ERROR_INTERSECTION.send(user);
       return false;
     }
-    plugin.coordinator().selectionService().resetSelection(user);
+    user.parent().selectionService().resetSelection(user);
     return withValidSelection(arenaName, level, region);
   }
 
   private boolean withValidSelection(String arenaName, Level level, Region region) {
-    if (!plugin.coordinator().storage().createEmptyArenaFiles(arenaName)) {
+    if (!user.parent().storage().createEmptyArenaFiles(arenaName)) {
       Message.CREATE_ERROR_CRITICAL.send(user);
       return false;
     }
@@ -110,11 +105,11 @@ public final class UserArenaFactory {
 
   private void createFuture(String arenaName, Level level, Region region, Collection<ChunkRegion> chunkRegions) {
     var futures = chunkRegions.stream().map(c -> GaiaOperation.snapshotAnalyze(level, c))
-      .map(plugin.coordinator().operationService()::add).toList();
+      .map(user.parent().operationService()::add).toList();
     long startTime = System.currentTimeMillis();
     FutureUtil.createFailFastBatch(futures)
-      .orTimeout(plugin.configManager().config().timeout(), TimeUnit.MILLISECONDS)
-      .thenCompose(data -> plugin.coordinator().storage().saveDataAsync(arenaName, data))
+      .orTimeout(ConfigManager.instance().config().timeout(), TimeUnit.MILLISECONDS)
+      .thenCompose(data -> user.parent().storage().saveDataAsync(arenaName, data))
       .thenCompose(validated -> {
         chunkRegions.forEach(level::removeChunkTicket); // Force cleanup
         int expected = chunkRegions.size();
@@ -123,20 +118,20 @@ public final class UserArenaFactory {
           return null;
         }
         var arena = Arena.builder().name(arenaName).level(level.key()).region(region).chunks(validated).build();
-        plugin.coordinator().eventBus().postArenaAnalyzeEvent(arena, System.currentTimeMillis() - startTime);
-        return plugin.coordinator().storage().saveArena(arena);
+        user.parent().eventBus().postArenaAnalyzeEvent(arena, System.currentTimeMillis() - startTime);
+        return user.parent().storage().saveArena(arena);
       })
       .whenComplete((arena, throwable) -> {
         if (arena != null) {
-          arenaService.add(arena);
+          user.parent().arenaService().add(arena);
           Message.CREATE_SUCCESS.send(user, arena.displayName());
         } else {
-          arenaService.remove(arenaName);
+          user.parent().arenaService().remove(arenaName);
           if (throwable instanceof TimeoutException) {
             Message.CREATE_FAIL_TIMEOUT.send(user, arenaName);
           } else {
             Message.CREATE_FAIL.send(user, arenaName);
-            plugin.logger().warn(throwable.getMessage(), throwable);
+            throwable.printStackTrace();
           }
         }
       });

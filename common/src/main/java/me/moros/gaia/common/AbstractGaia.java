@@ -22,74 +22,56 @@ package me.moros.gaia.common;
 import java.nio.file.Path;
 
 import me.moros.gaia.api.Gaia;
-import me.moros.gaia.api.config.ConfigManager;
-import me.moros.gaia.api.service.Coordinator;
-import me.moros.gaia.common.config.ConfigManagerImpl;
+import me.moros.gaia.common.config.ConfigManager;
 import me.moros.gaia.common.locale.TranslationManager;
-import me.moros.gaia.common.service.CoordinatorImpl;
-import me.moros.gaia.common.service.RevertListener;
-import me.moros.gaia.common.storage.decoder.Decoder;
 import org.slf4j.Logger;
 
-public abstract class AbstractGaia<T> implements Gaia {
+public abstract class AbstractGaia<T> {
   protected final T parent;
   private final Path path;
   private final Logger logger;
 
-  private final ConfigManager configManager;
   private final TranslationManager translationManager;
 
   protected final GaiaFactory factory;
-  private Coordinator coordinator;
+  private GaiaImpl gaia;
 
   protected AbstractGaia(T parent, Path path, Logger logger) {
     this.parent = parent;
     this.path = path;
     this.logger = logger;
 
-    this.configManager = new ConfigManagerImpl(logger, this.path);
+    ConfigManager.createInstance(logger, this.path);
     this.translationManager = new TranslationManager(logger, this.path);
-    this.factory = new GaiaFactory().bind(Decoder.class, () -> Decoder.createVanilla(logger));
+    this.factory = new GaiaFactory();
   }
 
   protected void load() {
-    this.coordinator = new CoordinatorImpl(this, factory);
-    new RevertListener(this);
+    this.gaia = new GaiaImpl(this, factory);
     long startTime = System.currentTimeMillis();
-    coordinator.storage().loadAllArenas().thenAccept(arenas -> {
-      arenas.forEach(coordinator.arenaService()::add);
+    gaia.storage().loadAllArenas().thenAccept(arenas -> {
+      arenas.forEach(gaia.arenaService()::add);
       long delta = System.currentTimeMillis() - startTime;
-      int size = coordinator.arenaService().size();
-      logger().info(String.format("Successfully loaded %d %s (%dms)", size, (size == 1 ? "arena" : "arenas"), delta));
+      int size = gaia.arenaService().size();
+      logger.info(String.format("Successfully loaded %d %s (%dms)", size, (size == 1 ? "arena" : "arenas"), delta));
     });
   }
 
   protected void disable() {
-    coordinator().shutdown();
+    ConfigManager.instance().close();
+    translationManager.close();
+    gaia.shutdown();
   }
 
-  @Override
-  public void reload() {
-    translationManager.reload();
-  }
-
-  @Override
-  public Path path() {
+  protected Path path() {
     return path;
   }
 
-  @Override
-  public Logger logger() {
+  protected Logger logger() {
     return logger;
   }
 
-  @Override
-  public ConfigManager configManager() {
-    return configManager;
-  }
-
-  @Override
-  public Coordinator coordinator() {
-    return coordinator;
+  protected Gaia api() {
+    return gaia;
   }
 }

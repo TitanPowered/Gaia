@@ -31,6 +31,7 @@ import me.moros.gaia.api.operation.GaiaOperation;
 import me.moros.gaia.api.operation.GaiaOperation.Result;
 import me.moros.gaia.api.platform.Level;
 import me.moros.gaia.api.service.OperationService;
+import me.moros.gaia.common.config.ConfigManager;
 import me.moros.tasker.executor.SyncExecutor;
 
 public final class OperationServiceImpl implements OperationService {
@@ -46,13 +47,13 @@ public final class OperationServiceImpl implements OperationService {
     this.queue = new ConcurrentLinkedQueue<>();
     this.updatedConfig = new AtomicBoolean();
     updateLimits();
-    this.plugin.configManager().subscribe(n -> updatedConfig.set(true));
+    ConfigManager.instance().subscribe(n -> updatedConfig.set(true));
     syncExecutor.repeat(this::processTasks, 1, 1);
     this.valid = true;
   }
 
   private void updateLimits() {
-    concurrentChunks = this.plugin.configManager().config().concurrentChunks();
+    concurrentChunks = ConfigManager.instance().config().concurrentChunks();
   }
 
   private void processTasks() {
@@ -105,9 +106,9 @@ public final class OperationServiceImpl implements OperationService {
     if (op.asFuture().isDone() && !op.asFuture().isCompletedExceptionally()) {
       long deltaTime = System.currentTimeMillis() - op.startTime();
       if (op instanceof GaiaOperation.Analyze) {
-        plugin.coordinator().eventBus().postChunkAnalyzeEvent(op.chunk(), op.level().key(), deltaTime);
+        plugin.eventBus().postChunkAnalyzeEvent(op.chunk(), op.level().key(), deltaTime);
       } else if (op instanceof GaiaOperation.Revert) {
-        plugin.coordinator().eventBus().postChunkRevertEvent(op.chunk(), op.level().key(), deltaTime);
+        plugin.eventBus().postChunkRevertEvent(op.chunk(), op.level().key(), deltaTime);
       }
     }
     cleanupTicket(op);

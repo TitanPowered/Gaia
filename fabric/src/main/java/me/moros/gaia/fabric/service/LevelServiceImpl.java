@@ -19,7 +19,6 @@
 
 package me.moros.gaia.fabric.service;
 
-import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.platform.Level;
 import me.moros.gaia.api.service.LevelService;
 import me.moros.gaia.fabric.platform.FabricLevel;
@@ -27,13 +26,14 @@ import net.kyori.adventure.key.Key;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
 
-public record LevelServiceImpl(Gaia plugin, MinecraftServer server) implements LevelService {
+public record LevelServiceImpl(Logger logger, MinecraftServer server) implements LevelService {
   @Override
   public @Nullable Level findLevel(Key level) {
     var world = match(level);
     if (world == null) {
-      plugin().logger().warn("Couldn't find level with key " + level);
+      logger().warn("Couldn't find level with key " + level);
       return null;
     }
     return new FabricLevel(world);

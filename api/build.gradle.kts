@@ -6,7 +6,6 @@ dependencies {
     testImplementation(libs.bundles.junit)
     api(libs.math.core)
     api(libs.tasker.core)
-    compileOnlyApi(libs.slf4j.api)
     compileOnlyApi(libs.adventure)
 }
 
@@ -14,11 +13,10 @@ tasks {
     test {
         useJUnitPlatform()
     }
-    withType<Jar> {
-        manifest {
-            attributes["Automatic-Module-Name"] = "me.moros.gaia"
-        }
-    }
+}
+
+java {
+    withSourcesJar()
 }
 
 publishing {

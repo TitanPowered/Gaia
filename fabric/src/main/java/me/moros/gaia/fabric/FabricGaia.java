@@ -28,8 +28,10 @@ import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.api.service.LevelService;
 import me.moros.gaia.api.service.SelectionService;
 import me.moros.gaia.api.service.UserService;
+import me.moros.gaia.api.util.PluginInfo;
 import me.moros.gaia.common.AbstractGaia;
 import me.moros.gaia.common.command.Commander;
+import me.moros.gaia.common.util.PluginInfoContainer;
 import me.moros.gaia.fabric.platform.FabricGaiaUser;
 import me.moros.gaia.fabric.service.FabricWorldEditSelectionService;
 import me.moros.gaia.fabric.service.GaiaSelectionService;
@@ -52,10 +54,10 @@ public class FabricGaia extends AbstractGaia<ModContainer> {
     registerLifecycleListeners();
     CommandManager<GaiaUser> manager = new FabricServerCommandManager<>(
       CommandExecutionCoordinator.simpleCoordinator(),
-      s -> FabricGaiaUser.from(this, s),
+      s -> FabricGaiaUser.from(api(), s),
       s -> ((FabricGaiaUser) s).handle()
     );
-    commander = Commander.create(manager, this);
+    commander = Commander.create(manager, api(), logger());
   }
 
   private void registerLifecycleListeners() {
@@ -65,9 +67,10 @@ public class FabricGaia extends AbstractGaia<ModContainer> {
 
   private void onEnable(MinecraftServer server) {
     factory
+      .bind(PluginInfo.class, this::createInfo)
       .bind(SyncExecutor.class, FabricExecutor::new)
-      .bind(UserService.class, () -> new UserServiceImpl(this, server.getPlayerList()))
-      .bind(LevelService.class, () -> new LevelServiceImpl(this, server));
+      .bind(UserService.class, () -> new UserServiceImpl(api(), server.getPlayerList()))
+      .bind(LevelService.class, () -> new LevelServiceImpl(logger(), server));
     bindSelectionService(server);
     load();
   }
@@ -84,13 +87,10 @@ public class FabricGaia extends AbstractGaia<ModContainer> {
     }
   }
 
-  @Override
-  public String author() {
-    return parent.getMetadata().getVersion().getFriendlyString();
-  }
-
-  @Override
-  public String version() {
-    return parent.getMetadata().getAuthors().stream().map(Person::getName).findFirst().orElse("Moros");
+  private PluginInfo createInfo() {
+    return new PluginInfoContainer(
+      parent.getMetadata().getAuthors().stream().map(Person::getName).findFirst().orElse("Moros"),
+      parent.getMetadata().getVersion().getFriendlyString()
+    );
   }
 }

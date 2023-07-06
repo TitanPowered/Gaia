@@ -24,8 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-import me.moros.gaia.api.config.Config;
-import me.moros.gaia.api.config.ConfigManager;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.NodePath;
@@ -34,35 +32,35 @@ import org.spongepowered.configurate.reference.ConfigurationReference;
 import org.spongepowered.configurate.reference.ValueReference;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 
-public final class ConfigManagerImpl implements ConfigManager {
-  private final ConfigImpl defaultConfig;
+public final class ConfigManager {
+  private static ConfigManager INSTANCE;
+
+  private final Config defaultConfig;
 
   private final Logger logger;
   private final WatchServiceListener listener;
   private final ConfigurationReference<CommentedConfigurationNode> reference;
-  private final ValueReference<ConfigImpl, CommentedConfigurationNode> configReference;
+  private final ValueReference<Config, CommentedConfigurationNode> configReference;
 
-  public ConfigManagerImpl(Logger logger, Path directory) {
+  private ConfigManager(Logger logger, Path directory) {
     this.logger = logger;
-    this.defaultConfig = new ConfigImpl();
+    this.defaultConfig = new Config();
     Path path = directory.resolve("gaia.conf");
     try {
       Files.createDirectories(path.getParent());
       listener = WatchServiceListener.create();
       reference = listener.listenToConfiguration(f -> HoconConfigurationLoader.builder().path(f).build(), path);
-      configReference = reference.referenceTo(ConfigImpl.class, NodePath.path(), defaultConfig);
+      configReference = reference.referenceTo(Config.class, NodePath.path(), defaultConfig);
       reference.save();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  @Override
   public void subscribe(Consumer<Config> subscriber) {
     reference.updates().subscribe(n -> subscriber.accept(config()));
   }
 
-  @Override
   public void close() {
     try {
       reference.close();
@@ -72,9 +70,28 @@ public final class ConfigManagerImpl implements ConfigManager {
     }
   }
 
-  @Override
   public Config config() {
     Config config = configReference.get();
     return config == null ? defaultConfig : config;
+  }
+
+  public static ConfigManager instance() {
+    return INSTANCE;
+  }
+
+  private static final Object LOCK = new Object();
+
+  public static ConfigManager createInstance(Logger logger, Path directory) {
+    ConfigManager result = INSTANCE;
+    if (result == null) {
+      synchronized (LOCK) {
+        result = INSTANCE;
+        if (result == null) {
+          result = new ConfigManager(logger, directory);
+          INSTANCE = result;
+        }
+      }
+    }
+    return result;
   }
 }

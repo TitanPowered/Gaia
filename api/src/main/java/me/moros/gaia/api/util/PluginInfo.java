@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Moros
+ * Copyright 2023 Moros
  *
  * This file is part of Gaia.
  *
@@ -17,18 +17,10 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.api.config;
+package me.moros.gaia.api.util;
 
-import me.moros.gaia.api.util.LightFixer;
+public interface PluginInfo {
+  String version();
 
-public interface Config {
-  long timeout();
-
-  long cooldown();
-
-  int concurrentChunks();
-
-  int backgroundThreads();
-
-  LightFixer lightFixer();
+  String author();
 }

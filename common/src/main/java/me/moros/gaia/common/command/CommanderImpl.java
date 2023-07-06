@@ -36,16 +36,16 @@ import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.common.command.commands.ArenaCommand;
 import me.moros.gaia.common.command.commands.HelpCommand;
 import me.moros.gaia.common.command.commands.PointCommand;
-import me.moros.gaia.common.command.commands.ReloadCommand;
 import me.moros.gaia.common.command.commands.VersionCommand;
 import me.moros.gaia.common.locale.Message;
+import org.slf4j.Logger;
 
-record CommanderImpl(CommandManager<GaiaUser> manager, Gaia plugin) implements Commander {
+record CommanderImpl(CommandManager<GaiaUser> manager, Gaia plugin, Logger logger) implements Commander {
   CommanderImpl init() {
     registerExceptionHandler();
     manager().commandSuggestionProcessor(this::suggestionProvider);
     Collection<Function<Commander, GaiaCommand>> cmds = List.of(
-      ArenaCommand::new, HelpCommand::new, PointCommand::new, ReloadCommand::new, VersionCommand::new
+      ArenaCommand::new, HelpCommand::new, PointCommand::new, VersionCommand::new
     );
     cmds.forEach(cmd -> cmd.apply(this).register());
     return this;

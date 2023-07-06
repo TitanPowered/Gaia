@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
@@ -40,54 +41,76 @@ import net.kyori.adventure.translation.TranslationRegistry;
 import net.kyori.adventure.translation.Translator;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.slf4j.Logger;
+import org.spongepowered.configurate.reference.WatchServiceListener;
 
 public class TranslationManager {
   private static final String PATH = "gaia.lang.messages_en";
   private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
+  private static final Object lock = new Object();
 
   private final Logger logger;
-  private final Set<Locale> installed;
   private final Path translationsDirectory;
+  private final WatchServiceListener listener;
+  private final Set<Locale> installed;
   private TranslationRegistry registry;
 
   public TranslationManager(Logger logger, Path directory) {
     this.logger = logger;
     this.installed = ConcurrentHashMap.newKeySet();
-    this.translationsDirectory = directory.resolve("translations");
+    try {
+      this.translationsDirectory = Files.createDirectories(directory.resolve("translations"));
+      this.listener = WatchServiceListener.create();
+      this.listener.listenToDirectory(translationsDirectory, e -> reload());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     reload();
   }
 
-  public void reload() {
-    if (registry != null) {
-      GlobalTranslator.translator().removeSource(registry);
-      installed.clear();
-    }
-    registry = TranslationRegistry.create(Key.key("gaia", "translations"));
-    registry.defaultLocale(DEFAULT_LOCALE);
-
-    loadCustom();
-
+  private void reload() {
+    var newRegistry = TranslationRegistry.create(Key.key("gaia", "translations"));
+    newRegistry.defaultLocale(DEFAULT_LOCALE);
+    var wrappedRegistry = loadCustom(logger, translationsDirectory, new Registry(newRegistry, new HashSet<>()));
     ResourceBundle bundle = ResourceBundle.getBundle(PATH, DEFAULT_LOCALE, UTF8ResourceBundleControl.get());
-    registry.registerAll(DEFAULT_LOCALE, bundle, false);
-    GlobalTranslator.translator().addSource(registry);
+    wrappedRegistry.registry().registerAll(DEFAULT_LOCALE, bundle, false);
+
+    synchronized (lock) {
+      if (registry != null) {
+        GlobalTranslator.translator().removeSource(registry);
+      }
+      registry = wrappedRegistry.registry();
+      GlobalTranslator.translator().addSource(registry);
+      installed.clear();
+      installed.addAll(wrappedRegistry.locales());
+    }
   }
 
-  private void loadCustom() {
+  public void close() {
+    try {
+      listener.close();
+    } catch (IOException e) {
+      logger.warn(e.getMessage(), e);
+    }
+  }
+
+  private static Registry loadCustom(Logger logger, Path dir, Registry wrappedRegistry) {
     Collection<Path> files;
-    try (Stream<Path> stream = Files.list(translationsDirectory)) {
-      files = stream.filter(this::isValidPropertyFile).collect(Collectors.toList());
+    try (Stream<Path> stream = Files.list(dir)) {
+      files = stream.filter(TranslationManager::isValidPropertyFile).collect(Collectors.toList());
     } catch (IOException e) {
       files = Collections.emptyList();
     }
-    files.forEach(this::loadTranslationFile);
-    int amount = installed.size();
+    files.forEach(path -> loadTranslationFile(logger, wrappedRegistry, path));
+    int amount = wrappedRegistry.locales().size();
     if (amount > 0) {
-      String translations = installed.stream().map(Locale::getLanguage).collect(Collectors.joining(", ", "[", "]"));
+      String translations = wrappedRegistry.locales().stream().map(Locale::getLanguage)
+        .collect(Collectors.joining(", ", "[", "]"));
       logger.info(String.format("Loaded %d translations: %s", amount, translations));
     }
+    return wrappedRegistry;
   }
 
-  private void loadTranslationFile(Path path) {
+  private static void loadTranslationFile(Logger logger, Registry wrappedRegistry, Path path) {
     String localeString = removeFileExtension(path);
     Locale locale = Translator.parseLocale(localeString);
     if (locale == null) {
@@ -101,16 +124,19 @@ public class TranslationManager {
       logger.warn("Error loading locale file: " + localeString);
       return;
     }
-    registry.registerAll(locale, bundle, false);
-    installed.add(locale);
+    wrappedRegistry.registry().registerAll(locale, bundle, false);
+    wrappedRegistry.locales().add(locale);
   }
 
-  private boolean isValidPropertyFile(Path path) {
+  private static boolean isValidPropertyFile(Path path) {
     return Files.isRegularFile(path) && path.getFileName().toString().endsWith(".properties");
   }
 
-  private String removeFileExtension(Path path) {
+  private static String removeFileExtension(Path path) {
     String fileName = path.getFileName().toString();
     return fileName.substring(0, fileName.length() - ".properties".length());
+  }
+
+  private record Registry(TranslationRegistry registry, Set<Locale> locales) {
   }
 }

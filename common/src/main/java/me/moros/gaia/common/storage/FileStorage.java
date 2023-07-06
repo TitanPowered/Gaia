@@ -60,6 +60,7 @@ import me.moros.gaia.common.storage.decoder.Decoder;
 import me.moros.math.Vector3i;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.enginehub.linbus.stream.LinBinaryIO;
+import org.slf4j.Logger;
 
 public final class FileStorage implements Storage {
   public static final Supplier<Checksum> ALGORITHM = CRC32C::new;
@@ -69,14 +70,16 @@ public final class FileStorage implements Storage {
   private static final String CHUNK_NAME_FORMAT = "c.%d.%d.schem";
 
   private final Gaia plugin;
+  private final Logger logger;
   private final Path container;
   private final Decoder decoder;
   private final Gson gson;
 
-  private FileStorage(Gaia plugin, Path container, Decoder decoder) {
+  private FileStorage(Gaia plugin, Logger logger, Path container) {
     this.plugin = plugin;
+    this.logger = logger;
     this.container = container;
-    this.decoder = decoder;
+    this.decoder = Decoder.createVanilla(logger);
     this.gson = new GsonBuilder().setPrettyPrinting()
       .registerTypeHierarchyAdapter(Vector3i.class, Adapters.VECTOR)
       .registerTypeHierarchyAdapter(Point.class, Adapters.POINT)
@@ -85,13 +88,17 @@ public final class FileStorage implements Storage {
       .create();
   }
 
-  public static Storage createInstance(Gaia plugin, Decoder decoder) {
-    Objects.requireNonNull(decoder);
+  public static Storage createInstance(Gaia plugin, Logger logger, Path path) {
+    Objects.requireNonNull(plugin);
+    Objects.requireNonNull(logger);
+    Objects.requireNonNull(path);
+    Path container;
     try {
-      return new FileStorage(plugin, Files.createDirectories(plugin.path().resolve(ARENA_DIR)), decoder);
+      container = Files.createDirectories(path.resolve(ARENA_DIR));
     } catch (IOException e) {
       throw new RuntimeException(String.format("Could not create %s directory! Aborting loading.", ARENA_DIR), e);
     }
+    return new FileStorage(plugin, logger, container);
   }
 
   private Path arenaPath(String name) {
@@ -119,7 +126,7 @@ public final class FileStorage implements Storage {
       Files.createFile(arenaMeta);
       return true;
     } catch (IOException e) {
-      plugin.logger().error(e.getMessage(), e);
+      logger.error(e.getMessage(), e);
     }
     return false;
   }
@@ -130,7 +137,7 @@ public final class FileStorage implements Storage {
       stream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
       return true;
     } catch (IOException e) {
-      plugin.logger().error(e.getMessage(), e);
+      logger.error(e.getMessage(), e);
     }
     return false;
   }
@@ -141,7 +148,7 @@ public final class FileStorage implements Storage {
 
   @Override
   public CompletableFuture<Iterable<Arena>> loadAllArenas() {
-    return plugin.coordinator().executor().async().submit(() -> {
+    return plugin.executor().async().submit(() -> {
       Iterable<Arena> arenas;
       try (Stream<Path> stream = Files.walk(container, 2)) {
         arenas = stream.filter(this::isMeta).map(this::loadArena).filter(Objects::nonNull).toList();
@@ -150,14 +157,14 @@ public final class FileStorage implements Storage {
       }
       return arenas;
     }).exceptionally(t -> {
-      plugin.logger().error(t.getMessage(), t);
+      logger.error(t.getMessage(), t);
       return List.of();
     });
   }
 
   @Override
   public CompletableFuture<Arena> saveArena(Arena arena) {
-    return plugin.coordinator().executor().async().submit(() -> {
+    return plugin.executor().async().submit(() -> {
       Path arenaMeta = arenaMeta(arena.name());
       try (var writer = Files.newBufferedWriter(arenaMeta, StandardCharsets.UTF_8)) {
         gson.toJson(arena, writer);
@@ -166,7 +173,7 @@ public final class FileStorage implements Storage {
         throw new CompletionException(e);
       }
     }).exceptionally(e -> {
-      plugin.logger().error(e.getMessage(), e);
+      logger.error(e.getMessage(), e);
       return null;
     });
   }
@@ -188,7 +195,7 @@ public final class FileStorage implements Storage {
 
   @Override
   public CompletableFuture<Collection<Snapshot>> loadDataAsync(String name, Collection<ChunkRegion.Validated> chunkRegions) {
-    return plugin.coordinator().executor().async().submit(() -> {
+    return plugin.executor().async().submit(() -> {
       Collection<Snapshot> result = new ArrayList<>();
       try {
         for (var chunkRegion : chunkRegions) {
@@ -199,7 +206,7 @@ public final class FileStorage implements Storage {
         throw new CompletionException(e);
       }
     }).exceptionally(e -> {
-      plugin.logger().error(e.getMessage(), e);
+      logger.error(e.getMessage(), e);
       return List.of();
     });
   }
@@ -219,7 +226,7 @@ public final class FileStorage implements Storage {
 
   @Override
   public CompletableFuture<Collection<ChunkRegion.Validated>> saveDataAsync(String name, Iterable<Snapshot> data) {
-    return plugin.coordinator().executor().async().submit(() -> {
+    return plugin.executor().async().submit(() -> {
       try {
         Collection<ChunkRegion.Validated> result = new ArrayList<>();
         for (var cd : data) {
@@ -230,7 +237,7 @@ public final class FileStorage implements Storage {
         throw new CompletionException(e);
       }
     }).exceptionally(e -> {
-      plugin.logger().error(e.getMessage(), e);
+      logger.error(e.getMessage(), e);
       return List.of();
     });
   }
@@ -244,7 +251,7 @@ public final class FileStorage implements Storage {
         validateChecksum(chunkPath, chunk.checksum(), calculateChecksum(chunkPath));
       }
     } catch (IOException | JsonParseException e) {
-      plugin.logger().error(e.getMessage(), e);
+      logger.error(e.getMessage(), e);
     }
     return arena;
   }

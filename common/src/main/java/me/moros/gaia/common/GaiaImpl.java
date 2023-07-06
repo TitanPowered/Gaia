@@ -17,29 +17,31 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.common.service;
+package me.moros.gaia.common;
 
 import java.util.concurrent.Executors;
 
 import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.event.EventBus;
 import me.moros.gaia.api.service.ArenaService;
-import me.moros.gaia.api.service.Coordinator;
 import me.moros.gaia.api.service.LevelService;
 import me.moros.gaia.api.service.OperationService;
 import me.moros.gaia.api.service.SelectionService;
 import me.moros.gaia.api.service.UserService;
 import me.moros.gaia.api.storage.Storage;
-import me.moros.gaia.common.GaiaFactory;
+import me.moros.gaia.api.util.PluginInfo;
+import me.moros.gaia.common.config.ConfigManager;
 import me.moros.gaia.common.event.EventBusImpl;
+import me.moros.gaia.common.service.ArenaServiceImpl;
+import me.moros.gaia.common.service.OperationServiceImpl;
+import me.moros.gaia.common.service.RevertListener;
 import me.moros.gaia.common.storage.FileStorage;
-import me.moros.gaia.common.storage.decoder.Decoder;
 import me.moros.tasker.executor.CompositeExecutor;
 import me.moros.tasker.executor.SimpleAsyncExecutor;
 import me.moros.tasker.executor.SyncExecutor;
 
-public class CoordinatorImpl implements Coordinator {
-  private final Gaia plugin;
+final class GaiaImpl implements Gaia {
+  private final PluginInfo info;
   private final CompositeExecutor executor;
   private final Storage storage;
   private final EventBus eventBus;
@@ -49,18 +51,19 @@ public class CoordinatorImpl implements Coordinator {
   private final OperationService operationService;
   private final ArenaService arenaService;
 
-  public CoordinatorImpl(Gaia plugin, GaiaFactory factory) {
-    this.plugin = plugin;
-    var threads = calculateThreads(plugin.configManager().config().backgroundThreads());
+  GaiaImpl(AbstractGaia<?> plugin, GaiaFactory factory) {
+    this.info = factory.build(PluginInfo.class);
+    var threads = calculateThreads(ConfigManager.instance().config().backgroundThreads());
     var pool = Executors.newScheduledThreadPool(threads);
     this.executor = CompositeExecutor.of(factory.build(SyncExecutor.class), new SimpleAsyncExecutor(pool));
-    this.storage = FileStorage.createInstance(plugin, factory.build(Decoder.class));
+    this.storage = FileStorage.createInstance(this, plugin.logger(), plugin.path());
     this.eventBus = new EventBusImpl();
     this.userService = factory.build(UserService.class);
     this.selectionService = factory.build(SelectionService.class);
     this.levelService = factory.build(LevelService.class);
-    this.operationService = new OperationServiceImpl(plugin, executor.sync());
-    this.arenaService = new ArenaServiceImpl(plugin);
+    this.operationService = new OperationServiceImpl(this, executor.sync());
+    this.arenaService = new ArenaServiceImpl(this);
+    new RevertListener(this);
   }
 
   @Override
@@ -104,8 +107,11 @@ public class CoordinatorImpl implements Coordinator {
   }
 
   @Override
-  public void shutdown() {
-    plugin.configManager().close();
+  public PluginInfo pluginInfo() {
+    return info;
+  }
+
+  void shutdown() {
     operationService.shutdown();
     eventBus.shutdown();
     executor.shutdown();

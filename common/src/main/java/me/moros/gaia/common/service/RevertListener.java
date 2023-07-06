@@ -28,6 +28,7 @@ import me.moros.gaia.api.event.ArenaRevertEvent;
 import me.moros.gaia.api.event.ChunkRevertEvent;
 import me.moros.gaia.api.util.ChunkUtil;
 import me.moros.gaia.api.util.LightFixer;
+import me.moros.gaia.common.config.ConfigManager;
 import net.kyori.adventure.key.Key;
 
 public final class RevertListener {
@@ -39,26 +40,26 @@ public final class RevertListener {
   }
 
   private void registerListeners() {
-    this.plugin.coordinator().eventBus().subscribe(ArenaRevertEvent.class, this::onArenaRevert);
-    this.plugin.coordinator().eventBus().subscribe(ChunkRevertEvent.class, this::onChunkRevert);
+    this.plugin.eventBus().subscribe(ArenaRevertEvent.class, this::onArenaRevert);
+    this.plugin.eventBus().subscribe(ChunkRevertEvent.class, this::onChunkRevert);
   }
 
   private void onArenaRevert(ArenaRevertEvent event) {
-    if (plugin.configManager().config().lightFixer() == LightFixer.POST_ARENA) {
+    if (ConfigManager.instance().config().lightFixer() == LightFixer.POST_ARENA) {
       handleRevert(event.arena().level(), ChunkUtil.spiralChunks(event.arena().region()));
     }
   }
 
   private void onChunkRevert(ChunkRevertEvent event) {
-    if (plugin.configManager().config().lightFixer() == LightFixer.POST_CHUNK) {
+    if (ConfigManager.instance().config().lightFixer() == LightFixer.POST_CHUNK) {
       handleRevert(event.level(), List.of(event.chunk()));
     }
   }
 
   private void handleRevert(Key levelKey, Collection<ChunkPosition> chunks) {
-    var level = plugin.coordinator().levelService().findLevel(levelKey);
+    var level = plugin.levelService().findLevel(levelKey);
     if (level != null) {
-      plugin.coordinator().executor().sync().submit(() -> level.fixLight(chunks));
+      plugin.executor().sync().submit(() -> level.fixLight(chunks));
     }
   }
 }

@@ -25,13 +25,16 @@ import java.util.stream.Collectors;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.paper.PaperCommandManager;
 import cloud.commandframework.permission.CommandPermission;
+import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.api.service.LevelService;
 import me.moros.gaia.api.service.SelectionService;
 import me.moros.gaia.api.service.UserService;
+import me.moros.gaia.api.util.PluginInfo;
 import me.moros.gaia.common.AbstractGaia;
 import me.moros.gaia.common.command.CommandPermissions;
 import me.moros.gaia.common.command.Commander;
+import me.moros.gaia.common.util.PluginInfoContainer;
 import me.moros.gaia.paper.platform.BukkitGaiaUser;
 import me.moros.gaia.paper.service.BukkitWorldEditSelectionService;
 import me.moros.gaia.paper.service.GaiaSelectionService;
@@ -42,6 +45,7 @@ import me.moros.tasker.executor.SyncExecutor;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.ServicePriority;
 import org.slf4j.Logger;
 
 public class BukkitGaia extends AbstractGaia<GaiaBootstrap> {
@@ -54,8 +58,9 @@ public class BukkitGaia extends AbstractGaia<GaiaBootstrap> {
   void onPluginEnable() {
     new Metrics(parent, 8608);
     factory
+      .bind(PluginInfo.class, this::createInfo)
       .bind(SyncExecutor.class, () -> new BukkitExecutor(parent))
-      .bind(UserService.class, () -> new UserServiceImpl(this, parent.getServer()))
+      .bind(UserService.class, () -> new UserServiceImpl(api(), parent.getServer()))
       .bind(LevelService.class, () -> new LevelServiceImpl(logger()));
     bindSelectionService();
     load();
@@ -63,15 +68,16 @@ public class BukkitGaia extends AbstractGaia<GaiaBootstrap> {
     try {
       PaperCommandManager<GaiaUser> manager = new PaperCommandManager<>(parent,
         CommandExecutionCoordinator.simpleCoordinator(),
-        c -> BukkitGaiaUser.from(this, c),
+        c -> BukkitGaiaUser.from(api(), c),
         u -> ((BukkitGaiaUser) u).handle()
       );
       manager.registerAsynchronousCompletions();
       initPermissions();
-      commander = Commander.create(manager, this);
+      commander = Commander.create(manager, api(), logger());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+    parent.getServer().getServicesManager().register(Gaia.class, api(), parent, ServicePriority.Normal);
   }
 
   void onPluginDisable() {
@@ -92,13 +98,7 @@ public class BukkitGaia extends AbstractGaia<GaiaBootstrap> {
     parent.getServer().getPluginManager().addPermission(new Permission("gaia.admin", PermissionDefault.OP, adminPerms));
   }
 
-  @Override
-  public String author() {
-    return parent.getPluginMeta().getAuthors().get(0);
-  }
-
-  @Override
-  public String version() {
-    return parent.getPluginMeta().getVersion();
+  private PluginInfo createInfo() {
+    return new PluginInfoContainer(parent.getPluginMeta().getAuthors().get(0), parent.getPluginMeta().getVersion());
   }
 }

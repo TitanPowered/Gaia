@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.RevertResult;
+import me.moros.gaia.api.arena.region.Region;
 import me.moros.math.Position;
 import net.kyori.adventure.key.Key;
 
@@ -31,6 +32,10 @@ public interface ArenaService extends Iterable<Arena> {
   boolean contains(String name);
 
   Optional<Arena> arena(String name);
+
+  default Optional<Arena> arena(Key level, Region region) {
+    return stream().filter(a -> a.level().equals(level) && a.region().intersects(region)).findAny();
+  }
 
   default Optional<Arena> arena(Key level, Position position) {
     return stream().filter(a -> a.level().equals(level) && a.region().contains(position)).findAny();

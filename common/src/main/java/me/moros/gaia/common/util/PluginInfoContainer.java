@@ -17,14 +17,9 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.api.config;
+package me.moros.gaia.common.util;
 
-import java.util.function.Consumer;
+import me.moros.gaia.api.util.PluginInfo;
 
-public interface ConfigManager {
-  void subscribe(Consumer<Config> subscriber);
-
-  void close();
-
-  Config config();
+public record PluginInfoContainer(String author, String version) implements PluginInfo {
 }

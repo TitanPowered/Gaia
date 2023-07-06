@@ -50,7 +50,7 @@ public class ArenaServiceImpl implements ArenaService {
 
   @Override
   public boolean contains(String name) {
-    return arenas.containsKey(name) || plugin.coordinator().storage().arenaFileExists(name);
+    return arenas.containsKey(name) || plugin.storage().arenaFileExists(name);
   }
 
   @Override
@@ -70,12 +70,12 @@ public class ArenaServiceImpl implements ArenaService {
   public boolean remove(String name) {
     Arena arena = arenas.remove(name);
     if (arena != null) {
-      var level = plugin.coordinator().levelService().findLevel(arena.level());
+      var level = plugin.levelService().findLevel(arena.level());
       if (level != null) {
-        arena.forEach(c -> plugin.coordinator().operationService().cancel(level, c));
+        arena.forEach(c -> plugin.operationService().cancel(level, c));
       }
     }
-    return plugin.coordinator().storage().deleteArena(name); // Cleanup files
+    return plugin.storage().deleteArena(name); // Cleanup files
   }
 
   @Override
@@ -95,7 +95,7 @@ public class ArenaServiceImpl implements ArenaService {
 
   @Override
   public RevertResult revert(Arena arena) {
-    Level level = plugin.coordinator().levelService().findLevel(arena.level());
+    Level level = plugin.levelService().findLevel(arena.level());
     if (level == null) {
       return RevertResult.fail(Message.REVERT_ERROR_UNLOADED.build(arena.displayName()));
     } else if (arena.reverting()) {
@@ -106,18 +106,18 @@ public class ArenaServiceImpl implements ArenaService {
 
     arena.chunks().forEach(level::addChunkTicket); // Preload chunks
     var futures = ListUtil.partition(arena.chunks(), 32).stream()
-      .map(batch -> plugin.coordinator().storage().loadDataAsync(arena.name(), batch)).toList(); // Load data
+      .map(batch -> plugin.storage().loadDataAsync(arena.name(), batch)).toList(); // Load data
     var future = FutureUtil.createFailFastBatch(futures) // Create future
       .thenCompose(batches -> {
         var opFutures = batches.stream().flatMap(Collection::stream)
           .map(data -> GaiaOperation.revert(level, data))
-          .map(plugin.coordinator().operationService()::add).toList();
+          .map(plugin.operationService()::add).toList();
         return FutureUtil.createFailFast(opFutures);
       })
       .handle((ignored, throwable) -> {
         boolean completed = throwable == null;
         long result = System.currentTimeMillis() - startTime;
-        plugin.coordinator().eventBus().postArenaRevertEvent(arena, result, completed);
+        plugin.eventBus().postArenaRevertEvent(arena, result, completed);
         return completed ? OptionalLong.of(result) : OptionalLong.empty();
       });
     return RevertResult.success(Message.REVERT_SUCCESS.build(arena.displayName()), future);

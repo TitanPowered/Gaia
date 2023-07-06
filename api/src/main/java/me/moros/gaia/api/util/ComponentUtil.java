@@ -25,6 +25,7 @@ import java.util.Arrays;
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.Point;
 import me.moros.math.Position;
+import me.moros.math.Vector3i;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -101,7 +102,7 @@ public final class ComponentUtil {
     return NUMBER_FORMAT.format(yaw) + DELIMITER + NUMBER_FORMAT.format(pitch);
   }
 
-  private static String formatVec(Position vector, String delimiter) {
-    return vector.x() + delimiter + vector.y() + delimiter + vector.z();
+  private static String formatVec(Vector3i vector, String delimiter) {
+    return vector.blockX() + delimiter + vector.blockY() + delimiter + vector.blockZ();
   }
 }

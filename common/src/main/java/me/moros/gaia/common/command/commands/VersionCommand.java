@@ -44,8 +44,8 @@ public record VersionCommand(Commander commander) implements GaiaCommand {
   private void onVersion(GaiaUser user) {
     String link = "https://github.com/PrimordialMoros/Gaia";
     Component version = Message.brand(Component.text("Version: ", NamedTextColor.DARK_AQUA))
-      .append(Component.text(user.parent().version(), NamedTextColor.GREEN))
-      .hoverEvent(HoverEvent.showText(Message.VERSION_COMMAND_HOVER.build(user.parent().author(), link)))
+      .append(Component.text(user.parent().pluginInfo().version(), NamedTextColor.GREEN))
+      .hoverEvent(HoverEvent.showText(Message.VERSION_COMMAND_HOVER.build(user.parent().pluginInfo().author(), link)))
       .clickEvent(ClickEvent.openUrl(link));
     user.sendMessage(version);
   }
