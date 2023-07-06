@@ -1,0 +1,12 @@
+name: Gaia
+version: '${pluginVersion}'
+main: me.moros.gaia.paper.GaiaBootstrap
+author: Moros
+description: Arena management plugin.
+website: https://github.com/PrimordialMoros/Gaia
+api-version: '1.19'
+dependencies:
+  - name: WorldEdit
+    required: false
+load-after:
+  - name: WorldEdit

@@ -1,20 +1,19 @@
 plugins {
-    java
-    alias(libs.plugins.shadow)
+    `java-library`
     alias(libs.plugins.checker)
 }
 
 allprojects {
     group = "me.moros"
-    version = "1.8.2"
+    version = "2.0.0"
 
-    apply(plugin = "java")
+    apply(plugin = "java-library")
     apply(plugin = "org.checkerframework")
-    apply(plugin = "com.github.johnrengelman.shadow")
 
     repositories {
         mavenCentral()
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://repo.papermc.io/repository/maven-public/")
         maven("https://maven.enginehub.org/repo/")
     }
@@ -25,12 +24,12 @@ allprojects {
 
     tasks {
         withType<JavaCompile> {
-            options.compilerArgs.add("-Xlint:unchecked")
-            options.compilerArgs.add("-Xlint:deprecation")
+            options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
             options.encoding = "UTF-8"
         }
-        assemble {
-            dependsOn(shadowJar)
+        withType<AbstractArchiveTask> {
+            isPreserveFileTimestamps = false
+            isReproducibleFileOrder = true
         }
     }
 }

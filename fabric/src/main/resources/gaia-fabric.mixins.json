@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "me.moros.gaia.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "accessor.CommandSourceStackAccess"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

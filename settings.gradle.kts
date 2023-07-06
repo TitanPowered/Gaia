@@ -1,7 +1,21 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven("https://maven.fabricmc.net/")
+    }
+}
+
 rootProject.name = "gaia"
 
-include("gaia-core")
-file("gaia-paper/nms").listFiles { _, name -> name.startsWith("nms-") }?.forEach {
-    include("gaia-paper:nms:${it.name}")
+setupSubproject("api")
+setupSubproject("common")
+setupSubproject("paper")
+setupSubproject("fabric")
+
+fun setupSubproject(moduleName: String) {
+    val name = "gaia-$moduleName"
+    include(name)
+    project(":$name").projectDir = file(moduleName)
 }
-include("gaia-paper")

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "gaia",
+  "version": "${pluginVersion}",
+  "name": "Gaia",
+  "description": "Arena management mod.",
+  "contact": {
+    "homepage": "https://github.com/PrimordialMoros/Gaia/",
+    "sources": "https://github.com/PrimordialMoros/Gaia/",
+    "issues": "https://github.com/PrimordialMoros/Gaia/issues/"
+  },
+  "authors": [
+    "Moros"
+  ],
+  "license": "GPLv3",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "me.moros.gaia.fabric.GaiaBootstrap"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabric": "*",
+    "fabricloader": ">=0.14.12",
+    "minecraft": "1.19.4",
+    "cloud": "*",
+    "adventure-platform-fabric": "*",
+    "worldedit": "*"
+  }
+}
