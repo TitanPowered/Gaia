@@ -87,7 +87,9 @@ final class ArenaImpl implements Arena {
   @Override
   public void addPoint(Point point) {
     Objects.requireNonNull(point);
-    this.points.add(point);
+    if (region.contains(point)) {
+      this.points.add(point);
+    }
   }
 
   @Override
