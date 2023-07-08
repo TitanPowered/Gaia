@@ -16,13 +16,19 @@ Gaia is a lightweight arena management plugin for Minecraft servers.
 
 It allows you to create snapshots of areas that you can later restore.
 
+
+<details><summary>Click for video preview.</summary>
+  
+https://github.com/TitanPowered/Gaia/assets/9851017/e75e9807-cc82-40f3-af89-cee11a0f87c2
+</details>
+
 #### Main Features:
 - Define arena regions
 - Restore arena regions to their original state
-- Teleport to defined [[arena points|Getting-Started#Arena-Points]]
+- Teleport to defined [arena points](https://github.com/TitanPowered/Gaia/wiki/Getting-Started#arena-points)
 - Extremely efficient and lightweight
 - Extensible API
-- Support for custom translations and [[Localization]]
+- Support for custom translations and [Localization](https://github.com/PrimordialMoros/Gaia/wiki/Localization)
 
 You can read about how it works in [Technical Details](TECHNICAL_DETAILS.md).
 
