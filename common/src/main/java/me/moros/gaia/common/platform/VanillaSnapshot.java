@@ -22,13 +22,14 @@ package me.moros.gaia.common.platform;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.api.util.ChunkUtil;
+import me.moros.gaia.common.util.BlockStateCodec;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 
 record VanillaSnapshot(ChunkRegion chunk, VanillaSection[] sectionData) implements Snapshot {
   @Override
   public String getStateString(int x, int y, int z) {
-    return sectionData[ChunkUtil.toChunkPos(y)].state(x, y, z).toString();
+    return BlockStateCodec.INSTANCE.toString(sectionData[ChunkUtil.toChunkPos(y)].state(x, y, z));
   }
 
   @Override

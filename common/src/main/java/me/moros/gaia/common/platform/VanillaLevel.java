@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.api.platform.Level;
+import me.moros.gaia.api.util.ChunkUtil;
 import me.moros.gaia.common.util.IndexedIterator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerChunkCache;
@@ -54,24 +55,25 @@ public abstract class VanillaLevel implements Level {
     var chunkSource = chunkSource();
     var levelChunk = chunkSource.getChunkNow(snapshot.x(), snapshot.z());
     if (levelChunk != null && amount > 0 && snapshot instanceof GaiaSnapshot gaiaSnapshot) {
-      var offset = gaiaSnapshot.chunk().region().min();
+      var offset = ChunkUtil.toChunkSectionPos(gaiaSnapshot.chunk().region().min());
       final int xOffset = offset.blockX();
       final int yOffset = offset.blockY();
       final int zOffset = offset.blockZ();
       final IndexedIterator<BlockState> it = gaiaSnapshot.iterator();
       final BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
       int counter = 0;
-      int index = 0;
       BlockState toRestore;
       while (it.hasNext() && ++counter <= amount) {
-        final int y = index / 256;
-        final int z = (index % 256) / 16;
-        final int x = (index % 256) % 16;
-        index = it.index();
+        int index = it.index();
         toRestore = it.next();
-        BlockState result = levelChunk.setBlockState(mutablePos.set(xOffset + x, yOffset + y, zOffset + z), toRestore, false);
-        if (result != null && result != toRestore) {
-          chunkSource.blockChanged(mutablePos);
+        final int y = yOffset + (index / 256);
+        final int z = zOffset + ((index % 256) / 16);
+        final int x = xOffset + ((index % 256) % 16);
+        if (snapshot.chunk().region().contains(x, y, z)) {
+          BlockState result = levelChunk.setBlockState(mutablePos.set(x, y, z), toRestore, false);
+          if (result != null && result != toRestore) {
+            chunkSource.blockChanged(mutablePos);
+          }
         }
       }
       return it.hasNext();
@@ -81,7 +83,7 @@ public abstract class VanillaLevel implements Level {
 
   @Override
   public Snapshot snapshot(ChunkRegion chunk) {
-    var levelChunk = Objects.requireNonNull(chunkSource().getChunkNow(chunk.x(), chunk.z()), "Chunk not loaded!");
+    var levelChunk = Objects.requireNonNull(chunkSource().getChunkNow(chunk.x(), chunk.z()), "Chunk not generated!");
     return VanillaSnapshot.from(chunk, levelChunk);
   }
 

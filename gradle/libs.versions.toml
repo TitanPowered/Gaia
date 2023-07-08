@@ -65,3 +65,4 @@ userdev = { id = "io.papermc.paperweight.userdev", version = "1.5.5" }
 runpaper = { id = "xyz.jpenilla.run-paper", version = "2.1.0" }
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 vanilla = { id = "org.spongepowered.gradle.vanilla", version.ref = "vanilla-gradle" }
+jmh = { id = "me.champeau.jmh", version = "0.7.0" }

@@ -44,6 +44,12 @@ public sealed interface Region permits RegionImpl {
     return min().add(max()).add(Vector3i.ONE).multiply(0.5);
   }
 
+  default boolean contains(int x, int y, int z) {
+    return x >= min().blockX() && x <= max().blockX()
+      && y >= min().blockY() && y <= max().blockY()
+      && z >= min().blockZ() && z <= max().blockZ();
+  }
+
   default boolean contains(Position vector) {
     double x = vector.x();
     double y = vector.y();

@@ -22,15 +22,16 @@ package me.moros.gaia.api.operation;
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.api.platform.Level;
 import me.moros.gaia.api.util.ChunkUtil;
+import me.moros.math.FastMath;
 
 final class RevertOp extends AbstractOp.LevelChunkOp<Void> implements GaiaOperation.Revert {
   private Snapshot snapshot;
   private final int amount;
 
-  RevertOp(Level level, Snapshot snapshot) {
+  RevertOp(Level level, Snapshot snapshot, int sectionsPerTick) {
     super(level, snapshot.chunk());
     this.snapshot = snapshot;
-    this.amount = snapshot.sections() * ChunkUtil.CHUNK_SECTION_VOLUME;
+    this.amount = FastMath.clamp(sectionsPerTick, 16, snapshot.sections()) * ChunkUtil.CHUNK_SECTION_VOLUME;
   }
 
   @Override

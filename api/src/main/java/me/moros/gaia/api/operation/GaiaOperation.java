@@ -48,10 +48,10 @@ public interface GaiaOperation<T> {
   sealed interface Analyze extends ChunkOperation<Snapshot> permits AnalyzeOp {
   }
 
-  static Revert revert(Level level, Snapshot snapshot) {
+  static Revert revert(Level level, Snapshot snapshot, int sectionsPerTick) {
     Objects.requireNonNull(level);
     Objects.requireNonNull(snapshot);
-    return new RevertOp(level, snapshot);
+    return new RevertOp(level, snapshot, sectionsPerTick);
   }
 
   static Analyze snapshotAnalyze(Level level, ChunkRegion chunk) {

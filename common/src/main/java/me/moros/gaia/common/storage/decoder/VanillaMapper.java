@@ -25,6 +25,7 @@ import java.util.function.Function;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.moros.gaia.common.util.BlockStateCodec;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
@@ -46,7 +47,7 @@ record VanillaMapper(Logger logger, Map<String, BlockState> cache) implements Fu
 
   private void rebuildCache() {
     cache.clear();
-    Block.BLOCK_STATE_REGISTRY.forEach(blockData -> cache.put(blockData.toString(), blockData));
+    Block.BLOCK_STATE_REGISTRY.forEach(state -> cache.put(BlockStateCodec.INSTANCE.toString(state), state));
   }
 
   private @Nullable BlockState parseStateForCache(String data) {

@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.Point;
+import me.moros.gaia.api.arena.region.Region;
 import me.moros.math.Position;
 import me.moros.math.Vector3i;
 import net.kyori.adventure.text.Component;
@@ -82,7 +83,7 @@ public final class ComponentUtil {
       .append(text("World: "))
       .append(text(arena.level().value(), GREEN)).appendNewline()
       .append(text("Region: "))
-      .append(text(arena.region().toString(), GREEN)).appendNewline()
+      .append(region(arena.region())).appendNewline()
       .append(text("Dimensions: "))
       .append(text(formatVec(arena.region().size(), " x "), GREEN)).appendNewline()
       .append(text("Volume: "))
@@ -92,10 +93,23 @@ public final class ComponentUtil {
       .build();
   }
 
+  private static Component region(Region region) {
+    final Component hover = text("Click to copy coordinates to clipboard.", GRAY);
+    final Component min = text(formatRegionVec(region.min()))
+      .clickEvent(ClickEvent.copyToClipboard(formatVec(region.min(), " ")));
+    final Component max = text(formatRegionVec(region.max()))
+      .clickEvent(ClickEvent.copyToClipboard(formatVec(region.max(), " ")));
+    return text().color(GREEN).hoverEvent(hover).append(min).append(text(" to ")).append(max).build();
+  }
+
   private static String formatPoint(Position vector) {
     return "[" + NUMBER_FORMAT.format(vector.x())
       + DELIMITER + NUMBER_FORMAT.format(vector.y())
       + DELIMITER + NUMBER_FORMAT.format(vector.z()) + "]";
+  }
+
+  private static String formatRegionVec(Vector3i vector) {
+    return "[" + vector.blockX() + DELIMITER + vector.blockY() + DELIMITER + vector.blockZ() + "]";
   }
 
   private static String formatDir(float yaw, float pitch) {

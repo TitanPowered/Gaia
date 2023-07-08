@@ -23,24 +23,10 @@ import java.io.IOException;
 
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.chunk.Snapshot;
-import me.moros.math.Vector3i;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.enginehub.linbus.tree.LinCompoundTag;
-import org.enginehub.linbus.tree.LinIntArrayTag;
 import org.slf4j.Logger;
 
 public interface Decoder {
-  default Vector3i decodeVector3i(@Nullable LinIntArrayTag tag) throws IOException {
-    if (tag == null) {
-      return Vector3i.ZERO;
-    }
-    try {
-      return Vector3i.from(tag.value());
-    } catch (IllegalArgumentException e) {
-      throw new IOException(e);
-    }
-  }
-
   int dataVersion();
 
   Snapshot decodeBlocks(ChunkRegion chunk, LinCompoundTag paletteObject, byte[] blocks) throws IOException;

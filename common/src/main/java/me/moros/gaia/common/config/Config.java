@@ -22,18 +22,32 @@ package me.moros.gaia.common.config;
 import me.moros.gaia.api.util.LightFixer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
-public record Config(long timeout, long cooldown, int concurrentChunks, int backgroundThreads, LightFixer lightFixer) {
-  public Config(long timeout, long cooldown, int concurrentChunks, int backgroundThreads, @Nullable LightFixer lightFixer) {
+public record Config(
+  @Comment("The maximum amount of time in milliseconds for snapshot analysis")
+  long timeout,
+  @Comment("The cooldown in milliseconds before an arena can be reverted again")
+  long cooldown,
+  @Comment("The maximum amount of chunks that will be restored every tick")
+  int concurrentChunks,
+  @Comment("The maximum amount of chunk sections that will be restored every tick per chunk")
+  int sectionsPerTick,
+  @Comment("The number of threads Gaia can use for asynchronous tasks such as IO")
+  int backgroundThreads,
+  @Comment("Light fixer can optionally queue light recalculations for reverted chunks/arenas in a 2nd pass. Available options: DISABLED, POST-CHUNK, POST-ARENA")
+  LightFixer lightFixer) {
+  public Config(long timeout, long cooldown, int concurrentChunks, int sectionsPerTick, int backgroundThreads, @Nullable LightFixer lightFixer) {
     this.timeout = timeout > 0 ? timeout : 30_000;
     this.cooldown = cooldown > 0 ? cooldown : 5000;
     this.concurrentChunks = concurrentChunks > 0 ? concurrentChunks : 16;
+    this.sectionsPerTick = sectionsPerTick > 0 ? sectionsPerTick : 24;
     this.backgroundThreads = backgroundThreads;
     this.lightFixer = lightFixer == null ? LightFixer.POST_ARENA : lightFixer;
   }
 
   Config() {
-    this(30_000, 5000, 16, -1, LightFixer.POST_ARENA);
+    this(30_000, 5000, 16, 24, 0, LightFixer.POST_ARENA);
   }
 }

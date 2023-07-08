@@ -36,7 +36,7 @@ public final class FutureUtil {
     return allOf;
   }
 
-  public static <T> CompletableFuture<Collection<T>> createFailFastBatch(Collection<? extends CompletableFuture<? extends T>> futures) {
+  public static <T> CompletableFuture<List<T>> createFailFastBatch(Collection<? extends CompletableFuture<? extends T>> futures) {
     return createFailFast(futures)
       .thenApply(ignored -> {
         final List<T> result = new ArrayList<>(futures.size());

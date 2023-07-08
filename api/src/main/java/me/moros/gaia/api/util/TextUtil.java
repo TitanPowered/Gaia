@@ -58,21 +58,15 @@ public final class TextUtil {
     return new String(line);
   }
 
-  public static String capitalize(String input) {
-    if (input.length() < 2) {
-      return input.toUpperCase();
-    }
-    return input.substring(0, 1).toUpperCase() + input.substring(1);
-  }
-
   public static String description(int size) {
-    if (size <= 32768) {
+    final int chunkArea = ChunkUtil.CHUNK_SIZE * ChunkUtil.CHUNK_SIZE;
+    if (size <= 2 * 2 * chunkArea * 64) { // 65_536 blocks
       return "Tiny";
-    } else if (size <= 262144) {
+    } else if (size <= 5 * 5 * chunkArea * 128) { // 819_200 blocks
       return "Small";
-    } else if (size <= 2097152) {
+    } else if (size <= 10 * 10 * chunkArea * 192) { // 4_915_200 blocks
       return "Medium";
-    } else if (size <= 8388608) {
+    } else if (size <= 16 * 16 * chunkArea * 256) { // 16_777_216 blocks
       return "Large";
     } else {
       return "Huge";

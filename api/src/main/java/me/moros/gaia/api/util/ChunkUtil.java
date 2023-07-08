@@ -40,6 +40,7 @@ public final class ChunkUtil {
   private static final int WORLD_XZ_MINMAX = 30_000_000;
   private static final int WORLD_Y_MIN = -2048;
   private static final int WORLD_Y_MAX = 2047;
+  private static final int BIT_MASK = 0xFFFFFFF0;
 
   private static boolean isValidXZ(int x, int z) {
     return -WORLD_XZ_MINMAX <= x && x <= WORLD_XZ_MINMAX && -WORLD_XZ_MINMAX <= z && z <= WORLD_XZ_MINMAX;
@@ -61,6 +62,15 @@ public final class ChunkUtil {
 
   public static int toChunkPos(int value) {
     return value >> 4;
+  }
+
+  public static Vector3i toChunkSectionPos(Position position) {
+    return Vector3i.of(position.blockX() & BIT_MASK, position.blockY() & BIT_MASK, position.blockZ() & BIT_MASK);
+  }
+
+  public static int calculateChunkVolume(ChunkRegion chunk) {
+    int sections = calculateSections(chunk.region());
+    return CHUNK_SIZE * CHUNK_SIZE * CHUNK_SECTION_SIZE * sections;
   }
 
   public static List<ChunkPosition> spiralChunks(Region region) {

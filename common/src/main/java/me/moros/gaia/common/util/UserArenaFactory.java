@@ -22,6 +22,7 @@ package me.moros.gaia.common.util;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.region.ChunkRegion;
@@ -107,24 +108,30 @@ public final class UserArenaFactory {
     var futures = chunkRegions.stream().map(c -> GaiaOperation.snapshotAnalyze(level, c))
       .map(user.parent().operationService()::add).toList();
     long startTime = System.currentTimeMillis();
+    AtomicLong deltaTime = new AtomicLong();
     FutureUtil.createFailFastBatch(futures)
       .orTimeout(ConfigManager.instance().config().timeout(), TimeUnit.MILLISECONDS)
-      .thenCompose(data -> user.parent().storage().saveDataAsync(arenaName, data))
-      .thenCompose(validated -> {
-        chunkRegions.forEach(level::removeChunkTicket); // Force cleanup
+      .thenCompose(data -> FutureUtil.createFailFastBatch(ListUtil.partition(data, 64).stream()
+        .map(batch -> user.parent().storage().saveDataAsync(arenaName, batch)).toList())
+      )
+      .thenCompose(validatedBatches -> {
+        var validated = validatedBatches.stream().flatMap(Collection::stream).toList();
         int expected = chunkRegions.size();
         int result = validated.size();
         if (result != expected) {
           return null;
         }
         var arena = Arena.builder().name(arenaName).level(level.key()).region(region).chunks(validated).build();
-        user.parent().eventBus().postArenaAnalyzeEvent(arena, System.currentTimeMillis() - startTime);
+        long dt = System.currentTimeMillis() - startTime;
+        deltaTime.set(dt);
+        user.parent().eventBus().postArenaAnalyzeEvent(arena, dt);
         return user.parent().storage().saveArena(arena);
       })
       .whenComplete((arena, throwable) -> {
+        chunkRegions.forEach(level::removeChunkTicket); // Force cleanup
         if (arena != null) {
           user.parent().arenaService().add(arena);
-          Message.CREATE_SUCCESS.send(user, arena.displayName());
+          Message.CREATE_SUCCESS.send(user, arena.displayName(), deltaTime.get());
         } else {
           user.parent().arenaService().remove(arenaName);
           if (throwable instanceof TimeoutException) {

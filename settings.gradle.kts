@@ -9,6 +9,7 @@ pluginManagement {
 
 rootProject.name = "gaia"
 
+include("jmh")
 setupSubproject("api")
 setupSubproject("common")
 setupSubproject("paper")

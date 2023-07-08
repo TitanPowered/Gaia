@@ -22,6 +22,7 @@ package me.moros.gaia.common.platform;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.chunk.Snapshot;
+import me.moros.gaia.api.util.ChunkUtil;
 import me.moros.gaia.common.util.IndexedIterator;
 import me.moros.gaia.common.util.VarIntIterator;
 import net.minecraft.world.level.block.state.BlockState;
@@ -50,7 +51,7 @@ public final class GaiaSnapshot implements Snapshot {
   }
 
   public void resetIterator() {
-    this.cachedIterator = new VarIntIterator(this.data);
+    this.cachedIterator = new VarIntIterator(this.data, ChunkUtil.calculateChunkVolume(chunk));
   }
 
   public IndexedIterator<BlockState> iterator() {

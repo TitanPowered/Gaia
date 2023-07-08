@@ -34,6 +34,7 @@ import me.moros.gaia.api.arena.RevertResult;
 import me.moros.gaia.api.operation.GaiaOperation;
 import me.moros.gaia.api.platform.Level;
 import me.moros.gaia.api.service.ArenaService;
+import me.moros.gaia.common.config.ConfigManager;
 import me.moros.gaia.common.locale.Message;
 import me.moros.gaia.common.util.FutureUtil;
 import me.moros.gaia.common.util.ListUtil;
@@ -103,14 +104,14 @@ public class ArenaServiceImpl implements ArenaService {
     }
     arena.resetLastReverted();
     long startTime = System.currentTimeMillis();
-
     arena.chunks().forEach(level::addChunkTicket); // Preload chunks
     var futures = ListUtil.partition(arena.chunks(), 32).stream()
       .map(batch -> plugin.storage().loadDataAsync(arena.name(), batch)).toList(); // Load data
+    final int sectionsPerTick = ConfigManager.instance().config().sectionsPerTick();
     var future = FutureUtil.createFailFastBatch(futures) // Create future
       .thenCompose(batches -> {
         var opFutures = batches.stream().flatMap(Collection::stream)
-          .map(data -> GaiaOperation.revert(level, data))
+          .map(data -> GaiaOperation.revert(level, data, sectionsPerTick))
           .map(plugin.operationService()::add).toList();
         return FutureUtil.createFailFast(opFutures);
       })

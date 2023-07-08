@@ -28,7 +28,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import me.moros.gaia.api.chunk.Snapshot;
-import me.moros.math.Vector3i;
+import me.moros.gaia.api.util.ChunkUtil;
 import org.enginehub.linbus.stream.LinBinaryIO;
 import org.enginehub.linbus.tree.LinCompoundTag;
 import org.enginehub.linbus.tree.LinRootEntry;
@@ -60,14 +60,16 @@ public class SchemWriter implements Closeable {
     schematic.putInt("DataVersion", dataVersion);
 
     LinCompoundTag.Builder metadata = LinCompoundTag.builder();
+    metadata.putString("Author", "Gaia");
     metadata.putLong("Date", System.currentTimeMillis());
     schematic.put("Metadata", metadata.build());
 
     schematic.putShort("Width", (short) width);
     schematic.putShort("Height", (short) height);
     schematic.putShort("Length", (short) length);
-    schematic.putIntArray("Offset", Vector3i.ZERO.toIntArray());
-    schematic.put("Blocks", encodeBlocks(snapshot));
+
+    schematic.putIntArray("Offset", ChunkUtil.toChunkSectionPos(snapshot.chunk().region().min()).toIntArray());
+    schematic.put("Blocks", encodeBlocks(snapshot, width, height, length));
     return schematic.build();
   }
 
@@ -92,10 +94,7 @@ public class SchemWriter implements Closeable {
     }
   }
 
-  private LinCompoundTag encodeBlocks(Snapshot snapshot) {
-    int width = snapshot.width();
-    int height = snapshot.height();
-    int length = snapshot.length();
+  private LinCompoundTag encodeBlocks(Snapshot snapshot, int width, int height, int length) {
     PaletteMap paletteMap = new PaletteMap();
     ByteArrayOutputStream buffer = new ByteArrayOutputStream(width * height * length);
     for (int y = 0; y < height; y++) {

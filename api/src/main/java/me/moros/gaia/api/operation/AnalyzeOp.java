@@ -35,6 +35,7 @@ final class AnalyzeOp extends AbstractOp.LevelChunkOp<Snapshot> implements GaiaO
     if (!analyzed) {
       analyzed = true;
       future.complete(level.snapshot(chunk));
+      return Result.REMOVE;
     }
     return Result.WAIT;
   }

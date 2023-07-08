@@ -82,7 +82,7 @@ public record ArenaCommand(Commander commander) implements GaiaCommand {
       .argument(arenaArg.build())
       .handler(c -> onRemove(c.getSender(), c.get("arena")))
     );
-    commander().register(builder.literal("revert", "reset")
+    commander().register(builder.literal("revert", "reset", "restore")
       .meta(CommandMeta.DESCRIPTION, "Revert the specified arena")
       .permission(CommandPermissions.REVERT)
       .argument(arenaArg.build())

@@ -46,8 +46,8 @@ public interface Message {
     .args(text(arena, GOLD)));
   Args1<String> CREATE_FAIL_TIMEOUT = arena -> brand(translatable("gaia.command.create.fail-timeout", RED)
     .args(text(arena, GOLD)));
-  Args1<Component> CREATE_SUCCESS = arena -> brand(translatable("gaia.command.create.success", GREEN)
-    .args(arena));
+  Args2<Component, Long> CREATE_SUCCESS = (arena, time) -> brand(translatable("gaia.command.create.success", GREEN)
+    .args(arena, text(time)));
   Args0 CREATE_WARN_CHUNK_ALIGN = () -> brand(translatable("gaia.command.create.warn.chunk-align", YELLOW));
   Args0 PLAYER_REQUIRED = () -> brand(translatable("gaia.command.create.error.player-required", RED));
   Args0 CREATE_ERROR_VALIDATION = () -> brand(translatable("gaia.command.create.error.validation", RED));
@@ -78,7 +78,7 @@ public interface Message {
   Args1<Long> REVERT_COOLDOWN = time -> brand(translatable("gaia.command.revert.on-cooldown", DARK_AQUA)
     .args(text(TextUtil.formatDuration(time), YELLOW)));
   Args2<Component, Long> FINISHED_REVERT = (arena, time) -> brand(translatable("gaia.command.revert.finished", GREEN)
-    .args(arena, text(time, GREEN)));
+    .args(arena, text(time)));
 
   Args1<Component> CANCEL_FAIL = arena -> brand(translatable("gaia.command.cancel.fail", RED)
     .args(arena));
