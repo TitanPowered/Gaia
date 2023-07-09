@@ -20,13 +20,11 @@
 package me.moros.gaia.api.util;
 
 import java.text.NumberFormat;
-import java.util.Arrays;
 
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.Point;
 import me.moros.gaia.api.arena.region.Region;
 import me.moros.math.Position;
-import me.moros.math.Vector3i;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -49,7 +47,7 @@ public final class ComponentUtil {
 
   public static Component pointInfo(Point point) {
     return text().color(DARK_AQUA)
-      .append(text("Position: ").append(text(formatPoint(point), GREEN)))
+      .append(text("Position: ").append(clickableVector(point).color(GREEN)))
       .appendNewline()
       .append(text("Yaw/Pitch: ").append(text(formatDir(point.yaw(), point.pitch()), GREEN)))
       .appendNewline().appendNewline()
@@ -89,34 +87,34 @@ public final class ComponentUtil {
       .append(text("Volume: "))
       .append(text(String.format("%,d", volume) + " (" + TextUtil.description(volume) + ")", GREEN)).appendNewline()
       .append(text("Center: "))
-      .append(text(Arrays.toString(arena.region().center().toArray()), GREEN))
+      .append(clickableVector(arena.region().center()).color(GREEN))
       .build();
   }
 
   private static Component region(Region region) {
+    final Component min = clickableVector(region.min());
+    final Component max = clickableVector(region.max());
+    return text().color(GREEN).append(min).append(text(" to ")).append(max).build();
+  }
+
+  private static Component clickableVector(Position pos) {
     final Component hover = text("Click to copy coordinates to clipboard.", GRAY);
-    final Component min = text(formatRegionVec(region.min()))
-      .clickEvent(ClickEvent.copyToClipboard(formatVec(region.min(), " ")));
-    final Component max = text(formatRegionVec(region.max()))
-      .clickEvent(ClickEvent.copyToClipboard(formatVec(region.max(), " ")));
-    return text().color(GREEN).hoverEvent(hover).append(min).append(text(" to ")).append(max).build();
+    return text(formatVecAsArray(pos))
+      .hoverEvent(HoverEvent.showText(hover))
+      .clickEvent(ClickEvent.copyToClipboard(formatVec(pos, " ")));
   }
 
-  private static String formatPoint(Position vector) {
-    return "[" + NUMBER_FORMAT.format(vector.x())
-      + DELIMITER + NUMBER_FORMAT.format(vector.y())
-      + DELIMITER + NUMBER_FORMAT.format(vector.z()) + "]";
+  private static String formatVecAsArray(Position pos) {
+    return "[" + formatVec(pos, DELIMITER) + "]";
   }
 
-  private static String formatRegionVec(Vector3i vector) {
-    return "[" + vector.blockX() + DELIMITER + vector.blockY() + DELIMITER + vector.blockZ() + "]";
+  private static String formatVec(Position vector, String delimiter) {
+    return NUMBER_FORMAT.format(vector.x())
+      + delimiter + NUMBER_FORMAT.format(vector.y())
+      + delimiter + NUMBER_FORMAT.format(vector.z());
   }
 
   private static String formatDir(float yaw, float pitch) {
     return NUMBER_FORMAT.format(yaw) + DELIMITER + NUMBER_FORMAT.format(pitch);
-  }
-
-  private static String formatVec(Vector3i vector, String delimiter) {
-    return vector.blockX() + delimiter + vector.blockY() + delimiter + vector.blockZ();
   }
 }

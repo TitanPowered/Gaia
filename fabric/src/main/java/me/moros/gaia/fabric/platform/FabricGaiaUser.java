@@ -78,7 +78,7 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
 
     @Override
     public Optional<Key> level() {
-      return Optional.of(player.getLevel().dimension().location());
+      return Optional.of(player.level().dimension().location());
     }
 
     @Override
