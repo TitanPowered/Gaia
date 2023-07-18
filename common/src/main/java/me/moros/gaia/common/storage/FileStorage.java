@@ -267,7 +267,6 @@ public final class FileStorage implements Storage {
     try (var fis = Files.newInputStream(filePath);
          var cis = new CheckedInputStream(fis, checksum)) {
       byte[] buffer = new byte[8192];
-      cis.readAllBytes();
       while (cis.read(buffer) >= 0) {
       }
       return checksum.getValue();
