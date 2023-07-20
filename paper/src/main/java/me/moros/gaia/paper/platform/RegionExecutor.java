@@ -17,25 +17,23 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.api.operation;
+package me.moros.gaia.paper.platform;
 
-import me.moros.gaia.api.arena.region.ChunkRegion;
-import me.moros.gaia.api.chunk.Snapshot;
-import me.moros.gaia.api.platform.Level;
+import java.util.concurrent.Executor;
 
-final class AnalyzeOp extends AbstractOp.LevelChunkOp<Snapshot> implements GaiaOperation.Analyze {
-  private boolean analyzing = false;
+import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 
-  AnalyzeOp(Level level, ChunkRegion chunk) {
-    super(level, chunk);
+public sealed interface RegionExecutor extends Executor permits PaperRegionExecutor {
+  default void execute(World world, int x, int z, Runnable task) {
+    execute(task);
   }
 
-  @Override
-  protected Result processStep() {
-    if (!analyzing) {
-      analyzing = true;
-      level.snapshot(chunk).thenApply(future::complete).exceptionally(future::completeExceptionally);
+  static RegionExecutor create(Plugin plugin) {
+    if (Folia.FOLIA) {
+      return new FoliaRegionExecutor(plugin);
+    } else {
+      return new PaperRegionExecutor(plugin);
     }
-    return Result.WAIT;
   }
 }

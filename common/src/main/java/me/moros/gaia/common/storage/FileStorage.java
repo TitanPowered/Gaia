@@ -48,7 +48,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
-import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.Point;
 import me.moros.gaia.api.arena.region.ChunkRegion;
@@ -58,6 +57,7 @@ import me.moros.gaia.api.storage.Storage;
 import me.moros.gaia.common.storage.adapter.Adapters;
 import me.moros.gaia.common.storage.decoder.Decoder;
 import me.moros.math.Vector3i;
+import me.moros.tasker.executor.AsyncExecutor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.enginehub.linbus.stream.LinBinaryIO;
 import org.slf4j.Logger;
@@ -69,14 +69,14 @@ public final class FileStorage implements Storage {
   private static final String ARENA_META = "meta.json";
   private static final String CHUNK_NAME_FORMAT = "c.%d.%d.schem";
 
-  private final Gaia plugin;
+  private final AsyncExecutor executor;
   private final Logger logger;
   private final Path container;
   private final Decoder decoder;
   private final Gson gson;
 
-  private FileStorage(Gaia plugin, Logger logger, Path container) {
-    this.plugin = plugin;
+  private FileStorage(AsyncExecutor executor, Logger logger, Path container) {
+    this.executor = executor;
     this.logger = logger;
     this.container = container;
     this.decoder = Decoder.createVanilla(logger);
@@ -88,8 +88,8 @@ public final class FileStorage implements Storage {
       .create();
   }
 
-  public static Storage createInstance(Gaia plugin, Logger logger, Path path) {
-    Objects.requireNonNull(plugin);
+  public static Storage createInstance(AsyncExecutor executor, Logger logger, Path path) {
+    Objects.requireNonNull(executor);
     Objects.requireNonNull(logger);
     Objects.requireNonNull(path);
     Path container;
@@ -98,7 +98,7 @@ public final class FileStorage implements Storage {
     } catch (IOException e) {
       throw new RuntimeException(String.format("Could not create %s directory! Aborting loading.", ARENA_DIR), e);
     }
-    return new FileStorage(plugin, logger, container);
+    return new FileStorage(executor, logger, container);
   }
 
   private Path arenaPath(String name) {
@@ -148,7 +148,7 @@ public final class FileStorage implements Storage {
 
   @Override
   public CompletableFuture<Iterable<Arena>> loadAllArenas() {
-    return plugin.executor().async().submit(() -> {
+    return executor.submit(() -> {
       Iterable<Arena> arenas;
       try (Stream<Path> stream = Files.walk(container, 2)) {
         arenas = stream.filter(this::isMeta).map(this::loadArena).filter(Objects::nonNull).toList();
@@ -164,7 +164,7 @@ public final class FileStorage implements Storage {
 
   @Override
   public CompletableFuture<Arena> saveArena(Arena arena) {
-    return plugin.executor().async().submit(() -> {
+    return executor.submit(() -> {
       Path arenaMeta = arenaMeta(arena.name());
       try (var writer = Files.newBufferedWriter(arenaMeta, StandardCharsets.UTF_8)) {
         gson.toJson(arena, writer);
@@ -195,7 +195,7 @@ public final class FileStorage implements Storage {
 
   @Override
   public CompletableFuture<Collection<Snapshot>> loadDataAsync(String name, Collection<ChunkRegion.Validated> chunkRegions) {
-    return plugin.executor().async().submit(() -> {
+    return executor.submit(() -> {
       Collection<Snapshot> result = new ArrayList<>();
       try {
         for (var chunkRegion : chunkRegions) {
@@ -226,7 +226,7 @@ public final class FileStorage implements Storage {
 
   @Override
   public CompletableFuture<Collection<ChunkRegion.Validated>> saveDataAsync(String name, Iterable<Snapshot> data) {
-    return plugin.executor().async().submit(() -> {
+    return executor.submit(() -> {
       try {
         Collection<ChunkRegion.Validated> result = new ArrayList<>();
         for (var cd : data) {

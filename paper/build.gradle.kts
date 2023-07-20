@@ -4,22 +4,21 @@ plugins {
     alias(libs.plugins.userdev)
 }
 
+repositories {
+    maven("https://repo.papermc.io/repository/maven-public/")
+}
+
 dependencies {
     paperweight.paperDevBundle("${libs.versions.minecraft.get()}-R0.1-SNAPSHOT")
     gaiaImplementation(projects.gaiaCommon)
     gaiaImplementation(libs.bstats.bukkit)
-    gaiaImplementation(libs.tasker.bukkit)
+    gaiaImplementation(libs.tasker.paper)
     gaiaImplementation(libs.cloud.paper)
     gaiaImplementation(libs.cloud.minecraft) { isTransitive = false }
     compileOnly(libs.worldedit.bukkit)
 }
 
 tasks {
-    shadowJar {
-        dependencies {
-            reloc("io.leangen", "leangen")
-        }
-    }
     named<Copy>("processResources") {
         filesMatching("*plugin.yml") {
             expand("pluginVersion" to project.version)

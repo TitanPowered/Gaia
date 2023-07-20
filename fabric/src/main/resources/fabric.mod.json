@@ -19,13 +19,14 @@
       "me.moros.gaia.fabric.GaiaBootstrap"
     ]
   },
-  "mixins": [],
+  "mixins": [
+    "gaia-fabric.mixins.json"
+  ],
   "depends": {
     "fabric": "*",
     "fabricloader": ">=0.14.12",
-    "minecraft": "1.19.4",
+    "minecraft": ">=1.20.1",
     "cloud": "*",
-    "adventure-platform-fabric": "*",
-    "worldedit": "*"
+    "adventure-platform-fabric": "*"
   }
 }

@@ -59,7 +59,7 @@ public final class RevertListener {
   private void handleRevert(Key levelKey, Collection<ChunkPosition> chunks) {
     var level = plugin.levelService().findLevel(levelKey);
     if (level != null) {
-      plugin.executor().sync().submit(() -> level.fixLight(chunks));
+      level.fixLight(chunks);
     }
   }
 }

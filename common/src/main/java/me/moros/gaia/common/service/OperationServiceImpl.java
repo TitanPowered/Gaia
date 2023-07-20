@@ -77,7 +77,9 @@ public final class OperationServiceImpl implements OperationService {
         onComplete(operation);
         it.remove();
       }
-      counter++;
+      if (result != Result.WAIT) {
+        counter++;
+      }
       if (System.currentTimeMillis() > startTime + 30) {
         break;
       }

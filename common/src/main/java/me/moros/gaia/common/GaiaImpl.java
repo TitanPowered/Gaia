@@ -56,7 +56,7 @@ final class GaiaImpl implements Gaia {
     var threads = calculateThreads(ConfigManager.instance().config().backgroundThreads());
     var pool = Executors.newScheduledThreadPool(threads);
     this.executor = CompositeExecutor.of(factory.build(SyncExecutor.class), new SimpleAsyncExecutor(pool));
-    this.storage = FileStorage.createInstance(this, plugin.logger(), plugin.path());
+    this.storage = FileStorage.createInstance(executor.async(), plugin.logger(), plugin.path());
     this.eventBus = new EventBusImpl();
     this.userService = factory.build(UserService.class);
     this.selectionService = factory.build(SelectionService.class);
@@ -64,11 +64,6 @@ final class GaiaImpl implements Gaia {
     this.operationService = new OperationServiceImpl(this, executor.sync());
     this.arenaService = new ArenaServiceImpl(this);
     new RevertListener(this);
-  }
-
-  @Override
-  public CompositeExecutor executor() {
-    return executor;
   }
 
   @Override

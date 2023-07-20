@@ -36,12 +36,13 @@ import me.moros.gaia.common.command.CommandPermissions;
 import me.moros.gaia.common.command.Commander;
 import me.moros.gaia.common.util.PluginInfoContainer;
 import me.moros.gaia.paper.platform.BukkitGaiaUser;
+import me.moros.gaia.paper.platform.RegionExecutor;
 import me.moros.gaia.paper.service.BukkitWorldEditSelectionService;
 import me.moros.gaia.paper.service.GaiaSelectionService;
 import me.moros.gaia.paper.service.LevelServiceImpl;
 import me.moros.gaia.paper.service.UserServiceImpl;
-import me.moros.tasker.bukkit.BukkitExecutor;
 import me.moros.tasker.executor.SyncExecutor;
+import me.moros.tasker.paper.PaperExecutor;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -59,9 +60,9 @@ public class BukkitGaia extends AbstractGaia<GaiaBootstrap> {
     new Metrics(parent, 8608);
     factory
       .bind(PluginInfo.class, this::createInfo)
-      .bind(SyncExecutor.class, () -> new BukkitExecutor(parent))
+      .bind(SyncExecutor.class, () -> new PaperExecutor(parent))
       .bind(UserService.class, () -> new UserServiceImpl(api(), parent.getServer()))
-      .bind(LevelService.class, () -> new LevelServiceImpl(logger()));
+      .bind(LevelService.class, () -> new LevelServiceImpl(RegionExecutor.create(parent), logger()));
     bindSelectionService();
     load();
 

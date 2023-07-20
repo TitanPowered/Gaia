@@ -19,6 +19,8 @@
 
 package me.moros.gaia.api.operation;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.api.platform.Level;
 import me.moros.gaia.api.util.ChunkUtil;
@@ -27,6 +29,7 @@ import me.moros.math.FastMath;
 final class RevertOp extends AbstractOp.LevelChunkOp<Void> implements GaiaOperation.Revert {
   private Snapshot snapshot;
   private final int amount;
+  private final AtomicReference<Result> result = new AtomicReference<>(Result.CONTINUE);
 
   RevertOp(Level level, Snapshot snapshot, int sectionsPerTick) {
     super(level, snapshot.chunk());
@@ -36,12 +39,16 @@ final class RevertOp extends AbstractOp.LevelChunkOp<Void> implements GaiaOperat
 
   @Override
   protected Result processStep() {
-    if (level.restoreSnapshot(snapshot, amount)) {
-      return Result.CONTINUE;
-    } else {
+    if (result.compareAndSet(Result.CONTINUE, Result.WAIT)) {
+      level.restoreSnapshot(snapshot, amount).thenApply(hasMore ->
+        result.compareAndSet(Result.WAIT, hasMore ? Result.CONTINUE : Result.REMOVE)
+      ).exceptionally(future::completeExceptionally);
+    }
+    var ret = result.get();
+    if (ret == Result.REMOVE) {
       this.snapshot = null; // Help gc
       future.complete(null);
-      return Result.REMOVE;
     }
+    return ret;
   }
 }

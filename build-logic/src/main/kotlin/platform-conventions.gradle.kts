@@ -1,6 +1,5 @@
 plugins {
-    id("java-library")
-    id("com.github.johnrengelman.shadow")
+    id("base-conventions")
 }
 
 val platformExt = extensions.create("gaiaPlatform", GaiaPlatformExtension::class)
@@ -13,12 +12,12 @@ configurations.implementation {
 tasks {
     shadowJar {
         configurations = listOf(project.configurations.getByName("gaiaImplementation"))
-        exclude("org/checkerframework/") // Try to catch the myriad dependency leaks
         archiveClassifier.set("")
         archiveBaseName.set(project.name)
         from("$rootDir/LICENSE") {
             rename { "${rootProject.name.uppercase()}_${it}" }
         }
+        val excluded = setOf("checker-qual", "error_prone_annotations", "geantyref", "slf4j-api")
         dependencies {
             reloc("org.bstats", "bstats")
             reloc("net.kyori.event", "eventbus")
@@ -26,6 +25,9 @@ tasks {
             reloc("cloud.commandframework", "cloudframework")
             reloc("com.typesafe", "typesafe")
             reloc("org.spongepowered.configurate", "configurate")
+            exclude {
+                excluded.contains(it.moduleName)
+            }
         }
     }
     val copyJar = register("copyJar", CopyFile::class) {

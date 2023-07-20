@@ -10,4 +10,5 @@ repositories {
 dependencies {
     implementation(libs.shadow)
     implementation(libs.vanilla)
+    implementation(libs.checker)
 }

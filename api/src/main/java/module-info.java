@@ -11,7 +11,6 @@ module me.moros.gaia {
   exports me.moros.gaia.api.util;
   exports me.moros.gaia.api.util.supplier;
 
-  requires transitive me.moros.tasker;
   requires transitive me.moros.math;
   requires static transitive net.kyori.adventure;
   requires static transitive net.kyori.adventure.key;

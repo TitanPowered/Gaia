@@ -17,25 +17,23 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.api.operation;
+package me.moros.gaia.paper.platform;
 
-import me.moros.gaia.api.arena.region.ChunkRegion;
-import me.moros.gaia.api.chunk.Snapshot;
-import me.moros.gaia.api.platform.Level;
+import org.bukkit.plugin.Plugin;
 
-final class AnalyzeOp extends AbstractOp.LevelChunkOp<Snapshot> implements GaiaOperation.Analyze {
-  private boolean analyzing = false;
+sealed class PaperRegionExecutor implements RegionExecutor permits FoliaRegionExecutor {
+  private final Plugin plugin;
 
-  AnalyzeOp(Level level, ChunkRegion chunk) {
-    super(level, chunk);
+  PaperRegionExecutor(Plugin plugin) {
+    this.plugin = plugin;
+  }
+
+  protected final Plugin plugin() {
+    return plugin;
   }
 
   @Override
-  protected Result processStep() {
-    if (!analyzing) {
-      analyzing = true;
-      level.snapshot(chunk).thenApply(future::complete).exceptionally(future::completeExceptionally);
-    }
-    return Result.WAIT;
+  public void execute(Runnable task) {
+    plugin().getServer().getGlobalRegionScheduler().execute(plugin(), task);
   }
 }

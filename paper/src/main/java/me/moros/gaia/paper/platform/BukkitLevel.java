@@ -22,6 +22,7 @@ package me.moros.gaia.paper.platform;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import me.moros.gaia.api.chunk.ChunkPosition;
@@ -37,10 +38,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class BukkitLevel extends VanillaLevel {
   private final World bukkitWorld;
+  private final RegionExecutor executor;
 
-  public BukkitLevel(World world) {
+  public BukkitLevel(World world, RegionExecutor executor) {
     super(((CraftWorld) world).getHandle());
     this.bukkitWorld = world;
+    this.executor = executor;
   }
 
   @Override
@@ -49,8 +52,24 @@ public final class BukkitLevel extends VanillaLevel {
   }
 
   @Override
+  protected CompletableFuture<ChunkAccess> loadChunkAsync(int x, int z) {
+    if (Folia.FOLIA) {
+      return bukkitWorld.getChunkAtAsync(x, z, false).thenApply(c -> chunkSource().getChunkNow(x, z));
+    } else {
+      return super.loadChunkAsync(x, z);
+    }
+  }
+
+  @Override
   public void fixLight(Collection<ChunkPosition> positions) {
-    ServerChunkCache chunkSource = handle().getChunkSource();
+    if (Folia.FOLIA) { // TODO thread context for folia?
+      return;
+    }
+    executor.execute(() -> fixLightNow(positions));
+  }
+
+  private void fixLightNow(Collection<ChunkPosition> positions) {
+    ServerChunkCache chunkSource = chunkSource();
     Set<ChunkPos> chunkSet = positions.stream().map(gc -> new ChunkPos(gc.x(), gc.z()))
       .filter(v -> filter(chunkSource, v)).collect(Collectors.toCollection(LinkedHashSet::new));
     chunkSource.getLightEngine().relight(chunkSet, c -> {

@@ -17,25 +17,20 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.api.operation;
+package me.moros.gaia.paper.platform;
 
-import me.moros.gaia.api.arena.region.ChunkRegion;
-import me.moros.gaia.api.chunk.Snapshot;
-import me.moros.gaia.api.platform.Level;
+final class Folia {
+  static final boolean FOLIA;
 
-final class AnalyzeOp extends AbstractOp.LevelChunkOp<Snapshot> implements GaiaOperation.Analyze {
-  private boolean analyzing = false;
-
-  AnalyzeOp(Level level, ChunkRegion chunk) {
-    super(level, chunk);
+  static {
+    Class<?> foliaServer = null;
+    try {
+      foliaServer = Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+    } catch (ClassNotFoundException ignore) {
+    }
+    FOLIA = foliaServer != null;
   }
 
-  @Override
-  protected Result processStep() {
-    if (!analyzing) {
-      analyzing = true;
-      level.snapshot(chunk).thenApply(future::complete).exceptionally(future::completeExceptionally);
-    }
-    return Result.WAIT;
+  private Folia() {
   }
 }

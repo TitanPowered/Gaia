@@ -80,7 +80,7 @@ public class FabricGaia extends AbstractGaia<ModContainer> {
   }
 
   private void bindSelectionService(MinecraftServer server) {
-    if (FabricLoader.getInstance().isModLoaded("WorldEdit")) {
+    if (FabricLoader.getInstance().isModLoaded("worldedit")) {
       factory.bind(SelectionService.class, () -> new FabricWorldEditSelectionService(server));
     } else {
       factory.bind(SelectionService.class, GaiaSelectionService::new);

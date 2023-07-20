@@ -3,12 +3,6 @@ plugins {
     alias(libs.plugins.fabric.loom)
 }
 
-repositories {
-    maven("https://maven.fabricmc.net/") {
-        mavenContent { includeGroup("net.fabricmc") }
-    }
-}
-
 dependencies {
     minecraft(libs.fabric.minecraft)
     mappings(loom.officialMojangMappings())
@@ -27,11 +21,6 @@ loom {
 }
 
 tasks {
-    shadowJar {
-        dependencies {
-            exclude(dependency("io.leangen.geantyref:geantyref"))
-        }
-    }
     named<Copy>("processResources") {
         filesMatching("fabric.mod.json") {
             expand("pluginVersion" to project.version)

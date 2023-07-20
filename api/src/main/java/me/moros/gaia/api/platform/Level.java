@@ -28,9 +28,9 @@ import me.moros.gaia.api.chunk.Snapshot;
 import net.kyori.adventure.key.Keyed;
 
 public interface Level extends Keyed {
-  boolean restoreSnapshot(Snapshot snapshot, int amount);
+  CompletableFuture<Boolean> restoreSnapshot(Snapshot snapshot, int amount);
 
-  Snapshot snapshot(ChunkRegion chunk);
+  CompletableFuture<Snapshot> snapshot(ChunkRegion chunk);
 
   default CompletableFuture<?> loadChunkWithTicket(ChunkPosition pos) {
     return loadChunkWithTicket(pos.x(), pos.z());
