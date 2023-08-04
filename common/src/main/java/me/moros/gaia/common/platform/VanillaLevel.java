@@ -100,7 +100,7 @@ public abstract class VanillaLevel implements Level {
   }
 
   protected CompletableFuture<ChunkAccess> loadChunkAsync(int x, int z) {
-    return chunkSource().getChunkFuture(x, z, ChunkStatus.EMPTY, false).thenApply(Either::orThrow);
+    return chunkSource().getChunkFuture(x, z, ChunkStatus.FEATURES, false).thenApply(Either::orThrow);
   }
 
   @Override
