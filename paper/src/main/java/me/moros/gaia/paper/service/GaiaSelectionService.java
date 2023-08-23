@@ -21,6 +21,7 @@ package me.moros.gaia.paper.service;
 
 import java.util.UUID;
 
+import me.moros.gaia.common.command.CommandPermissions;
 import me.moros.gaia.common.locale.Message;
 import me.moros.gaia.common.service.AbstractSelectionService;
 import me.moros.math.Vector3i;
@@ -53,6 +54,9 @@ public final class GaiaSelectionService extends AbstractSelectionService impleme
     Action action = event.getAction();
     final Block clickedBlock = event.getClickedBlock();
     if (clickedBlock == null || player.getInventory().getItemInMainHand().getType() != Material.WOODEN_AXE) {
+      return;
+    }
+    if (!player.hasPermission(CommandPermissions.CREATE.toString())) {
       return;
     }
     var pos = Vector3i.of(clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ());

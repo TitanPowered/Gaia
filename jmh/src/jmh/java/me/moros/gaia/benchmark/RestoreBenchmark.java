@@ -43,8 +43,8 @@ import org.openjdk.jmh.infra.Blackhole;
 
 @State(Scope.Benchmark)
 @Fork(value = 1)
-@Warmup(iterations = 3, time = 100, timeUnit = TimeUnit.MILLISECONDS)
-@Measurement(iterations = 2, time = 100, timeUnit = TimeUnit.MILLISECONDS)
+@Warmup(iterations = 3, time = 50, timeUnit = TimeUnit.MILLISECONDS)
+@Measurement(iterations = 5, time = 50, timeUnit = TimeUnit.MILLISECONDS)
 public class RestoreBenchmark {
   private static final int AMOUNT = ChunkUtil.CHUNK_SIZE * ChunkUtil.CHUNK_SIZE * ChunkUtil.CHUNK_SECTION_SIZE * 24;
 
@@ -65,32 +65,7 @@ public class RestoreBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  public void iterate(Blackhole bh) {
-    var offset = ChunkUtil.toChunkSectionPos(snapshot.chunk().region().min());
-    final int xOffset = offset.blockX();
-    final int yOffset = offset.blockY();
-    final int zOffset = offset.blockZ();
-    final IndexedIterator<TestObject> it = snapshot.createIterator();
-    int counter = 0;
-    TestObject toRestore;
-    while (it.hasNext() && ++counter <= AMOUNT) {
-      int index = it.index();
-      toRestore = it.next();
-      final int y = yOffset + (index / 256);
-      final int z = zOffset + ((index % 256) / 16);
-      final int x = xOffset + ((index % 256) % 16);
-      bh.consume(x);
-      bh.consume(y);
-      bh.consume(z);
-      Blackhole.consumeCPU(512);
-      bh.consume(toRestore);
-    }
-  }
-
-  @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  public void iterateWithRegionCheck(Blackhole bh) {
+  public void iterateSequential(Blackhole bh) {
     var offset = ChunkUtil.toChunkSectionPos(snapshot.chunk().region().min());
     final int xOffset = offset.blockX();
     final int yOffset = offset.blockY();
@@ -108,7 +83,7 @@ public class RestoreBenchmark {
         bh.consume(x);
         bh.consume(y);
         bh.consume(z);
-        Blackhole.consumeCPU(512);
+        Blackhole.consumeCPU(64);
         bh.consume(toRestore);
       }
     }
@@ -134,7 +109,7 @@ public class RestoreBenchmark {
           bh.consume(x);
           bh.consume(y);
           bh.consume(z);
-          Blackhole.consumeCPU(512);
+          Blackhole.consumeCPU(64);
           bh.consume(snapshot.getState(x, y, z));
         }
       }

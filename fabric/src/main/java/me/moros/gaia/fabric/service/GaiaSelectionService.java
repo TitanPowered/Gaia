@@ -21,6 +21,8 @@ package me.moros.gaia.fabric.service;
 
 import java.util.UUID;
 
+import me.lucko.fabric.api.permissions.v0.Permissions;
+import me.moros.gaia.common.command.CommandPermissions;
 import me.moros.gaia.common.locale.Message;
 import me.moros.gaia.common.service.AbstractSelectionService;
 import me.moros.math.Vector3i;
@@ -55,7 +57,10 @@ public final class GaiaSelectionService extends AbstractSelectionService {
     if (!player.getItemInHand(InteractionHand.MAIN_HAND).is(Items.WOODEN_AXE)) {
       return false;
     }
-    return player instanceof ServerPlayer sp && sp.gameMode.getGameModeForPlayer() != GameType.SPECTATOR;
+    if (player instanceof ServerPlayer sp && sp.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
+      return Permissions.check(sp, CommandPermissions.CREATE.toString(), sp.server.getOperatorUserPermissionLevel());
+    }
+    return false;
   }
 
   private InteractionResult onLeftClickBlock(Player player, Level world, InteractionHand hand, BlockPos blockPos, Direction direction) {

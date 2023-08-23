@@ -8,7 +8,7 @@ dependencies {
     mappings(loom.officialMojangMappings())
     modImplementation(libs.fabric.api)
     modImplementation(libs.fabric.loader)
-    modImplementation(libs.worldedit.fabric)
+    modCompileOnly(libs.worldedit.fabric)
     modImplementation(include(libs.adventure.fabric.get())!!)
     modImplementation(include(libs.cloud.fabric.get())!!)
     implementation(include(libs.cloud.minecraft.get())!!)

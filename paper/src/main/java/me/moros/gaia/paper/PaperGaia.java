@@ -49,10 +49,10 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.ServicePriority;
 import org.slf4j.Logger;
 
-public class BukkitGaia extends AbstractGaia<GaiaBootstrap> {
+public class PaperGaia extends AbstractGaia<GaiaBootstrap> {
   private Commander commander;
 
-  protected BukkitGaia(GaiaBootstrap parent, Path path, Logger logger) {
+  protected PaperGaia(GaiaBootstrap parent, Path path, Logger logger) {
     super(parent, path, logger);
   }
 

@@ -22,12 +22,12 @@ package me.moros.gaia.paper;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class GaiaBootstrap extends JavaPlugin {
-  private BukkitGaia instance;
+  private PaperGaia instance;
 
   @Override
   public void onLoad() {
     if (instance == null) {
-      instance = new BukkitGaia(this, getDataFolder().toPath(), getSLF4JLogger());
+      instance = new PaperGaia(this, getDataFolder().toPath(), getSLF4JLogger());
     }
   }
 
