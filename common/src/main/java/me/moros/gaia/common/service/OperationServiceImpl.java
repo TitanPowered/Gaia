@@ -91,7 +91,7 @@ public final class OperationServiceImpl implements OperationService {
     valid = false;
     queue.forEach(op -> {
       op.asFuture().cancel(false);
-      cleanupTicket(op);
+      cleanupChunk(op.level(), op);
     });
     queue.clear();
   }
@@ -119,13 +119,13 @@ public final class OperationServiceImpl implements OperationService {
         plugin.eventBus().postChunkRevertEvent(op.chunk(), op.level().key(), deltaTime);
       }
     }
-    cleanupTicket(op);
+    cleanupChunk(op.level(), op);
   }
 
   @Override
   public void cancel(Level level, ChunkRegion chunk) {
     queue.removeIf(op -> cancelMatching(op, level, chunk));
-    level.removeChunkTicket(chunk);
+    cleanupChunk(level, chunk);
   }
 
   private boolean cancelMatching(GaiaOperation.ChunkOperation<?> op, Level level, ChunkPosition pos) {
@@ -136,7 +136,7 @@ public final class OperationServiceImpl implements OperationService {
     return false;
   }
 
-  private void cleanupTicket(GaiaOperation.ChunkOperation<?> op) {
-    op.level().removeChunkTicket(op.x(), op.z());
+  private void cleanupChunk(Level level, ChunkPosition position) {
+    level.removeChunkTicket(position.x(), position.z());
   }
 }

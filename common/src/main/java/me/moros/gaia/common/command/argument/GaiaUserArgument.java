@@ -28,6 +28,7 @@ import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.arguments.parser.ArgumentParseResult;
 import cloud.commandframework.arguments.parser.ArgumentParser;
 import cloud.commandframework.context.CommandContext;
+import cloud.commandframework.exceptions.parsing.NoInputProvidedException;
 import me.moros.gaia.api.platform.GaiaUser;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -76,14 +77,16 @@ public final class GaiaUserArgument extends CommandArgument<GaiaUser, GaiaUser> 
     public ArgumentParseResult<GaiaUser> parse(CommandContext<GaiaUser> commandContext, Queue<String> inputQueue) {
       String input = inputQueue.peek();
       if (input == null) {
-        return ArgumentParseResult.success(commandContext.getSender());
+        return ArgumentParseResult.failure(new NoInputProvidedException(Parser.class, commandContext));
       }
-      inputQueue.remove();
+      GaiaUser user;
       if (input.equalsIgnoreCase("me")) {
-        return ArgumentParseResult.success(commandContext.getSender());
+        user = commandContext.getSender();
+      } else {
+        user = commandContext.getSender().parent().userService().findUser(input);
       }
-      var user = commandContext.getSender().parent().userService().findUser(input);
       if (user != null) {
+        inputQueue.remove();
         return ArgumentParseResult.success(user);
       } else {
         return ArgumentParseResult.failure(new Throwable("Could not find the specified user."));

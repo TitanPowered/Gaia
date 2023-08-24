@@ -22,7 +22,6 @@ package me.moros.gaia.common.command.argument;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import cloud.commandframework.ArgumentDescription;
@@ -83,21 +82,20 @@ public final class ArenaArgument extends CommandArgument<GaiaUser, Arena> {
       if (input == null) {
         return ArgumentParseResult.failure(new NoInputProvidedException(Parser.class, commandContext));
       }
-      inputQueue.remove();
       String sanitized = TextUtil.sanitizeInput(input);
-      Supplier<ArgumentParseResult<Arena>> failure = () -> ArgumentParseResult.failure(new Throwable("Could not find the specified arena."));
+      Arena result;
+      GaiaUser user = commandContext.getSender();
       if (sanitized.equalsIgnoreCase("cur")) {
-        var user = commandContext.getSender();
-        var levelKey = user.level().orElse(null);
-        if (levelKey != null) {
-          return user.parent().arenaService().arena(levelKey, user.position().toVector3i())
-            .map(ArgumentParseResult::success).orElseGet(failure);
-        }
+        var pos = user.position().toVector3i();
+        result = user.level().flatMap(levelKey -> user.parent().arenaService().arena(levelKey, pos)).orElse(null);
       } else {
-        return commandContext.getSender().parent().arenaService().arena(sanitized)
-          .map(ArgumentParseResult::success).orElseGet(failure);
+        result = user.parent().arenaService().arena(sanitized).orElse(null);
       }
-      return failure.get();
+      if (result != null) {
+        inputQueue.remove();
+        return ArgumentParseResult.success(result);
+      }
+      return ArgumentParseResult.failure(new Throwable("Could not find the specified arena."));
     }
 
     @Override

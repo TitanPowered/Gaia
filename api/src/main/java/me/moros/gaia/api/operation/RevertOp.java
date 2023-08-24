@@ -21,6 +21,7 @@ package me.moros.gaia.api.operation;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import me.moros.gaia.api.arena.Reversible;
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.api.platform.Level;
 import me.moros.gaia.api.util.ChunkUtil;
@@ -30,21 +31,33 @@ final class RevertOp extends AbstractOp.LevelChunkOp<Void> implements GaiaOperat
   private Snapshot snapshot;
   private final int amount;
   private final AtomicReference<Result> result = new AtomicReference<>(Result.CONTINUE);
+  private final Reversible reversible;
 
   RevertOp(Level level, Snapshot snapshot, int sectionsPerTick) {
     super(level, snapshot.chunk());
     this.snapshot = snapshot;
     this.amount = FastMath.clamp(sectionsPerTick, 16, snapshot.sections()) * ChunkUtil.CHUNK_SECTION_VOLUME;
+    if (chunk() instanceof Reversible.Mutable reversibleChunk) {
+      reversible = reversibleChunk;
+      this.future.whenComplete((ignore, throwable) -> reversibleChunk.reverting(false));
+    } else {
+      reversible = null;
+    }
   }
 
   @Override
   protected Result processStep() {
-    if (result.compareAndSet(Result.CONTINUE, Result.WAIT)) {
-      level.restoreSnapshot(snapshot, amount).thenApply(hasMore ->
-        result.compareAndSet(Result.WAIT, hasMore ? Result.CONTINUE : Result.REMOVE)
-      ).exceptionally(future::completeExceptionally);
+    Result ret;
+    if (reversible != null && !reversible.reverting()) {
+      ret = Result.REMOVE;
+    } else {
+      if (result.compareAndSet(Result.CONTINUE, Result.WAIT)) {
+        level.restoreSnapshot(snapshot, amount).thenApply(hasMore ->
+          result.compareAndSet(Result.WAIT, hasMore ? Result.CONTINUE : Result.REMOVE)
+        ).exceptionally(future::completeExceptionally);
+      }
+      ret = result.get();
     }
-    var ret = result.get();
     if (ret == Result.REMOVE) {
       this.snapshot = null; // Help gc
       future.complete(null);
