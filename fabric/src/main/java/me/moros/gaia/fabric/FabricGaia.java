@@ -69,7 +69,7 @@ public class FabricGaia extends AbstractGaia<ModContainer> {
     factory
       .bind(PluginInfo.class, this::createInfo)
       .bind(SyncExecutor.class, FabricExecutor::new)
-      .bind(UserService.class, () -> new UserServiceImpl(api(), server.getPlayerList()))
+      .bind(UserService.class, () -> new UserServiceImpl(this::api, server.getPlayerList()))
       .bind(LevelService.class, () -> new LevelServiceImpl(logger(), server));
     bindSelectionService(server);
     load();

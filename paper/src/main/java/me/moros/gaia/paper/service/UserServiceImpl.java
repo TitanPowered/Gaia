@@ -20,6 +20,7 @@
 package me.moros.gaia.paper.service;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import me.moros.gaia.api.Gaia;
@@ -30,11 +31,11 @@ import org.bukkit.Server;
 import org.bukkit.entity.Entity;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public record UserServiceImpl(Gaia plugin, Server server) implements UserService {
+public record UserServiceImpl(Supplier<Gaia> supplier, Server server) implements UserService {
   @Override
   public @Nullable GaiaUser findUser(UUID uuid) {
     var player = server().getPlayer(uuid);
-    return player == null ? null : BukkitGaiaUser.from(plugin(), player);
+    return player == null ? null : BukkitGaiaUser.from(supplier().get(), player);
   }
 
   @Override
@@ -47,7 +48,7 @@ public record UserServiceImpl(Gaia plugin, Server server) implements UserService
       } catch (IllegalArgumentException ignore) {
       }
     }
-    return player == null ? null : BukkitGaiaUser.from(plugin(), player);
+    return player == null ? null : BukkitGaiaUser.from(supplier().get(), player);
   }
 
   @Override

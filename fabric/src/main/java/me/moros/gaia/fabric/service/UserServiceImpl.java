@@ -21,6 +21,7 @@ package me.moros.gaia.fabric.service;
 
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import me.moros.gaia.api.Gaia;
@@ -30,11 +31,11 @@ import me.moros.gaia.fabric.platform.FabricGaiaUser;
 import net.minecraft.server.players.PlayerList;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public record UserServiceImpl(Gaia plugin, PlayerList playerList) implements UserService {
+public record UserServiceImpl(Supplier<Gaia> supplier, PlayerList playerList) implements UserService {
   @Override
   public @Nullable GaiaUser findUser(UUID uuid) {
     var player = playerList().getPlayer(uuid);
-    return player == null ? null : FabricGaiaUser.from(plugin(), player.createCommandSourceStack());
+    return player == null ? null : FabricGaiaUser.from(supplier().get(), player.createCommandSourceStack());
   }
 
   @Override
@@ -47,7 +48,7 @@ public record UserServiceImpl(Gaia plugin, PlayerList playerList) implements Use
       } catch (IllegalArgumentException ignore) {
       }
     }
-    return player == null ? null : FabricGaiaUser.from(plugin(), player.createCommandSourceStack());
+    return player == null ? null : FabricGaiaUser.from(supplier().get(), player.createCommandSourceStack());
   }
 
   @Override

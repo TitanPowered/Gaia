@@ -61,7 +61,7 @@ public class PaperGaia extends AbstractGaia<GaiaBootstrap> {
     factory
       .bind(PluginInfo.class, this::createInfo)
       .bind(SyncExecutor.class, () -> new PaperExecutor(parent))
-      .bind(UserService.class, () -> new UserServiceImpl(api(), parent.getServer()))
+      .bind(UserService.class, () -> new UserServiceImpl(this::api, parent.getServer()))
       .bind(LevelService.class, () -> new LevelServiceImpl(RegionExecutor.create(parent), logger()));
     bindSelectionService();
     load();
