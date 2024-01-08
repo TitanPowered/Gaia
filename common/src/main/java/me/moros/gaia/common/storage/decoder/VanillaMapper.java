@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Moros
+ * Copyright 2020-2024 Moros
  *
  * This file is part of Gaia.
  *
@@ -88,6 +88,10 @@ record VanillaMapper(Logger logger, Map<String, BlockState> cache) implements Fu
       reader.skip();
     }
     String string = reader.getString().substring(start, reader.getCursor());
+    // TODO remove when DFU is added
+    if (string.equals("minecraft:grass")) {
+      string = "minecraft:short_grass";
+    }
     ResourceLocation id = new ResourceLocation(string);
     return BuiltInRegistries.BLOCK.asLookup()
       .get(ResourceKey.create(Registries.BLOCK, id))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Moros
+ * Copyright 2020-2024 Moros
  *
  * This file is part of Gaia.
  *
@@ -36,23 +36,23 @@ public interface Message {
     .append(text("] ", DARK_GRAY));
 
   Args1<String> SELECTION_FIRST = point -> translatable("gaia.selection.first", DARK_AQUA)
-    .args(text(point));
+    .arguments(text(point));
   Args1<String> SELECTION_SECOND = point -> translatable("gaia.selection.second", DARK_AQUA)
-    .args(text(point));
+    .arguments(text(point));
 
   Args1<String> CREATE_ANALYZING = arena -> brand(translatable("gaia.command.create.analyzing", GREEN)
-    .args(text(arena, GOLD)));
+    .arguments(text(arena, GOLD)));
   Args1<String> CREATE_FAIL = arena -> brand(translatable("gaia.command.create.fail", RED)
-    .args(text(arena, GOLD)));
+    .arguments(text(arena, GOLD)));
   Args1<String> CREATE_FAIL_TIMEOUT = arena -> brand(translatable("gaia.command.create.fail-timeout", RED)
-    .args(text(arena, GOLD)));
+    .arguments(text(arena, GOLD)));
   Args2<Component, Long> CREATE_SUCCESS = (arena, time) -> brand(translatable("gaia.command.create.success", GREEN)
-    .args(arena, text(time)));
+    .arguments(arena, text(time)));
   Args0 CREATE_WARN_CHUNK_ALIGN = () -> brand(translatable("gaia.command.create.warn.chunk-align", YELLOW));
   Args0 PLAYER_REQUIRED = () -> brand(translatable("gaia.command.create.error.player-required", RED));
   Args0 CREATE_ERROR_VALIDATION = () -> brand(translatable("gaia.command.create.error.validation", RED));
   Args1<String> CREATE_ERROR_EXISTS = arena -> brand(translatable("gaia.command.create.error.exists", RED)
-    .args(text(arena, GOLD)));
+    .arguments(text(arena, GOLD)));
   Args0 CREATE_ERROR_SELECTION = () -> brand(translatable("gaia.command.create.error.selection", RED));
   Args0 CREATE_ERROR_SIZE = () -> brand(translatable("gaia.command.create.error.size", RED));
   Args0 CREATE_ERROR_DISTANCE = () -> brand(translatable("gaia.command.create.error.distance", RED));
@@ -63,45 +63,44 @@ public interface Message {
   Args0 LIST_INVALID_PAGE = () -> brand(translatable("gaia.command.list.invalid-page", RED));
 
   Args1<String> REMOVE_FAIL = arena -> brand(translatable("gaia.command.remove.fail", RED)
-    .args(text(arena, GOLD)));
+    .arguments(text(arena, GOLD)));
   Args1<String> REMOVE_SUCCESS = arena -> brand(translatable("gaia.command.remove.success", GREEN)
-    .args(text(arena, GOLD)));
+    .arguments(text(arena, GOLD)));
 
   Args1<Component> REVERT_SUCCESS = arena -> brand(translatable("gaia.command.revert.success", GREEN)
-    .args(arena));
+    .arguments(arena));
   Args1<Component> REVERT_ERROR_REVERTING = arena -> brand(translatable("gaia.command.revert.error.already-reverting", YELLOW)
-    .args(arena));
+    .arguments(arena));
   Args1<Component> REVERT_ERROR_UNLOADED = arena -> brand(translatable("gaia.command.revert.error.unloaded", YELLOW)
-    .args(arena));
+    .arguments(arena));
   Args1<Component> REVERT_ERROR_UNKNOWN = arena -> brand(translatable("gaia.command.revert.error.unknown", RED)
-    .args(arena));
+    .arguments(arena));
   Args1<Long> REVERT_COOLDOWN = time -> brand(translatable("gaia.command.revert.on-cooldown", DARK_AQUA)
-    .args(text(TextUtil.formatDuration(time), YELLOW)));
+    .arguments(text(TextUtil.formatDuration(time), YELLOW)));
   Args2<Component, Long> FINISHED_REVERT = (arena, time) -> brand(translatable("gaia.command.revert.finished", GREEN)
-    .args(arena, text(time)));
+    .arguments(arena, text(time)));
 
   Args1<Component> CANCEL_FAIL = arena -> brand(translatable("gaia.command.cancel.fail", RED)
-    .args(arena));
+    .arguments(arena));
   Args1<Component> CANCEL_SUCCESS = arena -> brand(translatable("gaia.command.cancel.success", YELLOW)
-    .args(arena));
+    .arguments(arena));
 
   Args2<String, String> VERSION_COMMAND_HOVER = (author, link) -> translatable("gaia.command.version.hover", AQUA)
-    .args(text(author, DARK_AQUA), text(link, LINK_COLOR), text("GPLv3", BLUE))
+    .arguments(text(author, DARK_AQUA), text(link, LINK_COLOR), text("GPLv3", BLUE))
     .append(newline()).append(newline())
     .append(translatable("gaia.command.version.hover.open-link", GRAY));
-  Args0 CONFIG_RELOAD = () -> translatable("gaia.command.config-reload", GREEN);
 
   Args0 INFO_HEADER = () -> brand(translatable("gaia.command.info.header", AQUA));
   Args1<Component> NO_POINTS = arena -> brand(translatable("gaia.command.point.empty", YELLOW)
-    .args(arena));
+    .arguments(arena));
   Args1<Component> LIST_POINTS = arena -> brand(translatable("gaia.command.point.header", AQUA)
-    .args(arena));
+    .arguments(arena));
   Args0 INVALID_POINT = () -> brand(translatable("gaia.command.point.list.invalid-point", RED));
   Args0 ADD_POINT_SUCCESS = () -> brand(translatable("gaia.command.point.add.success", GREEN));
   Args0 ADD_POINT_FAIL = () -> brand(translatable("gaia.command.point.add.fail", RED));
   Args0 ADD_POINT_FAIL_AREA = () -> brand(translatable("gaia.command.point.add.fail.area", YELLOW));
   Args1<Component> CLEAR_POINTS = arena -> brand(translatable("gaia.command.point.clear", GREEN)
-    .args(arena));
+    .arguments(arena));
 
   static Component brand(ComponentLike message) {
     return PREFIX.asComponent().append(message);

@@ -3,16 +3,16 @@ tasker = "1.0.1"
 math = "2.0.0"
 junit = "5.10.1"
 shadow = "8.1.1"
-adventure = "4.14.0"
-adventure-fabric = "5.10.1"
+adventure = "4.15.0"
+adventure-fabric = "5.11.0-SNAPSHOT"
 configurate = "4.1.2"
 cloud = "1.8.4"
-worldedit = "7.2.15"
-paper = "1.20.3-R0.1-SNAPSHOT"
-minecraft = "1.20.3"
-fabric-loom = "1.4.1"
-fabric-api = "0.91.1+1.20.3"
-fabric-loader = "0.15.0"
+worldedit = "7.2.18-SNAPSHOT"
+paper = "1.20.4-R0.1-SNAPSHOT"
+minecraft = "1.20.4"
+fabric-loom = "1.5.3"
+fabric-api = "0.92.1+1.20.4"
+fabric-loader = "0.15.3"
 vanilla-gradle = "0.2.1-SNAPSHOT"
 
 [libraries]
@@ -41,7 +41,7 @@ eventbus = { module = "net.kyori:event-api", version = "5.0.0-SNAPSHOT" }
 linbus = { module = "org.enginehub.lin-bus:lin-bus-tree", version = "0.1.0-SNAPSHOT" }
 worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = "worldedit" }
 worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.ref = "worldedit" }
-worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.20", version = "7.2.15" }
+worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.20.4", version.ref = "worldedit" }
 
 paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.0.2" }
@@ -64,7 +64,7 @@ cloud = ["cloud-core", "cloud-minecraft"]
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
-userdev = { id = "io.papermc.paperweight.userdev", version = "1.5.10" }
+userdev = { id = "io.papermc.paperweight.userdev", version = "1.5.11" }
 runpaper = { id = "xyz.jpenilla.run-paper", version = "2.2.2" }
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 vanilla = { id = "org.spongepowered.gradle.vanilla", version.ref = "vanilla-gradle" }
