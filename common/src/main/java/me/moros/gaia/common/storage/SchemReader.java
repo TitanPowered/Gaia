@@ -45,18 +45,19 @@ public class SchemReader implements Closeable {
     if (schematicVersion != 3) {
       throw new IllegalStateException("Unknown schematic version " + schematicVersion);
     }
-    return readVersion3(schematicTag, chunkRegion);
+    int dataVersion = schematicTag.getTag("DataVersion", LinTagType.intTag()).valueAsInt();
+    return readVersion3(schematicTag, chunkRegion, dataVersion);
   }
 
   private LinCompoundTag getBaseTag() throws IOException {
     return LinRootEntry.readFrom(rootStream).value().getTag("Schematic", LinTagType.compoundTag());
   }
 
-  private Snapshot readVersion3(LinCompoundTag schematicTag, ChunkRegion chunkRegion) throws IOException {
+  private Snapshot readVersion3(LinCompoundTag schematicTag, ChunkRegion chunkRegion, int dataVersion) throws IOException {
     LinCompoundTag blockContainer = schematicTag.getTag("Blocks", LinTagType.compoundTag());
     LinCompoundTag paletteObject = blockContainer.getTag("Palette", LinTagType.compoundTag());
     byte[] blocks = blockContainer.getTag("Data", LinTagType.byteArrayTag()).value();
-    return decoder.decodeBlocks(chunkRegion, paletteObject, blocks);
+    return decoder.decodeBlocks(chunkRegion, paletteObject, blocks, dataVersion);
   }
 
   @Override

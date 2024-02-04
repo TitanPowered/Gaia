@@ -20,25 +20,51 @@
 package me.moros.gaia.common.storage.decoder;
 
 import java.io.IOException;
-import java.util.function.Function;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.common.platform.GaiaSnapshot;
+import me.moros.gaia.common.util.BlockStateCodec;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.Holder.Reference;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.datafix.DataFixers;
+import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.Property;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.enginehub.linbus.tree.LinCompoundTag;
 import org.enginehub.linbus.tree.LinIntTag;
+import org.slf4j.Logger;
 
 final class DecoderImpl implements Decoder {
   private final int dataVersion;
-  private final Function<String, BlockState> mapper;
+  private final Logger logger;
+  private final Map<String, BlockState> cache;
 
-  DecoderImpl(Function<String, BlockState> mapper) {
+  DecoderImpl(Logger logger) {
     this.dataVersion = SharedConstants.getCurrentVersion().getDataVersion().getVersion();
-    this.mapper = mapper;
+    this.logger = logger;
+    this.cache = new ConcurrentHashMap<>();
+    rebuildCache();
+  }
+
+  private void rebuildCache() {
+    cache.clear();
+    Block.BLOCK_STATE_REGISTRY.forEach(state -> cache.put(BlockStateCodec.INSTANCE.toString(state), state));
   }
 
   @Override
@@ -47,21 +73,91 @@ final class DecoderImpl implements Decoder {
   }
 
   @Override
-  public Snapshot decodeBlocks(ChunkRegion chunk, LinCompoundTag paletteObject, byte[] blocks) throws IOException {
-    var palette = decodePalette(paletteObject);
+  public Snapshot decodeBlocks(ChunkRegion chunk, LinCompoundTag paletteObject, byte[] blocks, int srcVersion) throws IOException {
+    var palette = decodePalette(paletteObject, srcVersion);
     return new GaiaSnapshot(chunk, palette, blocks);
   }
 
-  private Int2ObjectMap<BlockState> decodePalette(LinCompoundTag paletteObject) throws IOException {
+  private Int2ObjectMap<BlockState> decodePalette(LinCompoundTag paletteObject, int srcVersion) throws IOException {
     var entrySet = paletteObject.value().entrySet();
     Int2ObjectMap<BlockState> palette = new Int2ObjectArrayMap<>(entrySet.size());
     for (var palettePart : entrySet) {
       if (palettePart.getValue() instanceof LinIntTag idTag) {
-        palette.put(idTag.valueAsInt(), mapper.apply(palettePart.getKey()));
+        palette.put(idTag.valueAsInt(), readAndFixBlockState(palettePart.getKey(), srcVersion));
       } else {
         throw new IOException("Invalid palette entry: " + palettePart);
       }
     }
     return palette;
+  }
+
+  private BlockState readAndFixBlockState(String value, int srcVersion) {
+    BlockState result = cache.computeIfAbsent(value, v -> parseStateForCache(v, srcVersion));
+    if (result == null) {
+      logger.warn("Invalid BlockState: " + value + ". Block will be replaced with air.");
+      return Blocks.AIR.defaultBlockState();
+    } else {
+      return result;
+    }
+  }
+
+  private @Nullable BlockState parseStateForCache(String data, int srcVersion) {
+    CompoundTag nbt = stateToNBT(data);
+    CompoundTag result = (CompoundTag) DataFixers.getDataFixer()
+      .update(References.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, nbt), srcVersion, dataVersion)
+      .getValue();
+    return nbtToState(result);
+  }
+
+  private static CompoundTag stateToNBT(String blockState) {
+    int propIdx = blockState.indexOf('[');
+    CompoundTag tag = new CompoundTag();
+    if (propIdx < 0) {
+      tag.putString("Name", blockState);
+    } else {
+      tag.putString("Name", blockState.substring(0, propIdx));
+      CompoundTag propTag = new CompoundTag();
+      String props = blockState.substring(propIdx + 1, blockState.length() - 1);
+      String[] propArr = props.split(",");
+      for (String pair : propArr) {
+        final String[] split = pair.split("=");
+        propTag.putString(split[0], split[1]);
+      }
+      tag.put("Properties", propTag);
+    }
+    return tag;
+  }
+
+  private static @Nullable BlockState nbtToState(CompoundTag nbt) {
+    if (!nbt.contains("Name", 8)) {
+      return null;
+    } else {
+      ResourceLocation rsl = ResourceLocation.tryParse(nbt.getString("Name"));
+      Block block = rsl == null ? null : BuiltInRegistries.BLOCK.asLookup()
+        .get(ResourceKey.create(Registries.BLOCK, rsl)).map(Reference::value).orElse(null);
+      if (block == null) {
+        return null;
+      }
+      BlockState blockState = block.defaultBlockState();
+      if (nbt.contains("Properties", 10)) {
+        CompoundTag compoundTag = nbt.getCompound("Properties");
+        StateDefinition<Block, BlockState> stateDefinition = block.getStateDefinition();
+        for (String string : compoundTag.getAllKeys()) {
+          Property<?> property = stateDefinition.getProperty(string);
+          if (property != null) {
+            var propertyValue = property.getValue(compoundTag.getString(string)).orElse(null);
+            if (propertyValue != null) {
+              blockState = setValue(blockState, property, propertyValue);
+            }
+          }
+        }
+      }
+      return blockState;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends Comparable<T>> BlockState setValue(BlockState state, Property<T> property, Object value) {
+    return state.setValue(property, (T) value);
   }
 }

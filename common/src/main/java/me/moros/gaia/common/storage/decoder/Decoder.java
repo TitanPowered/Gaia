@@ -29,9 +29,9 @@ import org.slf4j.Logger;
 public interface Decoder {
   int dataVersion();
 
-  Snapshot decodeBlocks(ChunkRegion chunk, LinCompoundTag paletteObject, byte[] blocks) throws IOException;
+  Snapshot decodeBlocks(ChunkRegion chunk, LinCompoundTag paletteObject, byte[] blocks, int srcVersion) throws IOException;
 
   static Decoder createVanilla(Logger logger) {
-    return new DecoderImpl(new VanillaMapper(logger));
+    return new DecoderImpl(logger);
   }
 }
