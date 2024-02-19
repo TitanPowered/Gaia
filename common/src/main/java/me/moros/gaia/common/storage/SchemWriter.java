@@ -29,6 +29,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.api.util.ChunkUtil;
+import me.moros.gaia.common.platform.codec.Codecs;
 import org.enginehub.linbus.stream.LinBinaryIO;
 import org.enginehub.linbus.tree.LinCompoundTag;
 import org.enginehub.linbus.tree.LinRootEntry;
@@ -37,11 +38,9 @@ public class SchemWriter implements Closeable {
   private static final int CURRENT_VERSION = 3;
 
   private final DataOutputStream outputStream;
-  private final int dataVersion;
 
-  public SchemWriter(DataOutputStream outputStream, int dataVersion) {
+  public SchemWriter(DataOutputStream outputStream) {
     this.outputStream = outputStream;
-    this.dataVersion = dataVersion;
   }
 
   public void write(Snapshot snapshot) throws IOException {
@@ -57,7 +56,7 @@ public class SchemWriter implements Closeable {
 
     LinCompoundTag.Builder schematic = LinCompoundTag.builder();
     schematic.putInt("Version", CURRENT_VERSION);
-    schematic.putInt("DataVersion", dataVersion);
+    schematic.putInt("DataVersion", Codecs.blockStateCodec().dataVersion());
 
     LinCompoundTag.Builder metadata = LinCompoundTag.builder();
     metadata.putString("Author", "Gaia");

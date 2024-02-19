@@ -25,7 +25,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -44,23 +43,21 @@ import java.util.zip.Checksum;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
-import com.google.gson.stream.JsonReader;
 import me.moros.gaia.api.arena.Arena;
-import me.moros.gaia.api.arena.Point;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.chunk.ChunkPosition;
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.api.storage.Storage;
-import me.moros.gaia.common.storage.adapter.Adapters;
-import me.moros.gaia.common.storage.decoder.Decoder;
-import me.moros.math.Vector3i;
+import me.moros.gaia.common.storage.serializer.Serializers;
 import me.moros.tasker.executor.AsyncExecutor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.enginehub.linbus.stream.LinBinaryIO;
 import org.slf4j.Logger;
+import org.spongepowered.configurate.BasicConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.NodePath;
+import org.spongepowered.configurate.gson.GsonConfigurationLoader;
+import org.spongepowered.configurate.reference.ConfigurationReference;
 
 public final class FileStorage implements Storage {
   public static final Supplier<Checksum> ALGORITHM = CRC32C::new;
@@ -72,20 +69,11 @@ public final class FileStorage implements Storage {
   private final AsyncExecutor executor;
   private final Logger logger;
   private final Path container;
-  private final Decoder decoder;
-  private final Gson gson;
 
   private FileStorage(AsyncExecutor executor, Logger logger, Path container) {
     this.executor = executor;
     this.logger = logger;
     this.container = container;
-    this.decoder = Decoder.createVanilla(logger);
-    this.gson = new GsonBuilder().setPrettyPrinting()
-      .registerTypeHierarchyAdapter(Vector3i.class, Adapters.VECTOR)
-      .registerTypeHierarchyAdapter(Point.class, Adapters.POINT)
-      .registerTypeHierarchyAdapter(ChunkRegion.Validated.class, Adapters.CHUNK)
-      .registerTypeHierarchyAdapter(Arena.class, Adapters.ARENA)
-      .create();
   }
 
   public static Storage createInstance(AsyncExecutor executor, Logger logger, Path path) {
@@ -165,11 +153,11 @@ public final class FileStorage implements Storage {
   @Override
   public CompletableFuture<Arena> saveArena(Arena arena) {
     return executor.submit(() -> {
-      Path arenaMeta = arenaMeta(arena.name());
-      try (var writer = Files.newBufferedWriter(arenaMeta, StandardCharsets.UTF_8)) {
-        gson.toJson(arena, writer);
+      try (var ref = load(arenaMeta(arena.name()))) {
+        ref.set(NodePath.path(), arena);
+        ref.save();
         return arena;
-      } catch (Exception e) {
+      } catch (IOException e) {
         throw new CompletionException(e);
       }
     }).exceptionally(e -> {
@@ -186,7 +174,7 @@ public final class FileStorage implements Storage {
          var bis = new BufferedInputStream(cis);
          var gis = new GZIPInputStream(bis);
          var dis = new DataInputStream(gis);
-         var reader = new SchemReader(LinBinaryIO.read(dis), decoder)) {
+         var reader = new SchemReader(LinBinaryIO.read(dis))) {
       var data = reader.read(chunkRegion);
       validateChecksum(path, chunkRegion.checksum(), checksum.getValue());
       return data;
@@ -218,7 +206,7 @@ public final class FileStorage implements Storage {
          var bos = new BufferedOutputStream(cos);
          var gos = new GZIPOutputStream(bos);
          var dos = new DataOutputStream(gos);
-         var writer = new SchemWriter(dos, decoder.dataVersion())) {
+         var writer = new SchemWriter(dos)) {
       writer.write(snapshot);
     }
     return checksum.getValue();
@@ -244,13 +232,13 @@ public final class FileStorage implements Storage {
 
   private @Nullable Arena loadArena(Path path) {
     Arena arena = null;
-    try (var reader = new JsonReader(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
-      arena = gson.fromJson(reader, Arena.class);
+    try (var ref = load(path)) {
+      arena = Objects.requireNonNull(ref.node().get(Arena.class));
       for (var chunk : arena.chunks()) {
         var chunkPath = chunkPath(arena.name(), chunk);
         validateChecksum(chunkPath, chunk.checksum(), calculateChecksum(chunkPath));
       }
-    } catch (IOException | JsonParseException e) {
+    } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
     return arena;
@@ -271,5 +259,13 @@ public final class FileStorage implements Storage {
       }
       return checksum.getValue();
     }
+  }
+
+  private ConfigurationReference<BasicConfigurationNode> load(Path path) throws ConfigurateException {
+    return GsonConfigurationLoader.builder()
+      .defaultOptions(o -> o.serializers(b -> b.registerAll(Serializers.ALL)))
+      .path(path)
+      .build()
+      .loadToReference();
   }
 }

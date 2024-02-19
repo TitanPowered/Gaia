@@ -22,14 +22,17 @@ package me.moros.gaia.common.platform;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.api.util.ChunkUtil;
-import me.moros.gaia.common.util.BlockStateCodec;
+import me.moros.gaia.common.platform.codec.Codecs;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
 
-record VanillaSnapshot(ChunkRegion chunk, VanillaSection[] sectionData) implements Snapshot {
+record VanillaSnapshot(ChunkRegion chunk, Section[] sectionData) implements Snapshot {
   @Override
   public String getStateString(int x, int y, int z) {
-    return BlockStateCodec.INSTANCE.toString(sectionData[ChunkUtil.toChunkPos(y)].state(x, y, z));
+    return Codecs.blockStateCodec().toString(sectionData[ChunkUtil.toChunkPos(y)].state(x, y, z));
   }
 
   @Override
@@ -37,14 +40,32 @@ record VanillaSnapshot(ChunkRegion chunk, VanillaSection[] sectionData) implemen
     return sectionData.length;
   }
 
-  static Snapshot from(ChunkRegion chunk, ChunkAccess access) {
+  @FunctionalInterface
+  interface Section {
+    BlockState state(int x, int y, int z);
+  }
+
+  private static final Section EMPTY_SECTION = (x, y, z) -> Blocks.AIR.defaultBlockState();
+
+  private record SectionWrapper(PalettedContainer<BlockState> palettedContainer) implements Section {
+    @Override
+    public BlockState state(int x, int y, int z) {
+      return palettedContainer.get(x & 0xF, y & 0xF, z & 0xF);
+    }
+  }
+
+  static VanillaSnapshot from(ChunkRegion chunk, ChunkAccess access) {
     int size = ChunkUtil.calculateSections(chunk.region());
     LevelChunkSection[] cs = access.getSections();
     int sectionIndexOffset = access.getSectionIndex(chunk.region().min().blockY());
-    VanillaSection[] sections = new VanillaSection[size];
+    Section[] sections = new Section[size];
     for (int i = 0; i < sections.length; i++) {
-      sections[i] = VanillaSection.from(cs[sectionIndexOffset + i]);
+      sections[i] = copySection(cs[sectionIndexOffset + i]);
     }
     return new VanillaSnapshot(chunk, sections);
+  }
+
+  private static Section copySection(LevelChunkSection section) {
+    return section.hasOnlyAir() ? EMPTY_SECTION : new SectionWrapper(section.getStates().copy());
   }
 }

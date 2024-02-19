@@ -13,7 +13,7 @@ dependencies {
     api(libs.tasker.core)
     implementation(libs.eventbus)
     implementation(libs.linbus)
-    implementation(libs.configurate.hocon)
+    implementation(libs.bundles.configurate) { exclude(module = "gson") }
     compileOnlyApi(libs.bundles.cloud)
     compileOnly(libs.worldedit.core)
 }

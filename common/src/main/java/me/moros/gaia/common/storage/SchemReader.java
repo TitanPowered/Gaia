@@ -24,7 +24,8 @@ import java.io.IOException;
 
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.chunk.Snapshot;
-import me.moros.gaia.common.storage.decoder.Decoder;
+import me.moros.gaia.common.platform.GaiaSnapshot;
+import me.moros.gaia.common.platform.codec.Codecs;
 import org.enginehub.linbus.stream.LinStream;
 import org.enginehub.linbus.tree.LinCompoundTag;
 import org.enginehub.linbus.tree.LinRootEntry;
@@ -32,11 +33,9 @@ import org.enginehub.linbus.tree.LinTagType;
 
 public class SchemReader implements Closeable {
   private final LinStream rootStream;
-  private final Decoder decoder;
 
-  public SchemReader(LinStream rootStream, Decoder decoder) {
+  public SchemReader(LinStream rootStream) {
     this.rootStream = rootStream;
-    this.decoder = decoder;
   }
 
   public Snapshot read(ChunkRegion chunkRegion) throws IOException {
@@ -57,7 +56,7 @@ public class SchemReader implements Closeable {
     LinCompoundTag blockContainer = schematicTag.getTag("Blocks", LinTagType.compoundTag());
     LinCompoundTag paletteObject = blockContainer.getTag("Palette", LinTagType.compoundTag());
     byte[] blocks = blockContainer.getTag("Data", LinTagType.byteArrayTag()).value();
-    return decoder.decodeBlocks(chunkRegion, paletteObject, blocks, dataVersion);
+    return GaiaSnapshot.from(chunkRegion, Codecs.paletteDecoder().apply(paletteObject, dataVersion), blocks);
   }
 
   @Override

@@ -16,9 +16,6 @@ fabric-loader = "0.15.6"
 vanilla-gradle = "0.2.1-SNAPSHOT"
 
 [libraries]
-gson = { module = "com.google.code.gson:gson", version = "2.10.1" }
-slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.9" }
-
 tasker-core = { module = "me.moros:tasker-core", version.ref = "tasker" }
 tasker-paper = { module = "me.moros:tasker-paper", version.ref = "tasker" }
 tasker-fabric = { module = "me.moros:tasker-fabric", version.ref = "tasker" }
@@ -33,6 +30,7 @@ cloud-paper = { module = "cloud.commandframework:cloud-paper", version.ref = "cl
 cloud-fabric = { module = "cloud.commandframework:cloud-fabric", version.ref = "cloud" }
 
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
+configurate-gson = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
 
 adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
 adventure-fabric = { module = "net.kyori:adventure-platform-fabric", version.ref = "adventure-fabric" }
@@ -61,6 +59,7 @@ checker = { module = "org.checkerframework:checkerframework-gradle-plugin", vers
 [bundles]
 junit = ["junit-api", "junit-engine"]
 cloud = ["cloud-core", "cloud-minecraft"]
+configurate = ["configurate-hocon", "configurate-gson"]
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }

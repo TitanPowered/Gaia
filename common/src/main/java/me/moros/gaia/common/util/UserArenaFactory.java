@@ -34,12 +34,15 @@ import me.moros.gaia.api.util.ChunkUtil;
 import me.moros.gaia.api.util.TextUtil;
 import me.moros.gaia.common.config.ConfigManager;
 import me.moros.gaia.common.locale.Message;
+import org.slf4j.Logger;
 
 public final class UserArenaFactory {
   private final GaiaUser user;
+  private final Logger logger;
 
-  public UserArenaFactory(GaiaUser user) {
+  public UserArenaFactory(GaiaUser user, Logger logger) {
     this.user = user;
+    this.logger = logger;
   }
 
   public boolean tryCreate(String name) {
@@ -138,7 +141,7 @@ public final class UserArenaFactory {
             Message.CREATE_FAIL_TIMEOUT.send(user, arenaName);
           } else {
             Message.CREATE_FAIL.send(user, arenaName);
-            throwable.printStackTrace();
+            logger.error(throwable.getMessage(), throwable);
           }
         }
       });

@@ -33,7 +33,7 @@ public final class GaiaSnapshot implements Snapshot {
   private final byte[] data;
   private VarIntIterator cachedIterator;
 
-  public GaiaSnapshot(ChunkRegion chunk, Int2ObjectMap<BlockState> palette, byte[] data) {
+  private GaiaSnapshot(ChunkRegion chunk, Int2ObjectMap<BlockState> palette, byte[] data) {
     this.chunk = chunk;
     this.palette = palette;
     this.data = data;
@@ -56,5 +56,9 @@ public final class GaiaSnapshot implements Snapshot {
 
   public IndexedIterator<BlockState> iterator() {
     return new IndexedIterator<>(cachedIterator, palette::get);
+  }
+
+  public static Snapshot from(ChunkRegion chunk, Int2ObjectMap<BlockState> palette, byte[] data) {
+    return new GaiaSnapshot(chunk, palette, data);
   }
 }

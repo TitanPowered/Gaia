@@ -17,21 +17,13 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.common.storage.decoder;
+package me.moros.gaia.common.platform.codec;
 
 import java.io.IOException;
 
-import me.moros.gaia.api.arena.region.ChunkRegion;
-import me.moros.gaia.api.chunk.Snapshot;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import org.enginehub.linbus.tree.LinCompoundTag;
-import org.slf4j.Logger;
 
-public interface Decoder {
-  int dataVersion();
-
-  Snapshot decodeBlocks(ChunkRegion chunk, LinCompoundTag paletteObject, byte[] blocks, int srcVersion) throws IOException;
-
-  static Decoder createVanilla(Logger logger) {
-    return new DecoderImpl(logger);
-  }
+public interface PaletteDecoder<R> {
+  Int2ObjectMap<R> apply(LinCompoundTag tag, int srcVersion) throws IOException;
 }

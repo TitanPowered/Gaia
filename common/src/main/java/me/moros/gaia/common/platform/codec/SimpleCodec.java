@@ -17,14 +17,14 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.common.storage.adapter;
+package me.moros.gaia.common.platform.codec;
 
-public final class Adapters {
-  private Adapters() {
-  }
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-  public static final Vector3iAdapter VECTOR = new Vector3iAdapter();
-  public static final PointAdapter POINT = new PointAdapter();
-  public static final ChunkRegionAdapter CHUNK = new ChunkRegionAdapter();
-  public static final ArenaAdapter ARENA = new ArenaAdapter();
+public interface SimpleCodec<R> {
+  int dataVersion();
+
+  String toString(R value);
+
+  @Nullable R fromString(String raw, int srcVersion);
 }

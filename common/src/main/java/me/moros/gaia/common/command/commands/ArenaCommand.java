@@ -149,7 +149,7 @@ public record ArenaCommand(Commander commander) implements GaiaCommand {
       Message.PLAYER_REQUIRED.send(user);
       return;
     }
-    new UserArenaFactory(user).tryCreate(name);
+    new UserArenaFactory(user, commander().logger()).tryCreate(name);
   }
 
   private void onRemove(GaiaUser user, Arena arena) {
