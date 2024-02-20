@@ -40,6 +40,18 @@ public interface Message {
   Args1<String> SELECTION_SECOND = point -> translatable("gaia.selection.second", DARK_AQUA)
     .arguments(text(point));
 
+  Args0 BASE_CMD_DESC = () -> translatable("gaia.command.base.description");
+  Args0 HELP_CMD_DESC = () -> translatable("gaia.command.help.description");
+  Args0 LIST_CMD_DESC = () -> translatable("gaia.command.list.description");
+  Args0 INFO_CMD_DESC = () -> translatable("gaia.command.info.description");
+  Args0 CREATE_CMD_DESC = () -> translatable("gaia.command.create.description");
+  Args0 REMOVE_CMD_DESC = () -> translatable("gaia.command.remove.description");
+  Args0 REVERT_CMD_DESC = () -> translatable("gaia.command.revert.description");
+  Args0 VERSION_CMD_DESC = () -> translatable("gaia.command.version.description");
+  Args0 POINT_ADD_CMD_DESC = () -> translatable("gaia.command.point.add.description");
+  Args0 POINT_CLEAR_CMD_DESC = () -> translatable("gaia.command.point.clear.description");
+  Args0 POINT_TELEPORT_CMD_DESC = () -> translatable("gaia.command.point.teleport.description");
+
   Args1<String> CREATE_ANALYZING = arena -> brand(translatable("gaia.command.create.analyzing", GREEN)
     .arguments(text(arena, GOLD)));
   Args1<String> CREATE_FAIL = arena -> brand(translatable("gaia.command.create.fail", RED)
@@ -60,7 +72,8 @@ public interface Message {
   Args0 CREATE_ERROR_CRITICAL = () -> brand(translatable("gaia.command.create.error.critical", RED));
 
   Args0 LIST_NOT_FOUND = () -> brand(translatable("gaia.command.list.not-found", YELLOW));
-  Args0 LIST_INVALID_PAGE = () -> brand(translatable("gaia.command.list.invalid-page", RED));
+  Args1<Integer> LIST_INVALID_PAGE = max -> brand(translatable("gaia.command.list.invalid-page", RED)
+    .arguments(text(max, YELLOW)));
 
   Args1<String> REMOVE_FAIL = arena -> brand(translatable("gaia.command.remove.fail", RED)
     .arguments(text(arena, GOLD)));
@@ -79,11 +92,6 @@ public interface Message {
     .arguments(text(TextUtil.formatDuration(time), YELLOW)));
   Args2<Component, Long> FINISHED_REVERT = (arena, time) -> brand(translatable("gaia.command.revert.finished", GREEN)
     .arguments(arena, text(time)));
-
-  Args1<Component> CANCEL_FAIL = arena -> brand(translatable("gaia.command.cancel.fail", RED)
-    .arguments(arena));
-  Args1<Component> CANCEL_SUCCESS = arena -> brand(translatable("gaia.command.cancel.success", YELLOW)
-    .arguments(arena));
 
   Args2<String, String> VERSION_COMMAND_HOVER = (author, link) -> translatable("gaia.command.version.hover", AQUA)
     .arguments(text(author, DARK_AQUA), text(link, LINK_COLOR), text("GPLv3", BLUE))

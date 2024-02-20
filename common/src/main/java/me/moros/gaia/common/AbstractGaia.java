@@ -19,18 +19,23 @@
 
 package me.moros.gaia.common;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 import me.moros.gaia.api.Gaia;
 import me.moros.gaia.common.config.ConfigManager;
 import me.moros.gaia.common.locale.TranslationManager;
 import org.slf4j.Logger;
+import org.spongepowered.configurate.reference.WatchServiceListener;
 
 public abstract class AbstractGaia<T> {
   protected final T parent;
   private final Path path;
   private final Logger logger;
 
+  private final WatchServiceListener listener;
+  private final ConfigManager configManager;
   private final TranslationManager translationManager;
 
   protected final GaiaFactory factory;
@@ -40,9 +45,13 @@ public abstract class AbstractGaia<T> {
     this.parent = parent;
     this.path = path;
     this.logger = logger;
-
-    ConfigManager.createInstance(logger, this.path);
-    this.translationManager = new TranslationManager(logger, this.path);
+    try {
+      this.listener = WatchServiceListener.create();
+      this.configManager = new ConfigManager(this.logger, this.path, listener);
+      this.translationManager = new TranslationManager(this.logger, this.path, listener);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
     this.factory = new GaiaFactory();
   }
 
@@ -58,8 +67,12 @@ public abstract class AbstractGaia<T> {
   }
 
   protected void disable() {
-    ConfigManager.instance().close();
-    translationManager.close();
+    configManager.close();
+    try {
+      listener.close();
+    } catch (IOException e) {
+      logger.warn(e.getMessage(), e);
+    }
     gaia.shutdown();
   }
 

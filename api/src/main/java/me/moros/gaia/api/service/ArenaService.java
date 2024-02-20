@@ -50,8 +50,4 @@ public interface ArenaService extends Iterable<Arena> {
   Stream<Arena> stream();
 
   RevertResult revert(Arena arena);
-
-  default void cancelRevert(Arena arena) {
-    arena.forEach(cr -> cr.reverting(false));
-  }
 }

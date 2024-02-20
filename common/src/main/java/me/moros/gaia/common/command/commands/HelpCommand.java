@@ -19,18 +19,18 @@
 
 package me.moros.gaia.common.command.commands;
 
-import cloud.commandframework.CommandManager;
-import cloud.commandframework.arguments.standard.StringArgument;
-import cloud.commandframework.arguments.standard.StringArgument.StringMode;
-import cloud.commandframework.meta.CommandMeta;
-import cloud.commandframework.minecraft.extras.MinecraftHelp;
-import cloud.commandframework.minecraft.extras.MinecraftHelp.HelpColors;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.common.command.CommandPermissions;
 import me.moros.gaia.common.command.Commander;
 import me.moros.gaia.common.command.GaiaCommand;
+import me.moros.gaia.common.locale.Message;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.minecraft.extras.ImmutableMinecraftHelp;
+import org.incendo.cloud.minecraft.extras.MinecraftHelp;
+import org.incendo.cloud.minecraft.extras.RichDescription;
+import org.incendo.cloud.parser.standard.StringParser;
 
 public record HelpCommand(Commander commander, MinecraftHelp<GaiaUser> help) implements GaiaCommand {
   public HelpCommand(Commander commander) {
@@ -41,26 +41,28 @@ public record HelpCommand(Commander commander, MinecraftHelp<GaiaUser> help) imp
   public void register() {
     var builder = commander().rootBuilder();
     commander().register(builder
-      .handler(c -> help().queryCommands(c.getOrDefault("query", ""), c.getSender()))
+      .commandDescription(RichDescription.of(Message.BASE_CMD_DESC.build()))
+      .handler(c -> help().queryCommands("", c.sender()))
     );
-    commander().register(builder.literal("help", "h")
-      .meta(CommandMeta.DESCRIPTION, "View info about Gaia commands")
+    commander().register(builder
+      .literal("help")
+      .optional("query", StringParser.greedyStringParser())
+      .commandDescription(RichDescription.of(Message.HELP_CMD_DESC.build()))
       .permission(CommandPermissions.HELP)
-      .argument(StringArgument.optional("query", StringMode.GREEDY))
-      .handler(c -> help().queryCommands(c.getOrDefault("query", ""), c.getSender()))
+      .handler(c -> help.queryCommands(c.getOrDefault("query", ""), c.sender()))
     );
   }
 
+
   private static <C extends Audience> MinecraftHelp<C> createHelp(CommandManager<C> manager) {
-    var help = MinecraftHelp.createNative("/gaia help", manager);
-    help.setMaxResultsPerPage(9);
-    help.setHelpColors(HelpColors.of(
-      NamedTextColor.DARK_GRAY,
-      NamedTextColor.DARK_AQUA,
-      NamedTextColor.GRAY,
-      NamedTextColor.AQUA,
-      NamedTextColor.GRAY)
-    );
-    return help;
+    return ImmutableMinecraftHelp.copyOf(MinecraftHelp.createNative("/gaia help", manager))
+      .withMaxResultsPerPage(9)
+      .withColors(MinecraftHelp.helpColors(
+        NamedTextColor.DARK_GRAY,
+        NamedTextColor.DARK_AQUA,
+        NamedTextColor.GRAY,
+        NamedTextColor.AQUA,
+        NamedTextColor.GRAY)
+      );
   }
 }

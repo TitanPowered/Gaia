@@ -23,12 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.concurrent.CancellationException;
 
-import cloud.commandframework.arguments.standard.IntegerArgument;
-import cloud.commandframework.arguments.standard.StringArgument;
-import cloud.commandframework.arguments.standard.StringArgument.StringMode;
-import cloud.commandframework.meta.CommandMeta;
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.Point;
 import me.moros.gaia.api.platform.GaiaUser;
@@ -37,8 +32,8 @@ import me.moros.gaia.api.util.TextUtil;
 import me.moros.gaia.common.command.CommandPermissions;
 import me.moros.gaia.common.command.Commander;
 import me.moros.gaia.common.command.GaiaCommand;
-import me.moros.gaia.common.command.argument.ArenaArgument;
-import me.moros.gaia.common.command.argument.GaiaUserArgument;
+import me.moros.gaia.common.command.parser.ArenaParser;
+import me.moros.gaia.common.command.parser.GaiaUserParser;
 import me.moros.gaia.common.config.ConfigManager;
 import me.moros.gaia.common.locale.Message;
 import me.moros.gaia.common.util.UserArenaFactory;
@@ -49,6 +44,10 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.incendo.cloud.component.DefaultValue;
+import org.incendo.cloud.minecraft.extras.RichDescription;
+import org.incendo.cloud.parser.standard.IntegerParser;
+import org.incendo.cloud.parser.standard.StringParser;
 
 public record ArenaCommand(Commander commander) implements GaiaCommand {
   private static final int AMOUNT_PER_PAGE = 12;
@@ -56,56 +55,53 @@ public record ArenaCommand(Commander commander) implements GaiaCommand {
   @Override
   public void register() {
     var builder = commander().rootBuilder();
-    var arenaArg = ArenaArgument.builder("arena").asOptionalWithDefault("cur");
-    var targetArg = GaiaUserArgument.builder("target").asOptionalWithDefault("me");
-    commander().register(builder.literal("list", "ls")
-      .meta(CommandMeta.DESCRIPTION, "List all Gaia arenas")
+    commander().register(builder
+      .literal("list")
+      .optional("page", IntegerParser.integerParser(1), DefaultValue.constant(1))
+      .commandDescription(RichDescription.of(Message.LIST_CMD_DESC.build()))
       .permission(CommandPermissions.LIST)
-      .argument(IntegerArgument.optional("page", 1))
-      .handler(c -> onList(c.getSender(), c.get("page")))
+      .handler(c -> onList(c.sender(), c.get("page")))
     );
-    commander().register(builder.literal("info", "i")
-      .meta(CommandMeta.DESCRIPTION, "View info about the specified arena")
+    commander().register(builder
+      .literal("info")
+      .optional("arena", ArenaParser.parser(), DefaultValue.parsed("cur"))
+      .commandDescription(RichDescription.of(Message.INFO_CMD_DESC.build()))
       .permission(CommandPermissions.INFO)
-      .argument(arenaArg.build())
-      .handler(c -> onInfo(c.getSender(), c.get("arena")))
+      .handler(c -> onInfo(c.sender(), c.get("arena")))
     );
-    commander().register(builder.literal("create", "c")
-      .meta(CommandMeta.DESCRIPTION, "Create a Gaia arena")
+    commander().register(builder
+      .literal("create")
+      .optional("name", StringParser.stringParser())
+      .commandDescription(RichDescription.of(Message.CREATE_CMD_DESC.build()))
       .permission(CommandPermissions.CREATE)
-      .argument(StringArgument.of("name", StringMode.SINGLE))
-      .handler(c -> onCreate(c.getSender(), c.get("name")))
+      .handler(c -> onCreate(c.sender(), c.get("name")))
     );
-    commander().register(builder.literal("remove", "rm")
-      .meta(CommandMeta.DESCRIPTION, "Remove a Gaia arena")
+    commander().register(builder
+      .literal("remove")
+      .required("arena", ArenaParser.parser())
+      .commandDescription(RichDescription.of(Message.REMOVE_CMD_DESC.build()))
       .permission(CommandPermissions.REMOVE)
-      .argument(arenaArg.build())
-      .handler(c -> onRemove(c.getSender(), c.get("arena")))
+      .handler(c -> onRemove(c.sender(), c.get("arena")))
     );
-    commander().register(builder.literal("revert", "reset", "restore")
-      .meta(CommandMeta.DESCRIPTION, "Revert the specified arena")
+    commander().register(builder
+      .literal("revert")
+      .optional("arena", ArenaParser.parser(), DefaultValue.parsed("cur"))
+      .optional("target", GaiaUserParser.parser(), DefaultValue.parsed("me"))
+      .commandDescription(RichDescription.of(Message.REVERT_CMD_DESC.build()))
       .permission(CommandPermissions.REVERT)
-      .argument(arenaArg.build())
-      .argument(targetArg.build())
       .handler(c -> onRevert(c.get("target"), c.get("arena")))
-    );
-    commander().register(builder.literal("cancel", "abort")
-      .meta(CommandMeta.DESCRIPTION, "Cancel reverting the specified arena")
-      .permission(CommandPermissions.CANCEL)
-      .argument(arenaArg.build())
-      .handler(c -> onCancel(c.getSender(), c.get("arena")))
     );
   }
 
-  private void onList(GaiaUser user, Integer page) {
+  private void onList(GaiaUser user, int page) {
     int count = user.parent().arenaService().size();
     if (count == 0) {
       Message.LIST_NOT_FOUND.send(user);
       return;
     }
     int totalPages = (int) Math.ceil(count / (double) AMOUNT_PER_PAGE);
-    if (page < 1 || page > totalPages) {
-      Message.LIST_INVALID_PAGE.send(user);
+    if (page > totalPages) {
+      Message.LIST_INVALID_PAGE.send(user, totalPages);
       return;
     }
     int skip = (page - 1) * AMOUNT_PER_PAGE;
@@ -179,8 +175,6 @@ public record ArenaCommand(Commander commander) implements GaiaCommand {
         } else {
           user.sendMessage(Message.REVERT_ERROR_UNKNOWN.build(arena.displayName()));
         }
-      } else if (e instanceof CancellationException) {
-        user.sendMessage(Message.CANCEL_SUCCESS.build(arena.displayName()));
       } else {
         commander().logger().error(e.getMessage(), e);
       }
@@ -189,14 +183,6 @@ public record ArenaCommand(Commander commander) implements GaiaCommand {
 
   private boolean hasBypass(GaiaUser user) {
     return user.get(PermissionChecker.POINTER).map(c -> c.test(CommandPermissions.BYPASS.toString())).orElse(false);
-  }
-
-  private void onCancel(GaiaUser user, Arena arena) {
-    if (arena.reverting()) {
-      user.parent().arenaService().cancelRevert(arena);
-    } else {
-      Message.CANCEL_FAIL.send(user, arena.displayName());
-    }
   }
 
   private static Component generatePaging(boolean forward, int page) {

@@ -19,11 +19,11 @@
 
 package me.moros.gaia.api.arena;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -50,7 +50,7 @@ final class ArenaImpl implements Arena {
     this.region = region;
     this.infoSupplier = Suppliers.lazy(() -> ComponentUtil.generateInfo(this));
     this.chunkRegions = List.copyOf(chunkRegions);
-    this.points = new ArrayList<>();
+    this.points = new CopyOnWriteArrayList<>();
     this.lastRevert = new AtomicLong();
   }
 
@@ -88,13 +88,13 @@ final class ArenaImpl implements Arena {
   public void addPoint(Point point) {
     Objects.requireNonNull(point);
     if (region.contains(point)) {
-      this.points.add(point);
+      points.add(point);
     }
   }
 
   @Override
   public void clearPoints() {
-    this.points.clear();
+    points.clear();
   }
 
   @Override

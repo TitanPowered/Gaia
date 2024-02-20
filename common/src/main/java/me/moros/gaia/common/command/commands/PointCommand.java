@@ -22,39 +22,42 @@ package me.moros.gaia.common.command.commands;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import cloud.commandframework.arguments.standard.IntegerArgument;
-import cloud.commandframework.meta.CommandMeta;
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.Point;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.common.command.CommandPermissions;
 import me.moros.gaia.common.command.Commander;
 import me.moros.gaia.common.command.GaiaCommand;
-import me.moros.gaia.common.command.argument.ArenaArgument;
+import me.moros.gaia.common.command.parser.ArenaParser;
 import me.moros.gaia.common.locale.Message;
+import org.incendo.cloud.component.DefaultValue;
+import org.incendo.cloud.minecraft.extras.RichDescription;
+import org.incendo.cloud.parser.standard.IntegerParser;
 
 public record PointCommand(Commander commander) implements GaiaCommand {
   @Override
   public void register() {
-    var arenaArg = ArenaArgument.builder("arena").asOptionalWithDefault("cur");
     var builder = commander().rootBuilder();
-    commander().register(builder.literal("addpoint", "add", "a")
-      .meta(CommandMeta.DESCRIPTION, "Add a new point")
+    commander().register(builder
+      .literal("addpoint")
+      .commandDescription(RichDescription.of(Message.POINT_ADD_CMD_DESC.build()))
       .permission(CommandPermissions.POINT)
-      .handler(c -> onPointAdd(c.getSender()))
+      .handler(c -> onPointAdd(c.sender()))
     );
-    commander().register(builder.literal("clearpoints", "clearpoint", "clear")
-      .meta(CommandMeta.DESCRIPTION, "Clear all points for the specified arena")
+    commander().register(builder
+      .literal("clearpoints")
+      .optional("arena", ArenaParser.parser(), DefaultValue.parsed("cur"))
+      .commandDescription(RichDescription.of(Message.POINT_CLEAR_CMD_DESC.build()))
       .permission(CommandPermissions.POINT)
-      .argument(arenaArg.build())
-      .handler(c -> onPointClear(c.getSender(), c.get("arena")))
+      .handler(c -> onPointClear(c.sender(), c.get("arena")))
     );
-    commander().register(builder.literal("teleport", "tp")
-      .meta(CommandMeta.DESCRIPTION, "Teleport to a point in the specified arena")
+    commander().register(builder
+      .literal("teleport")
+      .optional("arena", ArenaParser.parser(), DefaultValue.parsed("cur"))
+      .optional("id", IntegerParser.integerParser(1), DefaultValue.constant(0))
+      .commandDescription(RichDescription.of(Message.POINT_TELEPORT_CMD_DESC.build()))
       .permission(CommandPermissions.TELEPORT)
-      .argument(arenaArg.build())
-      .argument(IntegerArgument.optional("id", 0))
-      .handler(c -> onPointTeleport(c.getSender(), c.get("arena"), c.get("id")))
+      .handler(c -> onPointTeleport(c.sender(), c.get("arena"), c.get("id")))
     );
   }
 
@@ -79,13 +82,13 @@ public record PointCommand(Commander commander) implements GaiaCommand {
     user.parent().storage().saveArena(arena).thenRun(() -> Message.CLEAR_POINTS.send(user, arena.displayName()));
   }
 
-  private void onPointTeleport(GaiaUser user, Arena arena, Integer id) {
+  private void onPointTeleport(GaiaUser user, Arena arena, int id) {
     List<Point> points = arena.points();
     if (points.isEmpty()) {
       Message.NO_POINTS.send(user, arena.displayName());
       return;
     }
-    if (id < 0 || id > points.size()) {
+    if (id > points.size()) {
       Message.INVALID_POINT.send(user);
       return;
     }

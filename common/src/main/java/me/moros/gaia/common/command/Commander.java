@@ -19,20 +19,20 @@
 
 package me.moros.gaia.common.command;
 
-import cloud.commandframework.Command.Builder;
-import cloud.commandframework.CommandManager;
 import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.platform.GaiaUser;
+import org.incendo.cloud.Command;
+import org.incendo.cloud.CommandManager;
 import org.slf4j.Logger;
 
 public interface Commander {
   CommandManager<GaiaUser> manager();
 
-  Builder<GaiaUser> rootBuilder();
+  Command.Builder<GaiaUser> rootBuilder();
 
   Logger logger();
 
-  void register(Builder<GaiaUser> builder);
+  void register(Command.Builder<GaiaUser> builder);
 
   static Commander create(CommandManager<GaiaUser> manager, Gaia plugin, Logger logger) {
     return new CommanderImpl(manager, plugin, logger).init();

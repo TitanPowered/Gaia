@@ -19,7 +19,6 @@
 
 package me.moros.gaia.common.command.commands;
 
-import cloud.commandframework.meta.CommandMeta;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.common.command.CommandPermissions;
 import me.moros.gaia.common.command.Commander;
@@ -29,15 +28,16 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.incendo.cloud.minecraft.extras.RichDescription;
 
 public record VersionCommand(Commander commander) implements GaiaCommand {
   @Override
   public void register() {
-    var builder = commander().rootBuilder();
-    commander().register(builder.literal("version", "v")
-      .meta(CommandMeta.DESCRIPTION, "View version info about the plugin")
+    commander().register(commander().rootBuilder()
+      .literal("version")
+      .commandDescription(RichDescription.of(Message.VERSION_CMD_DESC.build()))
       .permission(CommandPermissions.VERSION)
-      .handler(c -> onVersion(c.getSender()))
+      .handler(c -> onVersion(c.sender()))
     );
   }
 

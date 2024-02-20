@@ -21,9 +21,6 @@ package me.moros.gaia.fabric;
 
 import java.nio.file.Path;
 
-import cloud.commandframework.CommandManager;
-import cloud.commandframework.execution.CommandExecutionCoordinator;
-import cloud.commandframework.fabric.FabricServerCommandManager;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.api.service.LevelService;
 import me.moros.gaia.api.service.SelectionService;
@@ -44,6 +41,10 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.server.MinecraftServer;
+import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.fabric.FabricServerCommandManager;
 import org.slf4j.LoggerFactory;
 
 public class FabricGaia extends AbstractGaia<ModContainer> {
@@ -53,9 +54,8 @@ public class FabricGaia extends AbstractGaia<ModContainer> {
     super(container, path, LoggerFactory.getLogger(container.getMetadata().getName()));
     registerLifecycleListeners();
     CommandManager<GaiaUser> manager = new FabricServerCommandManager<>(
-      CommandExecutionCoordinator.simpleCoordinator(),
-      s -> FabricGaiaUser.from(api(), s),
-      s -> ((FabricGaiaUser) s).handle()
+      ExecutionCoordinator.simpleCoordinator(),
+      SenderMapper.create(s -> FabricGaiaUser.from(api(), s), s -> ((FabricGaiaUser) s).handle())
     );
     commander = Commander.create(manager, api(), logger());
   }

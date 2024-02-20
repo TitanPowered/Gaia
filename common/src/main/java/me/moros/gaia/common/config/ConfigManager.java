@@ -37,23 +37,22 @@ public final class ConfigManager {
 
   private final Config defaultConfig;
 
-  private final Logger logger;
-  private final WatchServiceListener listener;
   private final ConfigurationReference<CommentedConfigurationNode> reference;
   private final ValueReference<Config, CommentedConfigurationNode> configReference;
 
-  private ConfigManager(Logger logger, Path directory) {
-    this.logger = logger;
+  public ConfigManager(Logger logger, Path directory, WatchServiceListener listener) throws IOException {
     this.defaultConfig = new Config();
+
     Path path = directory.resolve("gaia.conf");
-    try {
-      Files.createDirectories(path.getParent());
-      listener = WatchServiceListener.create();
-      reference = listener.listenToConfiguration(f -> HoconConfigurationLoader.builder().path(f).build(), path);
-      configReference = reference.referenceTo(Config.class, NodePath.path(), defaultConfig);
-      reference.save();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    Files.createDirectories(path.getParent());
+
+    this.reference = listener.listenToConfiguration(f -> HoconConfigurationLoader.builder().path(f).build(), path);
+    this.reference.errors().subscribe(e -> logger.warn(e.getValue().getMessage(), e.getValue()));
+    this.configReference = reference.referenceTo(Config.class, NodePath.path(), defaultConfig);
+    this.reference.save();
+
+    if (INSTANCE == null) {
+      INSTANCE = this;
     }
   }
 
@@ -62,12 +61,7 @@ public final class ConfigManager {
   }
 
   public void close() {
-    try {
-      reference.close();
-      listener.close();
-    } catch (IOException e) {
-      logger.warn(e.getMessage(), e);
-    }
+    reference.close();
   }
 
   public Config config() {
@@ -77,21 +71,5 @@ public final class ConfigManager {
 
   public static ConfigManager instance() {
     return INSTANCE;
-  }
-
-  private static final Object LOCK = new Object();
-
-  public static ConfigManager createInstance(Logger logger, Path directory) {
-    ConfigManager result = INSTANCE;
-    if (result == null) {
-      synchronized (LOCK) {
-        result = INSTANCE;
-        if (result == null) {
-          result = new ConfigManager(logger, directory);
-          INSTANCE = result;
-        }
-      }
-    }
-    return result;
   }
 }

@@ -17,17 +17,14 @@ tasks {
         from("$rootDir/LICENSE") {
             rename { "${rootProject.name.uppercase()}_${it}" }
         }
-        val excluded = setOf("checker-qual", "error_prone_annotations", "geantyref", "slf4j-api")
         dependencies {
             reloc("org.bstats", "bstats")
             reloc("net.kyori.event", "eventbus")
             reloc("org.enginehub.linbus", "linbus")
-            reloc("cloud.commandframework", "cloudframework")
+            reloc("org.incendo.cloud", "cloud")
             reloc("com.typesafe", "typesafe")
             reloc("org.spongepowered.configurate", "configurate")
-            exclude {
-                excluded.contains(it.moduleName)
-            }
+            exclude { it.moduleName.contains("geantyref") }
         }
     }
     val copyJar = register("copyJar", CopyFile::class) {

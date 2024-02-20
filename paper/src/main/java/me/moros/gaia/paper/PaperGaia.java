@@ -22,9 +22,6 @@ package me.moros.gaia.paper;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
-import cloud.commandframework.execution.CommandExecutionCoordinator;
-import cloud.commandframework.paper.PaperCommandManager;
-import cloud.commandframework.permission.CommandPermission;
 import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.api.service.LevelService;
@@ -47,6 +44,9 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.ServicePriority;
+import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.paper.PaperCommandManager;
 import org.slf4j.Logger;
 
 public class PaperGaia extends AbstractGaia<GaiaBootstrap> {
@@ -66,18 +66,13 @@ public class PaperGaia extends AbstractGaia<GaiaBootstrap> {
     bindSelectionService();
     load();
 
-    try {
-      PaperCommandManager<GaiaUser> manager = new PaperCommandManager<>(parent,
-        CommandExecutionCoordinator.simpleCoordinator(),
-        c -> BukkitGaiaUser.from(api(), c),
-        u -> ((BukkitGaiaUser) u).handle()
-      );
-      manager.registerAsynchronousCompletions();
-      initPermissions();
-      commander = Commander.create(manager, api(), logger());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    PaperCommandManager<GaiaUser> manager = new PaperCommandManager<>(parent,
+      ExecutionCoordinator.simpleCoordinator(),
+      SenderMapper.create(c -> BukkitGaiaUser.from(api(), c), u -> ((BukkitGaiaUser) u).handle())
+    );
+    manager.registerBrigadier();
+    commander = Commander.create(manager, api(), logger());
+    initPermissions();
     parent.getServer().getServicesManager().register(Gaia.class, api(), parent, ServicePriority.Normal);
   }
 
@@ -94,7 +89,8 @@ public class PaperGaia extends AbstractGaia<GaiaBootstrap> {
   }
 
   private void initPermissions() {
-    var adminPerms = CommandPermissions.adminOnly().collect(Collectors.toMap(CommandPermission::toString, p -> true));
+    var adminPerms = CommandPermissions.adminOnly()
+      .collect(Collectors.toMap(org.incendo.cloud.permission.Permission::permissionString, p -> true));
     parent.getServer().getPluginManager().addPermission(new Permission(CommandPermissions.VERSION.toString(), PermissionDefault.TRUE));
     parent.getServer().getPluginManager().addPermission(new Permission("gaia.admin", PermissionDefault.OP, adminPerms));
   }
