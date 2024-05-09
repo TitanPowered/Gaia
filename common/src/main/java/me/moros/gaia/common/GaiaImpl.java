@@ -30,7 +30,6 @@ import me.moros.gaia.api.service.SelectionService;
 import me.moros.gaia.api.service.UserService;
 import me.moros.gaia.api.storage.Storage;
 import me.moros.gaia.api.util.PluginInfo;
-import me.moros.gaia.common.config.ConfigManager;
 import me.moros.gaia.common.event.EventBusImpl;
 import me.moros.gaia.common.service.ArenaServiceImpl;
 import me.moros.gaia.common.service.OperationServiceImpl;
@@ -53,11 +52,12 @@ final class GaiaImpl implements Gaia {
 
   GaiaImpl(AbstractGaia<?> plugin, GaiaFactory factory) {
     this.info = factory.build(PluginInfo.class);
-    var threads = calculateThreads(ConfigManager.instance().config().backgroundThreads());
-    var pool = Executors.newScheduledThreadPool(threads);
-    this.executor = CompositeExecutor.of(factory.build(SyncExecutor.class), new SimpleAsyncExecutor(pool));
+    this.executor = CompositeExecutor.of(
+      factory.build(SyncExecutor.class),
+      new SimpleAsyncExecutor(Executors.newVirtualThreadPerTaskExecutor())
+    );
     this.storage = FileStorage.createInstance(executor.async(), plugin.logger(), plugin.path());
-    this.eventBus = new EventBusImpl();
+    this.eventBus = new EventBusImpl(plugin.logger());
     this.userService = factory.build(UserService.class);
     this.selectionService = factory.build(SelectionService.class);
     this.levelService = factory.build(LevelService.class);
@@ -110,12 +110,5 @@ final class GaiaImpl implements Gaia {
     operationService.shutdown();
     eventBus.shutdown();
     executor.shutdown();
-  }
-
-  private int calculateThreads(int threads) {
-    if (threads < 1) {
-      threads = Runtime.getRuntime().availableProcessors() / 2;
-    }
-    return Math.max(1, threads);
   }
 }

@@ -17,15 +17,16 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.gaia.fabric.mixin.accessor;
+package me.moros.gaia.common.event;
 
-import net.minecraft.commands.CommandSource;
-import net.minecraft.commands.CommandSourceStack;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import com.seiama.event.EventSubscription;
+import com.seiama.event.bus.EventBus;
+import com.seiama.event.bus.EventBus.EventExceptionHandler;
+import org.slf4j.Logger;
 
-@Mixin(CommandSourceStack.class)
-public interface CommandSourceStackAccess {
-  @Accessor("source")
-  CommandSource gaia$source();
+record EventExceptionHandlerImpl(Logger logger) implements EventExceptionHandler {
+  @Override
+  public <E> void eventExceptionCaught(EventBus<? super E> bus, EventSubscription<? super E> subscription, E event, Throwable throwable) {
+    logger.warn("Exception posting event %s to subscriber %s".formatted(event, subscription.subscriber()), throwable);
+  }
 }

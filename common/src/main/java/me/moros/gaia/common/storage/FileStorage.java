@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.Semaphore;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.zip.CRC32C;
@@ -69,11 +70,13 @@ public final class FileStorage implements Storage {
   private final AsyncExecutor executor;
   private final Logger logger;
   private final Path container;
+  private final Semaphore semaphore;
 
   private FileStorage(AsyncExecutor executor, Logger logger, Path container) {
     this.executor = executor;
     this.logger = logger;
     this.container = container;
+    this.semaphore = new Semaphore(Math.max(Runtime.getRuntime().availableProcessors(), 2));
   }
 
   public static Storage createInstance(AsyncExecutor executor, Logger logger, Path path) {
@@ -169,6 +172,7 @@ public final class FileStorage implements Storage {
   private Snapshot loadData(String name, ChunkRegion.Validated chunkRegion) throws IOException {
     var checksum = ALGORITHM.get();
     var path = chunkPath(name, chunkRegion);
+    semaphore.acquireUninterruptibly();
     try (var fis = Files.newInputStream(path);
          var cis = new CheckedInputStream(fis, checksum);
          var bis = new BufferedInputStream(cis);
@@ -178,6 +182,8 @@ public final class FileStorage implements Storage {
       var data = reader.read(chunkRegion);
       validateChecksum(path, chunkRegion.checksum(), checksum.getValue());
       return data;
+    } finally {
+      semaphore.release();
     }
   }
 

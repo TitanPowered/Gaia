@@ -23,7 +23,7 @@ loom {
 tasks {
     named<Copy>("processResources") {
         filesMatching("fabric.mod.json") {
-            expand("pluginVersion" to project.version)
+            expand(mapOf("version" to project.version, "mcVersion" to libs.versions.minecraft.get()))
         }
     }
     remapJar {

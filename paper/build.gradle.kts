@@ -21,7 +21,7 @@ dependencies {
 tasks {
     named<Copy>("processResources") {
         filesMatching("*plugin.yml") {
-            expand("pluginVersion" to project.version)
+            expand("version" to project.version)
         }
     }
 }

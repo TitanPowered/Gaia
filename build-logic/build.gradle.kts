@@ -12,3 +12,7 @@ dependencies {
     implementation(libs.vanilla)
     implementation(libs.checker)
 }
+
+kotlin {
+    jvmToolchain(21)
+}

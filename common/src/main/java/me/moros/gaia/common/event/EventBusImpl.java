@@ -21,6 +21,11 @@ package me.moros.gaia.common.event;
 
 import java.util.function.Consumer;
 
+import com.seiama.event.Cancellable;
+import com.seiama.event.EventConfig;
+import com.seiama.event.bus.SimpleEventBus;
+import com.seiama.event.registry.EventRegistry;
+import com.seiama.event.registry.SimpleEventRegistry;
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.event.ArenaAnalyzeEvent;
@@ -30,25 +35,29 @@ import me.moros.gaia.api.event.ChunkRevertEvent;
 import me.moros.gaia.api.event.EventBus;
 import me.moros.gaia.api.event.GaiaEvent;
 import net.kyori.adventure.key.Key;
+import org.slf4j.Logger;
 
 public class EventBusImpl implements EventBus {
-  private final net.kyori.event.EventBus<GaiaEvent> eventBus;
+  private final EventRegistry<GaiaEvent> eventRegistry;
+  private final com.seiama.event.bus.EventBus<GaiaEvent> eventBus;
   private boolean closed = false;
 
-  public EventBusImpl() {
-    this.eventBus = net.kyori.event.EventBus.create(GaiaEvent.class);
+  public EventBusImpl(Logger logger) {
+    this.eventRegistry = new SimpleEventRegistry<>(GaiaEvent.class);
+    this.eventBus = new SimpleEventBus<>(eventRegistry, new EventExceptionHandlerImpl(logger));
   }
 
   @Override
   public void shutdown() {
-    this.eventBus.unsubscribeIf(x -> true);
+    this.eventRegistry.unsubscribeIf(x -> true);
     this.closed = true;
   }
 
   @Override
   public <T extends GaiaEvent> void subscribe(Class<T> event, Consumer<? super T> subscriber, int priority) {
     if (!closed) {
-      eventBus.subscribe(event, new EventSubscriberImpl<>(subscriber, priority));
+      var eventConfig = EventConfig.of(priority, false, false);
+      eventRegistry.subscribe(event, eventConfig, new EventSubscriberImpl<>(subscriber));
     }
   }
 
@@ -57,7 +66,8 @@ public class EventBusImpl implements EventBus {
     if (closed) {
       throw new IllegalStateException("Eventbus has been terminated, cannot post new events!");
     }
-    return eventBus.post(event).wasSuccessful();
+    eventBus.post(event);
+    return !(event instanceof Cancellable c) || !c.cancelled();
   }
 
   private <T extends GaiaEvent> T postAndReturn(T event) {

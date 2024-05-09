@@ -34,20 +34,17 @@ public record Config(
   int concurrentChunks,
   @Comment("The maximum amount of chunk sections that will be restored every tick per chunk")
   int sectionsPerTick,
-  @Comment("The number of threads Gaia can use for asynchronous tasks such as IO")
-  int backgroundThreads,
   @Comment("Light fixer can optionally queue light recalculations for reverted chunks/arenas in a 2nd pass. Available options: DISABLED, POST-CHUNK, POST-ARENA")
   LightFixer lightFixer) {
-  public Config(long timeout, long cooldown, int concurrentChunks, int sectionsPerTick, int backgroundThreads, @Nullable LightFixer lightFixer) {
+  public Config(long timeout, long cooldown, int concurrentChunks, int sectionsPerTick, @Nullable LightFixer lightFixer) {
     this.timeout = timeout > 0 ? timeout : 30_000;
     this.cooldown = cooldown > 0 ? cooldown : 5000;
     this.concurrentChunks = concurrentChunks > 0 ? concurrentChunks : 16;
     this.sectionsPerTick = sectionsPerTick > 0 ? sectionsPerTick : 24;
-    this.backgroundThreads = backgroundThreads;
     this.lightFixer = lightFixer == null ? LightFixer.POST_ARENA : lightFixer;
   }
 
   Config() {
-    this(30_000, 5000, 16, 24, 0, LightFixer.POST_ARENA);
+    this(30_000, 5000, 16, 24, LightFixer.POST_ARENA);
   }
 }

@@ -31,7 +31,6 @@ import me.moros.gaia.api.operation.GaiaOperation;
 import me.moros.gaia.api.operation.GaiaOperation.Result;
 import me.moros.gaia.api.platform.Level;
 import me.moros.gaia.api.service.OperationService;
-import me.moros.gaia.common.config.Config;
 import me.moros.gaia.common.config.ConfigManager;
 import me.moros.tasker.executor.SyncExecutor;
 
@@ -40,21 +39,23 @@ public final class OperationServiceImpl implements OperationService {
   private final Queue<GaiaOperation.ChunkOperation<?>> queue;
 
   private final AtomicBoolean updatedConfig;
-  private Config configSnapshot;
+  private int concurrentChunks;
   private boolean valid;
 
   public OperationServiceImpl(Gaia plugin, SyncExecutor syncExecutor) {
     this.plugin = plugin;
     this.queue = new ConcurrentLinkedQueue<>();
-    this.updatedConfig = new AtomicBoolean();
-    refreshConfig();
+    this.updatedConfig = new AtomicBoolean(true);
+    tryRefreshLimits();
     ConfigManager.instance().subscribe(n -> updatedConfig.set(true));
     syncExecutor.repeat(this::processTasks, 1, 1);
     this.valid = true;
   }
 
-  private void refreshConfig() {
-    configSnapshot = ConfigManager.instance().config();
+  private void tryRefreshLimits() {
+    if (updatedConfig.compareAndSet(true, false)) {
+      concurrentChunks = ConfigManager.instance().config().concurrentChunks();
+    }
   }
 
   private void processTasks() {
@@ -62,15 +63,13 @@ public final class OperationServiceImpl implements OperationService {
       return;
     }
     if (queue.isEmpty()) {
-      if (updatedConfig.compareAndSet(true, false)) {
-        refreshConfig();
-      }
+      tryRefreshLimits();
       return;
     }
     long startTime = System.currentTimeMillis();
     var it = queue.iterator();
     int counter = 0;
-    while (counter < configSnapshot.concurrentChunks() && it.hasNext()) {
+    while (counter < concurrentChunks && it.hasNext()) {
       var operation = it.next();
       Result result = operation.update();
       if (result == Result.REMOVE) {

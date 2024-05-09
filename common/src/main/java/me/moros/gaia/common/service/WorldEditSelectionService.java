@@ -46,8 +46,8 @@ public abstract class WorldEditSelectionService implements SelectionService {
         try {
           selectedRegion = session.getSelection(player.getWorld());
           if (selectedRegion instanceof CuboidRegion cr) {
-            var min = Vector3i.of(cr.getMinimumPoint().getX(), cr.getMinimumPoint().getY(), cr.getMinimumPoint().getZ());
-            var max = Vector3i.of(cr.getMaximumPoint().getX(), cr.getMaximumPoint().getY(), cr.getMaximumPoint().getZ());
+            var min = Vector3i.of(cr.getMinimumPoint().x(), cr.getMinimumPoint().y(), cr.getMinimumPoint().z());
+            var max = Vector3i.of(cr.getMaximumPoint().x(), cr.getMaximumPoint().y(), cr.getMaximumPoint().z());
             return Optional.of(Region.of(min, max));
           }
         } catch (IncompleteRegionException ignore) {

@@ -43,14 +43,14 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
       return true;
     }
     if (obj instanceof FabricGaiaUser other) {
-      return ((CommandSourceStackAccess) handle()).source().equals(((CommandSourceStackAccess) other.handle()).source());
+      return ((CommandSourceStackAccess) handle()).gaia$source().equals(((CommandSourceStackAccess) other.handle()).gaia$source());
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return ((CommandSourceStackAccess) handle()).source().hashCode();
+    return ((CommandSourceStackAccess) handle()).gaia$source().hashCode();
   }
 
   public static final class FabricGaiaPlayer extends FabricGaiaUser {
@@ -58,7 +58,7 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
 
     private FabricGaiaPlayer(Gaia plugin, CommandSourceStack stack) {
       super(plugin, stack);
-      this.player = ((ServerPlayer) ((CommandSourceStackAccess) stack).source());
+      this.player = ((ServerPlayer) ((CommandSourceStackAccess) stack).gaia$source());
     }
 
     @Override
@@ -99,7 +99,7 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
   }
 
   public static GaiaUser from(Gaia parent, CommandSourceStack stack) {
-    if (((CommandSourceStackAccess) stack).source() instanceof ServerPlayer) {
+    if (((CommandSourceStackAccess) stack).gaia$source() instanceof ServerPlayer) {
       return new FabricGaiaPlayer(parent, stack);
     }
     return new FabricGaiaUser(parent, stack);

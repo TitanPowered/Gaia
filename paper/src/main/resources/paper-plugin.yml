@@ -1,5 +1,5 @@
 name: Gaia
-version: '${pluginVersion}'
+version: '${version}'
 main: me.moros.gaia.paper.GaiaBootstrap
 author: Moros
 description: Arena management plugin.

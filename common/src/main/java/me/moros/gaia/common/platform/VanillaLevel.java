@@ -21,7 +21,6 @@ package me.moros.gaia.common.platform;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.mojang.datafixers.util.Either;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.chunk.Snapshot;
 import me.moros.gaia.api.platform.Level;
@@ -35,7 +34,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 @SuppressWarnings("resource")
 public abstract class VanillaLevel implements Level {
@@ -100,7 +99,8 @@ public abstract class VanillaLevel implements Level {
   }
 
   protected CompletableFuture<ChunkAccess> loadChunkAsync(int x, int z) {
-    return chunkSource().getChunkFuture(x, z, ChunkStatus.FEATURES, false).thenApply(Either::orThrow);
+    return chunkSource().getChunkFuture(x, z, ChunkStatus.FEATURES, false)
+      .thenApply(result -> result.orElseThrow(IllegalStateException::new));
   }
 
   @Override

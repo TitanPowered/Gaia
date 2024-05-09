@@ -19,7 +19,7 @@ tasks {
         }
         dependencies {
             reloc("org.bstats", "bstats")
-            reloc("net.kyori.event", "eventbus")
+            reloc("com.seiama.event", "eventbus")
             reloc("org.enginehub.linbus", "linbus")
             reloc("org.incendo.cloud", "cloud")
             reloc("com.typesafe", "typesafe")
