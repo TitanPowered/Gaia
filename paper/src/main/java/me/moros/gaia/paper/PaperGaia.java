@@ -46,7 +46,7 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.ServicePriority;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
-import org.incendo.cloud.paper.PaperCommandManager;
+import org.incendo.cloud.paper.LegacyPaperCommandManager;
 import org.slf4j.Logger;
 
 public class PaperGaia extends AbstractGaia<GaiaBootstrap> {
@@ -66,7 +66,7 @@ public class PaperGaia extends AbstractGaia<GaiaBootstrap> {
     bindSelectionService();
     load();
 
-    PaperCommandManager<GaiaUser> manager = new PaperCommandManager<>(parent,
+    LegacyPaperCommandManager<GaiaUser> manager = new LegacyPaperCommandManager<>(parent,
       ExecutionCoordinator.simpleCoordinator(),
       SenderMapper.create(c -> BukkitGaiaUser.from(api(), c), u -> ((BukkitGaiaUser) u).handle())
     );

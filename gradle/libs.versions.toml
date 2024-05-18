@@ -63,7 +63,7 @@ configurate = ["configurate-hocon", "configurate-gson"]
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
-userdev = { id = "io.papermc.paperweight.userdev", version = "1.7.0" }
+userdev = { id = "io.papermc.paperweight.userdev", version = "1.7.1" }
 runpaper = { id = "xyz.jpenilla.run-paper", version = "2.3.0" }
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 vanilla = { id = "org.spongepowered.gradle.vanilla", version.ref = "vanilla-gradle" }
