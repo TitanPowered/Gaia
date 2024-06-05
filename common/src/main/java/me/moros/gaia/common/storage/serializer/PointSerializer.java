@@ -23,7 +23,6 @@ import java.lang.reflect.Type;
 
 import me.moros.gaia.api.arena.Point;
 import me.moros.gaia.api.util.ChunkUtil;
-import me.moros.math.FastMath;
 import me.moros.math.Vector3d;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -71,6 +70,6 @@ final class PointSerializer implements TypeSerializer<Point> {
   }
 
   private static float normalizePitch(float pitch) {
-    return FastMath.clamp(pitch, -90, 90);
+    return Math.clamp(pitch, -90, 90);
   }
 }
