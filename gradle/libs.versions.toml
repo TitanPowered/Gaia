@@ -4,16 +4,16 @@ math = "3.0.0"
 junit = "5.10.1"
 shadow = "8.1.1"
 adventure = "4.17.0"
-adventure-fabric = "5.13.0"
+adventure-fabric = "5.14.0-SNAPSHOT"
 configurate = "4.2.0-SNAPSHOT"
 cloud = "2.0.0-SNAPSHOT"
 worldedit = "7.3.3"
-paper = "1.20.6-R0.1-SNAPSHOT"
-minecraft = "1.20.6"
-fabric-loom = "1.6.12"
-fabric-api = "0.99.4+1.20.6"
-fabric-loader = "0.15.10"
-vanilla-gradle = "0.2.1-SNAPSHOT"
+paper = "1.21-R0.1-SNAPSHOT"
+minecraft = "1.21"
+fabric-loom = "1.7.1"
+fabric-api = "0.100.3+1.21"
+fabric-loader = "0.15.11"
+vanilla-gradle = "0.2.1-20240507.024226-82"
 
 [libraries]
 tasker-core = { module = "me.moros:tasker-core", version.ref = "tasker" }
@@ -54,7 +54,7 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 # Plugins for build-logic
 shadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow" }
 vanilla = { module = "org.spongepowered:vanillagradle", version.ref = "vanilla-gradle" }
-checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.39" }
+checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.40" }
 
 [bundles]
 junit = ["junit-api", "junit-engine"]

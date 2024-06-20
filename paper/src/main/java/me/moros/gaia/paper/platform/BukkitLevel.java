@@ -72,13 +72,13 @@ public final class BukkitLevel extends VanillaLevel {
     ServerChunkCache chunkSource = chunkSource();
     Set<ChunkPos> chunkSet = positions.stream().map(gc -> new ChunkPos(gc.x(), gc.z()))
       .filter(v -> filter(chunkSource, v)).collect(Collectors.toCollection(LinkedHashSet::new));
-    chunkSource.getLightEngine().relight(chunkSet, c -> {
+    chunkSource.getLightEngine().starlight$serverRelightChunks(chunkSet, c -> {
     }, i -> {
     });
   }
 
   private boolean filter(ServerChunkCache chunkSource, ChunkPos pos) {
     ChunkAccess chunk = (ChunkAccess) chunkSource.getChunkForLighting(pos.x, pos.z);
-    return chunk != null && chunk.isLightCorrect() && chunk.getStatus().isOrAfter(ChunkStatus.LIGHT);
+    return chunk != null && chunk.isLightCorrect() && chunk.getPersistedStatus().isOrAfter(ChunkStatus.LIGHT);
   }
 }
