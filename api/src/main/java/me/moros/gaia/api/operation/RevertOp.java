@@ -35,7 +35,9 @@ final class RevertOp extends AbstractOp.LevelChunkOp<Void> implements GaiaOperat
   RevertOp(Level level, Snapshot snapshot, int sectionsPerTick) {
     super(level, snapshot.chunk());
     this.snapshot = snapshot;
-    this.amount = Math.clamp(sectionsPerTick, 16, snapshot.sections()) * ChunkUtil.CHUNK_SECTION_VOLUME;
+    int min = Math.min(16, snapshot.sections());
+    int max = Math.max(16, snapshot.sections());
+    this.amount = Math.clamp(sectionsPerTick, min, max) * ChunkUtil.CHUNK_SECTION_VOLUME;
     if (chunk() instanceof Reversible.Mutable reversibleChunk) {
       reversible = reversibleChunk;
       this.future.whenComplete((ignore, throwable) -> reversibleChunk.reverting(false));

@@ -19,7 +19,6 @@
 
 package me.moros.gaia.api.arena;
 
-import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 
 import net.kyori.adventure.text.Component;
@@ -27,9 +26,9 @@ import net.kyori.adventure.text.Component;
 public sealed interface RevertResult permits RevertResultImpl {
   Component message();
 
-  CompletableFuture<OptionalLong> future();
+  CompletableFuture<Long> future();
 
-  static RevertResult success(Component message, CompletableFuture<OptionalLong> future) {
+  static RevertResult success(Component message, CompletableFuture<Long> future) {
     return new RevertResultImpl(message, future);
   }
 

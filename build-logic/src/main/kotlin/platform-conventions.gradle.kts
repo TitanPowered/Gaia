@@ -15,7 +15,7 @@ tasks {
         archiveClassifier.set("")
         archiveBaseName.set(project.name)
         from("$rootDir/LICENSE") {
-            rename { "${rootProject.name.uppercase()}_${it}" }
+            rename { "META-INF/${it}_${rootProject.name.uppercase()}" }
         }
         dependencies {
             reloc("org.bstats", "bstats")

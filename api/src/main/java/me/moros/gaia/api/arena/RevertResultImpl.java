@@ -19,13 +19,12 @@
 
 package me.moros.gaia.api.arena;
 
-import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 
 import net.kyori.adventure.text.Component;
 
-record RevertResultImpl(Component message, CompletableFuture<OptionalLong> future) implements RevertResult {
+record RevertResultImpl(Component message, CompletableFuture<Long> future) implements RevertResult {
   RevertResultImpl(Component message) {
-    this(message, CompletableFuture.completedFuture(OptionalLong.empty()));
+    this(message, CompletableFuture.completedFuture(null));
   }
 }

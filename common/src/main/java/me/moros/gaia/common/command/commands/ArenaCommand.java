@@ -170,12 +170,9 @@ public record ArenaCommand(Commander commander) implements GaiaCommand {
     user.sendMessage(revertResult.message());
     revertResult.future().whenComplete((result, e) -> {
       if (e == null) {
-        if (result.isPresent()) {
-          user.sendMessage(Message.FINISHED_REVERT.build(arena.displayName(), result.getAsLong()));
-        } else {
-          user.sendMessage(Message.REVERT_ERROR_UNKNOWN.build(arena.displayName()));
-        }
+        user.sendMessage(Message.FINISHED_REVERT.build(arena.displayName(), result));
       } else {
+        user.sendMessage(Message.REVERT_ERROR_UNKNOWN.build(arena.displayName()));
         commander().logger().error(e.getMessage(), e);
       }
     });

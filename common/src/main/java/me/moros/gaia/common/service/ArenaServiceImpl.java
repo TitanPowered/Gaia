@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalLong;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -120,10 +120,13 @@ public class ArenaServiceImpl implements ArenaService {
         return FutureUtil.createFailFast(opFutures);
       })
       .handle((ignored, throwable) -> {
-        boolean completed = throwable == null;
+        boolean completed = throwable != null;
         long result = System.currentTimeMillis() - startTime;
         plugin.eventBus().postArenaRevertEvent(arena, result, completed);
-        return completed ? OptionalLong.of(result) : OptionalLong.empty();
+        if (throwable != null) {
+          throw new CompletionException(throwable);
+        }
+        return result;
       });
     return RevertResult.success(Message.REVERT_SUCCESS.build(arena.displayName()), future);
   }

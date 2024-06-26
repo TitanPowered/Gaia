@@ -7,11 +7,11 @@ adventure = "4.17.0"
 adventure-fabric = "5.14.0-SNAPSHOT"
 configurate = "4.2.0-SNAPSHOT"
 cloud = "2.0.0-SNAPSHOT"
-worldedit = "7.3.3"
+worldedit = "7.4.0-SNAPSHOT"
 paper = "1.21-R0.1-SNAPSHOT"
 minecraft = "1.21"
 fabric-loom = "1.7.1"
-fabric-api = "0.100.3+1.21"
+fabric-api = "0.100.4+1.21"
 fabric-loader = "0.15.11"
 vanilla-gradle = "0.2.1-20240507.024226-82"
 
@@ -39,7 +39,7 @@ eventbus = { module = "com.seiama:event-api", version = "1.0.0-SNAPSHOT" }
 linbus = { module = "org.enginehub.lin-bus:lin-bus-tree", version = "0.1.0-SNAPSHOT" }
 worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = "worldedit" }
 worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.ref = "worldedit" }
-worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.20.6", version.ref = "worldedit" }
+worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.21", version.ref = "worldedit" }
 
 paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.0.2" }
