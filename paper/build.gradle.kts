@@ -19,6 +19,11 @@ dependencies {
 }
 
 tasks {
+    shadowJar {
+        dependencies {
+            reloc("org.incendo.cloud", "cloud")
+        }
+    }
     named<Copy>("processResources") {
         filesMatching("*plugin.yml") {
             expand("version" to project.version)

@@ -21,7 +21,6 @@ tasks {
             reloc("org.bstats", "bstats")
             reloc("com.seiama.event", "eventbus")
             reloc("org.enginehub.linbus", "linbus")
-            reloc("org.incendo.cloud", "cloud")
             reloc("com.typesafe", "typesafe")
             reloc("org.spongepowered.configurate", "configurate")
             exclude { it.moduleName.contains("geantyref") }
