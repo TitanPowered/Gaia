@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import me.moros.gaia.api.Gaia;
 import me.moros.gaia.common.config.ConfigManager;
 import me.moros.gaia.common.locale.TranslationManager;
+import me.moros.gaia.common.util.GaiaProviderUtil;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 
@@ -64,9 +65,11 @@ public abstract class AbstractGaia<T> {
       int size = gaia.arenaService().size();
       logger.info(String.format("Successfully loaded %d %s (%dms)", size, (size == 1 ? "arena" : "arenas"), delta));
     });
+    GaiaProviderUtil.registerProvider(gaia);
   }
 
   protected void disable() {
+    GaiaProviderUtil.unregisterProvider();
     configManager.close();
     try {
       listener.close();
