@@ -2,17 +2,17 @@
 tasker = "1.2.0"
 math = "3.0.0"
 junit = "5.10.3"
-shadow = "8.1.1"
+shadow = "8.3.0"
 adventure = "4.17.0"
 adventure-fabric = "5.14.1"
 configurate = "4.2.0-SNAPSHOT"
 cloud = "2.0.0-SNAPSHOT"
 worldedit = "7.4.0-SNAPSHOT"
-paper = "1.21-R0.1-SNAPSHOT"
-minecraft = "1.21"
-fabric-loom = "1.7.3"
-fabric-api = "0.100.8+1.21"
-fabric-loader = "0.15.11"
+paper = "1.21.1-R0.1-SNAPSHOT"
+minecraft = "1.21.1"
+fabric-loom = "1.7.4"
+fabric-api = "0.104.0+1.21.1"
+fabric-loader = "0.16.5"
 vanilla-gradle = "0.2.1-20240507.024226-82"
 
 [libraries]
@@ -42,7 +42,7 @@ worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.re
 worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.21", version.ref = "worldedit" }
 
 paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
-bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.0.2" }
+bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.1.0" }
 
 fabric-minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
@@ -52,9 +52,9 @@ junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jun
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 
 # Plugins for build-logic
-shadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow" }
+shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 vanilla = { module = "org.spongepowered:vanillagradle", version.ref = "vanilla-gradle" }
-checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.43" }
+checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.44" }
 
 [bundles]
 junit = ["junit-api", "junit-engine"]
@@ -62,9 +62,8 @@ cloud = ["cloud-core", "cloud-minecraft"]
 configurate = ["configurate-hocon", "configurate-gson"]
 
 [plugins]
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
-userdev = { id = "io.papermc.paperweight.userdev", version = "1.7.1" }
-runpaper = { id = "xyz.jpenilla.run-paper", version = "2.3.0" }
+userdev = { id = "io.papermc.paperweight.userdev", version = "1.7.2" }
+runpaper = { id = "xyz.jpenilla.run-paper", version = "2.3.1" }
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 vanilla = { id = "org.spongepowered.gradle.vanilla", version.ref = "vanilla-gradle" }
 jmh = { id = "me.champeau.jmh", version = "0.7.2" }
