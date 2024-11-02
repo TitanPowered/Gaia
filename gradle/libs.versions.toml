@@ -2,17 +2,17 @@
 tasker = "1.2.0"
 math = "3.0.0"
 junit = "5.10.3"
-shadow = "8.3.0"
+shadow = "8.3.3"
 adventure = "4.17.0"
-adventure-fabric = "5.14.1"
+adventure-fabric = "6.1.0"
 configurate = "4.2.0-SNAPSHOT"
 cloud = "2.0.0-SNAPSHOT"
 worldedit = "7.4.0-SNAPSHOT"
-paper = "1.21.1-R0.1-SNAPSHOT"
-minecraft = "1.21.1"
-fabric-loom = "1.7.4"
-fabric-api = "0.104.0+1.21.1"
-fabric-loader = "0.16.5"
+paper = "1.21.3-R0.1-SNAPSHOT"
+minecraft = "1.21.3"
+fabric-loom = "1.8.10"
+fabric-api = "0.107.0+1.21.3"
+fabric-loader = "0.16.9"
 vanilla-gradle = "0.2.1-20240507.024226-82"
 
 [libraries]
@@ -54,7 +54,7 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 # Plugins for build-logic
 shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 vanilla = { module = "org.spongepowered:vanillagradle", version.ref = "vanilla-gradle" }
-checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.44" }
+checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.45" }
 
 [bundles]
 junit = ["junit-api", "junit-engine"]
@@ -62,7 +62,7 @@ cloud = ["cloud-core", "cloud-minecraft"]
 configurate = ["configurate-hocon", "configurate-gson"]
 
 [plugins]
-userdev = { id = "io.papermc.paperweight.userdev", version = "1.7.2" }
+userdev = { id = "io.papermc.paperweight.userdev", version = "1.7.3" }
 runpaper = { id = "xyz.jpenilla.run-paper", version = "2.3.1" }
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 vanilla = { id = "org.spongepowered.gradle.vanilla", version.ref = "vanilla-gradle" }

@@ -21,7 +21,6 @@ package me.moros.gaia.fabric.service;
 
 import java.util.UUID;
 
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import me.moros.gaia.common.command.CommandPermissions;
 import me.moros.gaia.common.locale.Message;
 import me.moros.gaia.common.service.AbstractSelectionService;
@@ -30,6 +29,7 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.permission.PermissionChecker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -58,7 +58,9 @@ public final class GaiaSelectionService extends AbstractSelectionService {
       return false;
     }
     if (player instanceof ServerPlayer sp && sp.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
-      return Permissions.check(sp, CommandPermissions.CREATE.toString(), sp.server.getOperatorUserPermissionLevel());
+      return sp.get(PermissionChecker.POINTER)
+        .map(c -> c.test(CommandPermissions.CREATE.toString()))
+        .orElse(false);
     }
     return false;
   }

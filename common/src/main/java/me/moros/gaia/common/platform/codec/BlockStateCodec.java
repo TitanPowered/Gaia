@@ -26,7 +26,6 @@ import java.util.function.Supplier;
 import com.mojang.serialization.Dynamic;
 import me.moros.gaia.api.util.supplier.Suppliers;
 import net.minecraft.SharedConstants;
-import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -112,8 +111,7 @@ final class BlockStateCodec implements SimpleCodec<BlockState> {
       return null;
     } else {
       ResourceLocation rsl = ResourceLocation.tryParse(nbt.getString("Name"));
-      Block block = rsl == null ? null : BuiltInRegistries.BLOCK.asLookup()
-        .get(ResourceKey.create(Registries.BLOCK, rsl)).map(Reference::value).orElse(null);
+      Block block = rsl == null ? null : BuiltInRegistries.BLOCK.getValue(ResourceKey.create(Registries.BLOCK, rsl));
       if (block == null) {
         return null;
       }

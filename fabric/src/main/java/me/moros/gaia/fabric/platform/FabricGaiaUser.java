@@ -20,6 +20,7 @@
 package me.moros.gaia.fabric.platform;
 
 import java.util.Optional;
+import java.util.Set;
 
 import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.arena.Point;
@@ -70,7 +71,7 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
     public void teleport(Key worldKey, Point point) {
       for (ServerLevel level : player.getServer().getAllLevels()) {
         if (worldKey.equals(level.dimension().location())) {
-          player.teleportTo(level, point.x(), point.y(), point.z(), point.yaw(), point.pitch());
+          player.teleportTo(level, point.x(), point.y(), point.z(), Set.of(), point.yaw(), point.pitch(), true);
           return;
         }
       }
