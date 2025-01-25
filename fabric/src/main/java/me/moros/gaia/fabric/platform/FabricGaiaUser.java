@@ -26,8 +26,8 @@ import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.arena.Point;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.common.platform.AbstractUser;
-import me.moros.gaia.fabric.mixin.accessor.CommandSourceStackAccess;
 import me.moros.math.Vector3d;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerLevel;
@@ -39,27 +39,16 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj instanceof FabricGaiaUser other) {
-      return ((CommandSourceStackAccess) handle()).gaia$source().equals(((CommandSourceStackAccess) other.handle()).gaia$source());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    return ((CommandSourceStackAccess) handle()).gaia$source().hashCode();
+  public Audience audience() {
+    return handle();
   }
 
   public static final class FabricGaiaPlayer extends FabricGaiaUser {
     private final ServerPlayer player;
 
-    private FabricGaiaPlayer(Gaia plugin, CommandSourceStack stack) {
+    private FabricGaiaPlayer(Gaia plugin, CommandSourceStack stack, ServerPlayer player) {
       super(plugin, stack);
-      this.player = ((ServerPlayer) ((CommandSourceStackAccess) stack).gaia$source());
+      this.player = player;
     }
 
     @Override
@@ -100,9 +89,7 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
   }
 
   public static GaiaUser from(Gaia parent, CommandSourceStack stack) {
-    if (((CommandSourceStackAccess) stack).gaia$source() instanceof ServerPlayer) {
-      return new FabricGaiaPlayer(parent, stack);
-    }
-    return new FabricGaiaUser(parent, stack);
+    ServerPlayer player = stack.getPlayer();
+    return player != null ? new FabricGaiaPlayer(parent, stack, player) : new FabricGaiaUser(parent, stack);
   }
 }

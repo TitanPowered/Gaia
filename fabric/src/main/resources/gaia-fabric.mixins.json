@@ -3,9 +3,7 @@
   "minVersion": "0.8.5",
   "package": "me.moros.gaia.fabric.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [
-    "accessor.CommandSourceStackAccess"
-  ],
+  "mixins": [],
   "injectors": {
     "defaultRequire": 1
   }

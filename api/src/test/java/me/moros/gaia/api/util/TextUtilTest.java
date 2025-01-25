@@ -27,6 +27,6 @@ class TextUtilTest {
   @Test
   void sanitizeInput() {
     String sanitized = TextUtil.sanitizeInput("abc!\n123");
-    assertEquals(sanitized, "abc123");
+    assertEquals("abc123", sanitized);
   }
 }

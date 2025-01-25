@@ -19,15 +19,10 @@
 
 package me.moros.gaia.common.platform;
 
-import java.util.Optional;
-
 import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.platform.GaiaUser;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.key.Key;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
-public abstract class AbstractUser<V extends Audience> implements GaiaUser {
+public abstract class AbstractUser<V> implements GaiaUser {
   private final Gaia parent;
   private final V handle;
 
@@ -43,15 +38,5 @@ public abstract class AbstractUser<V extends Audience> implements GaiaUser {
   @Override
   public Gaia parent() {
     return parent;
-  }
-
-  @Override
-  public Optional<Key> level() {
-    return Optional.empty();
-  }
-
-  @Override
-  public @NonNull Audience audience() {
-    return handle;
   }
 }

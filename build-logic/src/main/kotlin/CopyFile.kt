@@ -3,7 +3,9 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault
 abstract class CopyFile : DefaultTask() {
   @get:InputFile
   abstract val fileToCopy: RegularFileProperty
@@ -12,7 +14,7 @@ abstract class CopyFile : DefaultTask() {
   abstract val destination: RegularFileProperty
 
   @TaskAction
-  private fun copyFile() {
+  fun copyFile() {
     destination.get().asFile.parentFile.mkdirs()
     fileToCopy.get().asFile.copyTo(destination.get().asFile, overwrite = true)
   }

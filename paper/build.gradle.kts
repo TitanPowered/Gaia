@@ -32,5 +32,5 @@ tasks {
 }
 
 gaiaPlatform {
-    productionJar.set(tasks.reobfJar.flatMap { it.outputJar })
+    productionJar.set(tasks.shadowJar.flatMap { it.archiveFile })
 }

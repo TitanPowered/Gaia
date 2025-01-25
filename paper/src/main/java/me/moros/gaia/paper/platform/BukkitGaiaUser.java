@@ -19,71 +19,46 @@
 
 package me.moros.gaia.paper.platform;
 
-import java.util.Optional;
-
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.moros.gaia.api.Gaia;
-import me.moros.gaia.api.arena.Point;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.common.platform.AbstractUser;
-import me.moros.math.Vector3d;
-import net.kyori.adventure.key.Key;
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
-import org.bukkit.command.CommandSender;
+import me.moros.gaia.paper.platform.GaiaPlayer.GaiaPlayerImpl;
+import net.kyori.adventure.audience.Audience;
 import org.bukkit.entity.Player;
 
-public class BukkitGaiaUser extends AbstractUser<CommandSender> {
-  private BukkitGaiaUser(Gaia parent, CommandSender handle) {
+public class BukkitGaiaUser extends AbstractUser<CommandSourceStack> {
+  private BukkitGaiaUser(Gaia parent, CommandSourceStack handle) {
     super(parent, handle);
   }
 
-  public static final class BukkitGaiaPlayer extends BukkitGaiaUser {
+  @Override
+  public Audience audience() {
+    return handle().getSender();
+  }
+
+  public static final class BukkitGaiaPlayer extends BukkitGaiaUser implements GaiaPlayer {
     private final Player player;
 
-    private BukkitGaiaPlayer(Gaia plugin, Player player) {
-      super(plugin, player);
+    private BukkitGaiaPlayer(Gaia plugin, CommandSourceStack stack, Player player) {
+      super(plugin, stack);
       this.player = player;
     }
 
     @Override
-    public boolean isPlayer() {
-      return true;
-    }
-
-    @Override
-    public void teleport(Key worldKey, Point point) {
-      var world = player.getServer().getWorld(new NamespacedKey(worldKey.namespace(), worldKey.value()));
-      if (world != null) {
-        player.teleportAsync(new Location(world, point.x(), point.y(), point.z(), point.yaw(), point.pitch()));
-      }
-    }
-
-    @Override
-    public Optional<Key> level() {
-      return Optional.of(player.getWorld().key());
-    }
-
-    @Override
-    public Vector3d position() {
-      var pos = player.getLocation();
-      return Vector3d.of(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    @Override
-    public float yaw() {
-      return player.getLocation().getYaw();
-    }
-
-    @Override
-    public float pitch() {
-      return player.getLocation().getPitch();
+    public Player player() {
+      return player;
     }
   }
 
-  public static GaiaUser from(Gaia parent, CommandSender sender) {
-    if (sender instanceof Player player) {
-      return new BukkitGaiaPlayer(parent, player);
+  public static GaiaUser from(Gaia parent, CommandSourceStack stack) {
+    if (stack.getSender() instanceof Player player) {
+      return new BukkitGaiaPlayer(parent, stack, player);
     }
-    return new BukkitGaiaUser(parent, sender);
+    return new BukkitGaiaUser(parent, stack);
+  }
+
+  public static GaiaUser from(Gaia parent, Player player) {
+    return new GaiaPlayerImpl(parent, player);
   }
 }

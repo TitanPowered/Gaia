@@ -19,6 +19,8 @@
 
 package me.moros.gaia.api.platform;
 
+import java.util.Optional;
+
 import me.moros.gaia.api.Gaia;
 import me.moros.gaia.api.arena.Point;
 import net.kyori.adventure.audience.ForwardingAudience;
@@ -32,5 +34,10 @@ public interface GaiaUser extends ForwardingAudience.Single, Locatable {
   }
 
   default void teleport(Key worldKey, Point point) {
+  }
+
+  @Override
+  default Optional<Key> level() {
+    return Optional.empty();
   }
 }

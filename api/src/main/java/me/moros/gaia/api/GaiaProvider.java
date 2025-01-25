@@ -17,7 +17,7 @@
  * along with Gaia. If not, see <https://www.gnu.org/licenses/>.
  */
 
-  package me.moros.gaia.api;
+package me.moros.gaia.api;
 
 /**
  * Static singleton for conveniently accessing the {@link Gaia} instance.
