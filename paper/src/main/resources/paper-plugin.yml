@@ -4,7 +4,7 @@ main: me.moros.gaia.paper.GaiaBootstrap
 author: Moros
 description: Arena management plugin.
 website: https://github.com/PrimordialMoros/Gaia
-api-version: '1.20'
+api-version: '${mcVersion}'
 folia-supported: true
 dependencies:
   server:
