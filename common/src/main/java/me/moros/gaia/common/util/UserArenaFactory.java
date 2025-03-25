@@ -78,8 +78,9 @@ public final class UserArenaFactory {
       Message.CREATE_ERROR_DISTANCE.send(user);
       return false;
     }
-    if (user.parent().arenaService().arena(level.key(), region).isPresent()) {
-      Message.CREATE_ERROR_INTERSECTION.send(user);
+    Arena intersection = user.parent().arenaService().arena(level.key(), region).orElse(null);
+    if (intersection != null) {
+      Message.CREATE_ERROR_INTERSECTION.send(user, intersection.displayName());
       return false;
     }
     user.parent().selectionService().resetSelection(user);
