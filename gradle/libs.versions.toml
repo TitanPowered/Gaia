@@ -1,18 +1,18 @@
 [versions]
 tasker = "1.2.0"
 math = "3.0.0"
-junit = "5.11.4"
-shadow = "8.3.5"
-adventure = "4.18.0"
-adventure-fabric = "6.2.0"
+junit = "5.12.2"
+shadow = "8.3.6"
+adventure = "4.20.0"
+adventure-fabric = "6.3.1-SNAPSHOT"
 configurate = "4.2.0-SNAPSHOT"
 cloud = "2.0.0-SNAPSHOT"
-worldedit = "7.3.10"
-paper = "1.21.4-R0.1-SNAPSHOT"
-minecraft = "1.21.4"
-fabric-loom = "1.9.2"
-fabric-api = "0.115.0+1.21.4"
-fabric-loader = "0.16.10"
+worldedit = "7.3.12-SNAPSHOT"
+paper = "1.21.5-R0.1-SNAPSHOT"
+minecraft = "1.21.5"
+fabric-loom = "1.10.5"
+fabric-api = "0.121.0+1.21.5"
+fabric-loader = "0.16.14"
 vanilla-gradle = "0.2.1-20240507.024226-82"
 
 [libraries]
@@ -36,10 +36,10 @@ adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
 adventure-fabric = { module = "net.kyori:adventure-platform-fabric", version.ref = "adventure-fabric" }
 eventbus = { module = "com.seiama:event-api", version = "1.0.0-SNAPSHOT" }
 
-linbus = { module = "org.enginehub.lin-bus:lin-bus-tree", version = "0.1.0-SNAPSHOT" }
+linbus = { module = "org.enginehub.lin-bus:lin-bus-tree", version = "0.2.1-SNAPSHOT" }
 worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = "worldedit" }
 worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.ref = "worldedit" }
-worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.21.4", version.ref = "worldedit" }
+worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.21.5", version.ref = "worldedit" }
 
 paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.1.0" }
@@ -48,22 +48,23 @@ fabric-minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" 
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 
-junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
-junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-bom = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform = { module = "org.junit.platform:junit-platform-launcher" }
 
 # Plugins for build-logic
 shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 vanilla = { module = "org.spongepowered:vanillagradle", version.ref = "vanilla-gradle" }
-checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.48" }
+checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.53" }
 
 [bundles]
-junit = ["junit-api", "junit-engine"]
+junit = ["junit-bom", "junit-jupiter"]
 cloud = ["cloud-core", "cloud-minecraft"]
 configurate = ["configurate-hocon", "configurate-gson"]
 
 [plugins]
-userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.14" }
+userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.16" }
 runpaper = { id = "xyz.jpenilla.run-paper", version = "2.3.1" }
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 vanilla = { id = "org.spongepowered.gradle.vanilla", version.ref = "vanilla-gradle" }
-jmh = { id = "me.champeau.jmh", version = "0.7.2" }
+jmh = { id = "me.champeau.jmh", version = "0.7.3" }

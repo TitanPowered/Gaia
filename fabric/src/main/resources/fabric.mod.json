@@ -19,7 +19,9 @@
       "me.moros.gaia.fabric.GaiaBootstrap"
     ]
   },
-  "mixins": [],
+  "mixins": [
+    "gaia-fabric.mixins.json"
+  ],
   "depends": {
     "fabric": "*",
     "fabricloader": ">=0.16.0",

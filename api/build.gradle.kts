@@ -3,9 +3,10 @@ plugins {
 }
 
 dependencies {
-    testImplementation(libs.bundles.junit)
     api(libs.math.core)
     compileOnlyApi(libs.adventure)
+    testImplementation(libs.bundles.junit)
+    testRuntimeOnly(libs.junit.platform)
 }
 
 tasks {

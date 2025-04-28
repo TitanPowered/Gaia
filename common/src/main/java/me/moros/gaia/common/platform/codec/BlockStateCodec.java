@@ -107,25 +107,22 @@ final class BlockStateCodec implements SimpleCodec<BlockState> {
   }
 
   private @Nullable BlockState nbtToState(CompoundTag nbt) {
-    if (!nbt.contains("Name", 8)) {
+    if (!nbt.contains("Name")) {
       return null;
     } else {
-      ResourceLocation rsl = ResourceLocation.tryParse(nbt.getString("Name"));
+      ResourceLocation rsl = nbt.getString("Name").map(ResourceLocation::tryParse).orElse(null);
       Block block = rsl == null ? null : BuiltInRegistries.BLOCK.getValue(ResourceKey.create(Registries.BLOCK, rsl));
       if (block == null) {
         return null;
       }
       BlockState blockState = block.defaultBlockState();
-      if (nbt.contains("Properties", 10)) {
-        CompoundTag compoundTag = nbt.getCompound("Properties");
+      CompoundTag compoundTag = nbt.getCompound("Properties").orElse(null);
+      if (compoundTag != null) {
         StateDefinition<Block, BlockState> stateDefinition = block.getStateDefinition();
-        for (String string : compoundTag.getAllKeys()) {
-          Property<?> property = stateDefinition.getProperty(string);
+        for (String propertyName : compoundTag.keySet()) {
+          Property<?> property = stateDefinition.getProperty(propertyName);
           if (property != null) {
-            var propertyValue = property.getValue(compoundTag.getString(string)).orElse(null);
-            if (propertyValue != null) {
-              blockState = setValue(blockState, property, propertyValue);
-            }
+            blockState = trySetValue(blockState, property, propertyName, compoundTag);
           }
         }
       }
@@ -133,9 +130,11 @@ final class BlockStateCodec implements SimpleCodec<BlockState> {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private static <T extends Comparable<T>> BlockState setValue(BlockState state, Property<T> property, Object value) {
-    return state.setValue(property, (T) value);
+  private static <T extends Comparable<T>> BlockState trySetValue(BlockState state, Property<T> property, String propertyName, CompoundTag compoundTag) {
+    return compoundTag.getString(propertyName)
+      .flatMap(property::getValue)
+      .map(t -> state.setValue(property, t))
+      .orElse(state);
   }
 
   private static String propertyMapper(Map.Entry<Property<?>, Comparable<?>> entry) {

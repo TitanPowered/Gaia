@@ -61,6 +61,12 @@ public final class BukkitLevel extends VanillaLevel {
   }
 
   @Override
+  public void removeChunkTicket(int x, int z) {
+    var chunkPos = new ChunkPos(x, z);
+    chunkSource().removeTicketAtLevel(gaiaTicketType(), chunkPos, 2);
+  }
+
+  @Override
   public void fixLight(Collection<ChunkPosition> positions) {
     if (Folia.FOLIA) { // TODO thread context for folia?
       return;

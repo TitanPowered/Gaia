@@ -29,8 +29,8 @@ import me.moros.gaia.common.util.IndexedIterator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.Ticket;
 import net.minecraft.server.level.TicketType;
-import net.minecraft.util.Unit;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -38,7 +38,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 @SuppressWarnings("resource")
 public abstract class VanillaLevel implements Level {
-  private static final TicketType<Unit> GAIA_TICKET_TYPE = TicketType.create("gaia", (u1, u2) -> 0);
+  private static final TicketType GAIA_TICKET_TYPE = new TicketType(TicketType.NO_TIMEOUT, false, TicketType.TicketUse.LOADING);
 
   private final ServerLevel handle;
 
@@ -79,7 +79,7 @@ public abstract class VanillaLevel implements Level {
       final int z = zOffset + ((index % 256) / 16);
       final int x = xOffset + ((index % 256) % 16);
       if (snapshot.chunk().region().contains(x, y, z)) {
-        BlockState result = levelChunk.setBlockState(mutablePos.set(x, y, z), toRestore, false);
+        BlockState result = levelChunk.setBlockState(mutablePos.set(x, y, z), toRestore, 512);
         if (result != null && result != toRestore) {
           chunkSource.blockChanged(mutablePos);
         }
@@ -106,13 +106,17 @@ public abstract class VanillaLevel implements Level {
   @Override
   public void addChunkTicket(int x, int z) {
     var chunkPos = new ChunkPos(x, z);
-    chunkSource().addRegionTicket(GAIA_TICKET_TYPE, chunkPos, 0, Unit.INSTANCE);
+    chunkSource().addTicket(new Ticket(GAIA_TICKET_TYPE, 0), chunkPos);
   }
 
-  @Override
+  /*@Override
   public void removeChunkTicket(int x, int z) {
     var chunkPos = new ChunkPos(x, z);
-    chunkSource().removeRegionTicket(GAIA_TICKET_TYPE, chunkPos, 2, Unit.INSTANCE);
+    chunkSource().removeTicketWithRadius().ticket(GAIA_TICKET_TYPE, chunkPos, 2, Unit.INSTANCE);
+  }*/
+
+  protected TicketType gaiaTicketType() {
+    return GAIA_TICKET_TYPE;
   }
 
   protected ServerChunkCache chunkSource() {

@@ -25,14 +25,13 @@ import me.moros.gaia.paper.platform.BukkitLevel;
 import me.moros.gaia.paper.platform.RegionExecutor;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 
 public record LevelServiceImpl(RegionExecutor executor, Logger logger) implements LevelService {
   @Override
   public @Nullable Level findLevel(Key level) {
-    var world = Bukkit.getServer().getWorld(new NamespacedKey(level.namespace(), level.value()));
+    var world = Bukkit.getServer().getWorld(level);
     if (world == null) {
       logger().warn("Couldn't find level with key " + level);
       return null;

@@ -30,7 +30,6 @@ import me.moros.math.Vector3d;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 
 sealed interface GaiaPlayer extends GaiaUser permits BukkitGaiaPlayer, GaiaPlayerImpl {
@@ -48,7 +47,7 @@ sealed interface GaiaPlayer extends GaiaUser permits BukkitGaiaPlayer, GaiaPlaye
 
   @Override
   default void teleport(Key worldKey, Point point) {
-    var world = player().getServer().getWorld(new NamespacedKey(worldKey.namespace(), worldKey.value()));
+    var world = player().getServer().getWorld(worldKey);
     if (world != null) {
       player().teleportAsync(new Location(world, point.x(), point.y(), point.z(), point.yaw(), point.pitch()));
     }
