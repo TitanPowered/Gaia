@@ -1,6 +1,34 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
-  ]
+    "config:recommended"
+  ],
+  "schedule": [
+    "after 6pm on the 6th day of the month"
+  ],
+  "ignoreDeps": [
+    "com.mojang:minecraft"
+  ],
+  "packageRules": [
+    {
+      "description": "Correct version handling for dependencies with format major.minor.patch+mcver",
+      "matchPackageNames": [
+        "net.fabricmc.fabric-api:fabric-api"
+      ],
+      "versioning": "regex:^(?<major>\\d+)(\\.(?<minor>\\d+))?(\\.(?<patch>\\d+))?(?:\\+(?<compatibility>.*))?$"
+    },
+    {
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchPackageNames": [
+        "*"
+      ]
+    }
+  ],
+  "prHourlyLimit": 4,
+  "semanticCommitType": "build"
 }

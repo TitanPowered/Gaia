@@ -1,50 +1,45 @@
-# Gaia
+<h1 align="center">
+<br>
+Gaia
+<br>
+</h1>
 
-[![Gradle CI](https://img.shields.io/github/workflow/status/PrimordialMoros/Gaia/Build?style=flat-square)](https://github.com/PrimordialMoros/Gaia/actions)
-[![License](https://img.shields.io/github/license/PrimordialMoros/Gaia?color=blue&style=flat-square)](LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/PrimordialMoros/Gaia?style=flat-square)](https://github.com/PrimordialMoros/Gaia/releases)
+<p align="center">
+<a href="https://github.com/PrimordialMoros/Gaia/actions"><img src="https://img.shields.io/github/actions/workflow/status/PrimordialMoros/Gaia/gradle.yml?branch=master&style=flat-square" alt="Gradle CI"/></a>
+<a href="LICENSE"><img src="https://img.shields.io/github/license/PrimordialMoros/Gaia?color=blue&style=flat-square" alt="License"/></a>
+<a href="https://github.com/PrimordialMoros/Gaia/wiki/Home"><img src="https://img.shields.io/badge/docs-wiki-informational?style=flat-square" alt="Wiki"/></a>
+<a href="https://github.com/PrimordialMoros/Gaia/releases"><img src="https://img.shields.io/github/v/release/PrimordialMoros/Gaia?color=009185&style=flat-square" alt="Github release"/></a>
+</p>
 
-## Requirements
-- `Java 16 or newer`
-- `PaperMC 1.17.1 or newer`
-- `WorldEdit 7.2.6 or newer`
+#### What is Gaia?
+Gaia is a lightweight arena management plugin for Minecraft servers.
 
-Gaia is a lightweight arena management plugin.
-Gaia makes use of [Paper's](https://github.com/PaperMC/Paper) async chunk API.
+It allows you to create snapshots of areas that you can later restore.
 
-## Creating an arena
-1. Select a region with WorldEdit
-2. Type and execute `/arena create <name>`
-3. Wait for confirmation and you are done!
 
-## A couple notes
-Arenas are automatically split into sub-regions which are saved individually on your server's storage.
-It's recommended you use an SSD to ensure disk IO is not bottlenecking Gaia.
-Only basic information about arenas is kept in memory, making the plugin extremely lightweight.
+<details><summary>Click for video preview.</summary>
+  
+https://github.com/TitanPowered/Gaia/assets/9851017/e75e9807-cc82-40f3-af89-cee11a0f87c2
+</details>
 
-When reverting an arena, Gaia verifies the file integrity for each individual saved sub-region.
-This ensures that any corrupted data will NOT affect your world.
-Any regions that can't be verified will be ignored while the rest will be reverted normally.
+#### Main Features:
+- Define arena regions
+- Restore arena regions to their original state
+- Teleport to defined [arena points](https://github.com/TitanPowered/Gaia/wiki/Getting-Started#arena-points)
+- Extremely efficient and lightweight
+- Extensible API
+- Support for custom translations and [Localization](https://github.com/PrimordialMoros/Gaia/wiki/Localization)
 
-## Commands and Permissions
-All commands except `/gaia version` default to OP only.
+You can read about how it works in [Technical Details](TECHNICAL_DETAILS.md).
 
-`gaia.admin`: Gives access to all Gaia commands
+## Building
 
-If no arena is specified, Gaia will attempt to select the one the player is currently standing in.
-If no point is specified, Gaia will pick a random point from the ones available in the specified arena.
+This project requires Java 21 or newer and uses Gradle (which comes with a wrapper, so you don't need to install it).
 
-| Command                       | Permission              | Description                                       |
-|-------------------------------|-------------------------|---------------------------------------------------|
-| `/gaia help`                  | `gaia.command.help`     | View list of Gaia commands                        |
-| `/gaia version`               | `gaia.command.version`  | Show plugin version and author                    |
-| `/gaia reload`                | `gaia.command.reload`   | Reload the plugin and its config                  |
-| `/gaia list [page]`           | `gaia.command.list`     | List all Gaia arenas                              |
-| `/gaia info [arena]`          | `gaia.command.info`     | View info about the specified arena               |
-| `/gaia remove [arena]`        | `gaia.command.remove`   | Remove the specified arena                        |
-| `/gaia revert [arena]`        | `gaia.command.revert`   | Revert the specified arena                        |
-| `/gaia cancel [arena]`        | `gaia.command.cancel`   | Cancel reverting the specified arena              |
-| `/gaia create <name>`         | `gaia.command.create`   | Create a new arena with the specified name        |
-| `/gaia addpoint`              | `gaia.command.point`    | Add a new point to the arena you are currently in |
-| `/gaia clearpoints [arena]`   | `gaia.command.point`    | Clear all points for the specified arena          |
-| `/gaia teleport [arena] [id]` | `gaia.command.teleport` | Teleport to a point in the specified arena        |
+Open a terminal and run `./gradlew build`.
+
+## Contributing - Developer API
+
+Any contributions, large or small, major features, bug fixes, unit/integration tests are welcome and appreciated.
+
+For information on how to use Gaia in your own projects check the [Developer API](https://github.com/PrimordialMoros/Gaia/wiki/Developer-API) wiki.

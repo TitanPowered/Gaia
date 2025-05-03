@@ -1,23 +1,60 @@
-# This workflow will build a Java project with Gradle
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
-
 name: Build
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ '**' ]
+    tags-ignore: [ '**' ]
+  pull_request:
+  release:
+    types: [ published ]
 
 jobs:
   build:
+    if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ 16 ]
-      fail-fast: true
     steps:
-      - uses: actions/checkout@v2
-      - name: JDK ${{ matrix.java }}
-        uses: actions/setup-java@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup java
+        uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java }}
-          cache: 'gradle'
-          distribution: 'adopt'
-      - name: Build with Gradle
-        run: ./gradlew build --no-daemon
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Setup additional gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches/fabric-loom
+            ~/.gradle/caches/paperweight-userdev
+            ~/.gradle/caches/VanillaGradle
+            .gradle/loom-cache
+          key: ${{ runner.os }}-build-cache-${{ hashFiles('**/libs.versions.toml', '**/*.gradle.kts', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-build-cache-
+      - name: Execute gradle build
+        run: ./gradlew build
+      - name: Calculate checksums
+        shell: bash
+        run: |
+          build_dir="build"
+          summary_table="| File | SHA-256 Checksum |\n"
+          summary_table+="|------|------------------|\n"
+          for file in $build_dir/*.jar; do
+            if [[ -f "$file" ]]; then
+              filename=$(basename $file .jar)
+              checksum=$(sha256sum "$file" | cut -c 1-64)
+              summary_table+="| $filename | \`$checksum\` |\n"
+              echo "$checksum" > $build_dir/$filename.sha256
+            fi
+          done
+          echo -e $summary_table >> $GITHUB_STEP_SUMMARY
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: |
+            build/*.jar
+            build/*.sha256
+          retention-days: 14
