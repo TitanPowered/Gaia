@@ -1,6 +1,5 @@
 import com.vanniktech.maven.publish.JavaLibrary
 import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     id("gaia.base-conventions")
@@ -43,6 +42,6 @@ mavenPublishing {
         }
     }
     configure(JavaLibrary(JavadocJar.Javadoc(), true))
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    publishToMavenCentral()
     signAllPublications()
 }
