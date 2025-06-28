@@ -1,17 +1,17 @@
 [versions]
 tasker = "1.2.0"
 math = "3.0.0"
-junit = "5.12.2"
-shadow = "8.3.6"
-adventure = "4.20.0"
-adventure-fabric = "6.3.1-SNAPSHOT"
-configurate = "4.2.0-SNAPSHOT"
-cloud = "2.0.0-SNAPSHOT"
-worldedit = "7.3.12-SNAPSHOT"
+junit = "5.13.2"
+shadow = "8.3.7"
+adventure = "4.23.0"
+adventure-fabric = "6.4.0"
+configurate = "4.2.0"
+cloud = "2.0.0"
+worldedit = "7.3.14"
 paper = "1.21.5-R0.1-SNAPSHOT"
 minecraft = "1.21.5"
-fabric-loom = "1.10.5"
-fabric-api = "0.121.0+1.21.5"
+fabric-loom = "1.11.1"
+fabric-api = "0.128.1+1.21.5"
 fabric-loader = "0.16.14"
 vanilla-gradle = "0.2.1-20240507.024226-82"
 
@@ -22,7 +22,7 @@ tasker-fabric = { module = "me.moros:tasker-fabric", version.ref = "tasker" }
 
 math-core = { module = "me.moros:math-core", version.ref = "math" }
 
-fastutil = { module = "it.unimi.dsi:fastutil-core", version = "8.5.15" }
+fastutil = { module = "it.unimi.dsi:fastutil-core", version = "8.5.16" }
 
 cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud" }
 cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud" }
@@ -55,7 +55,7 @@ junit-platform = { module = "org.junit.platform:junit-platform-launcher" }
 # Plugins for build-logic
 shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 vanilla = { module = "org.spongepowered:vanillagradle", version.ref = "vanilla-gradle" }
-checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.53" }
+checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.55" }
 
 [bundles]
 junit = ["junit-bom", "junit-jupiter"]
@@ -63,7 +63,7 @@ cloud = ["cloud-core", "cloud-minecraft"]
 configurate = ["configurate-hocon", "configurate-gson"]
 
 [plugins]
-userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.16" }
+userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.17" }
 runpaper = { id = "xyz.jpenilla.run-paper", version = "2.3.1" }
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 vanilla = { id = "org.spongepowered.gradle.vanilla", version.ref = "vanilla-gradle" }
