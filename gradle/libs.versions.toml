@@ -9,7 +9,7 @@ configurate = "4.2.0"
 cloud = "2.0.0"
 cloud-platform = "2.0.0-SNAPSHOT"
 worldedit = "7.3.15-SNAPSHOT"
-paper = "1.21.6-R0.1-SNAPSHOT"
+paper-api = "1.21.6-R0.1-SNAPSHOT"
 minecraft = "1.21.6"
 fabric-loom = "1.11.1"
 fabric-api = "0.128.1+1.21.6"
@@ -42,7 +42,6 @@ worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = 
 worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.ref = "worldedit" }
 worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.21.6", version.ref = "worldedit" }
 
-paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.1.0" }
 
 fabric-minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -55,7 +54,9 @@ junit-platform = { module = "org.junit.platform:junit-platform-launcher" }
 
 # Plugins for build-logic
 shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
-vanilla = { module = "org.spongepowered:vanillagradle", version.ref = "vanilla-gradle" }
+maven-publish = { module = "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin", version = "0.32.0" }
+sponge-vanilla = { module = "org.spongepowered:vanillagradle", version.ref = "vanilla-gradle" }
+minotaur = { module = "com.modrinth.minotaur:Minotaur", version = "2.8.7" }
 checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.55" }
 
 [bundles]
@@ -64,8 +65,9 @@ cloud = ["cloud-core", "cloud-minecraft"]
 configurate = ["configurate-hocon", "configurate-gson"]
 
 [plugins]
-userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.17" }
-runpaper = { id = "xyz.jpenilla.run-paper", version = "2.3.1" }
-fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
-vanilla = { id = "org.spongepowered.gradle.vanilla", version.ref = "vanilla-gradle" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
+fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
+paperweight-userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.17" }
+hangar = { id = "io.papermc.hangar-publish-plugin", version = "0.1.3" }
+run-paper = { id = "xyz.jpenilla.run-paper", version = "2.3.1" }
+vanilla = { id = "org.spongepowered.gradle.vanilla", version.ref = "vanilla-gradle" }

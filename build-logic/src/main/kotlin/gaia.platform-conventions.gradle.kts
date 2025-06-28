@@ -1,5 +1,6 @@
 plugins {
-    id("base-conventions")
+    id("gaia.base-conventions")
+    id("com.modrinth.minotaur")
 }
 
 val platformExt = extensions.create("gaiaPlatform", GaiaPlatformExtension::class)
@@ -21,7 +22,6 @@ tasks {
             reloc("org.bstats", "bstats")
             reloc("com.seiama.event", "eventbus")
             reloc("org.enginehub.linbus", "linbus")
-            reloc("com.typesafe", "typesafe")
             reloc("org.spongepowered.configurate", "configurate")
             exclude { it.moduleName.contains("geantyref") }
         }
@@ -36,4 +36,14 @@ tasks {
     }
 }
 
+modrinth {
+    projectId = "cbNKlKAw"
+    versionType = "release"
+    file = platformExt.productionJar
+    changelog = releaseNotes
+    token = providers.environmentVariable("MODRINTH_TOKEN")
+    dependencies {
+        optional.project("worldedit")
+    }
+}
 

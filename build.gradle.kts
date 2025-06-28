@@ -1,5 +1,5 @@
 plugins {
-    id("base-conventions")
+    id("gaia.base-conventions")
 }
 
 group = "me.moros"

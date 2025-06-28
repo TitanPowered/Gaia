@@ -9,7 +9,9 @@ repositories {
 
 dependencies {
     implementation(libs.shadow)
-    implementation(libs.vanilla)
+    implementation(libs.maven.publish)
+    implementation(libs.sponge.vanilla)
+    implementation(libs.minotaur)
     implementation(libs.checker)
 }
 

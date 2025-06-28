@@ -1,5 +1,5 @@
 plugins {
-    id("publish-conventions")
+    id("gaia.publish-conventions")
 }
 
 dependencies {

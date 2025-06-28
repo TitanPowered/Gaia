@@ -1,5 +1,5 @@
 plugins {
-    id("base-conventions")
+    id("gaia.base-conventions")
     id("org.spongepowered.gradle.vanilla")
 }
 
@@ -13,7 +13,7 @@ dependencies {
     api(libs.tasker.core)
     implementation(libs.eventbus)
     implementation(libs.linbus)
-    implementation(libs.bundles.configurate) { exclude(module = "gson") }
-    compileOnlyApi(libs.bundles.cloud)
+    compileOnly(libs.bundles.configurate)
+    compileOnly(libs.bundles.cloud)
     compileOnly(libs.worldedit.core)
 }

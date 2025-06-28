@@ -1,5 +1,5 @@
 plugins {
-    id("platform-conventions")
+    id("gaia.platform-conventions")
     alias(libs.plugins.fabric.loom)
 }
 
@@ -9,9 +9,17 @@ dependencies {
     modImplementation(libs.fabric.api)
     modImplementation(libs.fabric.loader)
     modCompileOnly(libs.worldedit.fabric)
-    modImplementation(include(libs.adventure.fabric.get())!!)
-    modImplementation(include(libs.cloud.fabric.get())!!)
-    implementation(include(libs.cloud.minecraft.get())!!)
+
+    modImplementation(libs.adventure.fabric)
+    include(libs.adventure.fabric)
+    modImplementation(libs.cloud.fabric)
+    include(libs.cloud.fabric)
+
+    implementation(libs.cloud.minecraft)
+    include(libs.cloud.minecraft)
+    implementation(libs.bundles.configurate)
+    include(libs.bundles.configurate)
+
     gaiaImplementation(projects.gaiaCommon)
     gaiaImplementation(libs.tasker.fabric)
 }
@@ -37,4 +45,12 @@ tasks {
 
 gaiaPlatform {
     productionJar.set(tasks.remapJar.flatMap { it.archiveFile })
+}
+
+modrinth {
+    versionName = "fabric-$version"
+    gameVersions.add(libs.versions.minecraft)
+    dependencies {
+        required.project("fabric-api")
+    }
 }

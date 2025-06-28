@@ -8,6 +8,9 @@ on:
   release:
     types: [ published ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
@@ -58,3 +61,50 @@ jobs:
             build/*.jar
             build/*.sha256
           retention-days: 14
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+    steps:
+      - name: Download stored artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts
+          path: publish
+      - name: Update release artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: publish/*
+  publish:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+          add-job-summary: 'on-failure'
+      - name: Generate and submit dependency graph
+        uses: gradle/actions/dependency-submission@v4
+      - id: status
+        name: Determine status
+        run: ./gradlew printVersionStatus --quiet >> $GITHUB_ENV
+      - name: Publish release to modrinth
+        if: ${{ steps.status.outcome == 'success' && env.STATUS == 'release' }}
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          RELEASE_NOTES: ${{ github.event.release.body }}
+        run: ./gradlew modrinth
+      - name: Publish release to hangar
+        if: ${{ steps.status.outcome == 'success' && env.STATUS == 'release' }}
+        env:
+          HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
+          RELEASE_NOTES: ${{ github.event.release.body }}
+        run: ./gradlew publishAllPublicationsToHangar
