@@ -10,6 +10,11 @@ dependencies {
 }
 
 tasks {
+    register("printVersionStatus") {
+        doLast {
+            println("STATUS=${if (isSnapshot()) "snapshot" else "release"}")
+        }
+    }
     test {
         useJUnitPlatform()
     }
