@@ -30,6 +30,7 @@ cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref =
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-platform" }
 cloud-fabric = { module = "org.incendo:cloud-fabric", version.ref = "cloud-platform" }
 
+configurate-core = { module = "org.spongepowered:configurate-core", version.ref = "configurate" }
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
 configurate-gson = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
 
@@ -62,7 +63,8 @@ checker = { module = "org.checkerframework:checkerframework-gradle-plugin", vers
 [bundles]
 junit = ["junit-bom", "junit-jupiter"]
 cloud = ["cloud-core", "cloud-minecraft"]
-configurate = ["configurate-hocon", "configurate-gson"]
+configurate = ["configurate-core", "configurate-hocon", "configurate-gson"]
+configurate-loaders = [ "configurate-hocon", "configurate-gson"]
 
 [plugins]
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }

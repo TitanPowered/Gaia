@@ -16,6 +16,7 @@ dependencies {
     gaiaImplementation(libs.tasker.paper)
     gaiaImplementation(libs.cloud.paper)
     gaiaImplementation(libs.cloud.minecraft)
+    runtimeDownload(libs.bundles.configurate.loaders)
     compileOnly(libs.worldedit.bukkit)
 }
 
@@ -30,6 +31,24 @@ tasks {
             expand(mapOf("version" to project.version, "mcVersion" to libs.versions.minecraft.get()))
         }
     }
+}
+
+val generateRuntimeDependencies = tasks.register("writeDependencies", WriteDependencies::class) {
+    val runtimeDownloadConfig = configurations.getByName("runtimeDownload")
+    tree = runtimeDownloadConfig.incoming.resolutionResult.rootComponent
+    files.from(runtimeDownloadConfig)
+    outputFileName = "gaia-dependencies"
+    outputDir = layout.buildDirectory.dir("generated/dependencies")
+}
+
+sourceSets.main {
+    resources {
+        srcDir(generateRuntimeDependencies)
+    }
+}
+
+paperweight {
+    reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
 }
 
 gaiaPlatform {

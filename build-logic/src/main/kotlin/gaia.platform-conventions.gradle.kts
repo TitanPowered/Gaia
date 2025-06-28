@@ -10,6 +10,14 @@ configurations.implementation {
     extendsFrom(configurations.getByName("gaiaImplementation"))
 }
 
+val runtimeDownload: Configuration by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+    }
+}
+
 tasks {
     shadowJar {
         configurations = listOf(project.configurations.getByName("gaiaImplementation"))
@@ -22,7 +30,6 @@ tasks {
             reloc("org.bstats", "bstats")
             reloc("com.seiama.event", "eventbus")
             reloc("org.enginehub.linbus", "linbus")
-            reloc("org.spongepowered.configurate", "configurate")
             exclude { it.moduleName.contains("geantyref") }
         }
     }
