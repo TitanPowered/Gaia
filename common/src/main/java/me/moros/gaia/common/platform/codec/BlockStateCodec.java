@@ -53,7 +53,7 @@ final class BlockStateCodec implements SimpleCodec<BlockState> {
   private final Supplier<Map<String, BlockState>> cache;
 
   private BlockStateCodec() {
-    this.dataVersion = SharedConstants.getCurrentVersion().getDataVersion().getVersion();
+    this.dataVersion = SharedConstants.getCurrentVersion().dataVersion().version();
     this.logger = LoggerFactory.getLogger("Gaia");
     this.cache = Suppliers.lazy(BlockStateCodec::buildCache);
   }

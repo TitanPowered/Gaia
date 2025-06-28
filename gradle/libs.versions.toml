@@ -4,14 +4,15 @@ math = "3.0.0"
 junit = "5.13.2"
 shadow = "8.3.7"
 adventure = "4.23.0"
-adventure-fabric = "6.4.0"
+adventure-fabric = "6.5.0-SNAPSHOT"
 configurate = "4.2.0"
 cloud = "2.0.0"
-worldedit = "7.3.14"
-paper = "1.21.5-R0.1-SNAPSHOT"
-minecraft = "1.21.5"
+cloud-platform = "2.0.0-SNAPSHOT"
+worldedit = "7.3.15-SNAPSHOT"
+paper = "1.21.6-R0.1-SNAPSHOT"
+minecraft = "1.21.6"
 fabric-loom = "1.11.1"
-fabric-api = "0.128.1+1.21.5"
+fabric-api = "0.128.1+1.21.6"
 fabric-loader = "0.16.14"
 vanilla-gradle = "0.2.1-20240507.024226-82"
 
@@ -25,9 +26,9 @@ math-core = { module = "me.moros:math-core", version.ref = "math" }
 fastutil = { module = "it.unimi.dsi:fastutil-core", version = "8.5.16" }
 
 cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud" }
-cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud" }
-cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud" }
-cloud-fabric = { module = "org.incendo:cloud-fabric", version.ref = "cloud" }
+cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud-platform" }
+cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-platform" }
+cloud-fabric = { module = "org.incendo:cloud-fabric", version.ref = "cloud-platform" }
 
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
 configurate-gson = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
@@ -39,7 +40,7 @@ eventbus = { module = "com.seiama:event-api", version = "1.0.0-SNAPSHOT" }
 linbus = { module = "org.enginehub.lin-bus:lin-bus-tree", version = "0.2.1-SNAPSHOT" }
 worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = "worldedit" }
 worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.ref = "worldedit" }
-worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.21.5", version.ref = "worldedit" }
+worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.21.6", version.ref = "worldedit" }
 
 paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.1.0" }
