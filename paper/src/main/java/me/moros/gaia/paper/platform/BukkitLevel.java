@@ -63,7 +63,8 @@ public final class BukkitLevel extends VanillaLevel {
   @Override
   public void removeChunkTicket(int x, int z) {
     var chunkPos = new ChunkPos(x, z);
-    chunkSource().removeTicketAtLevel(gaiaTicketType(), chunkPos, 2);
+    var ticket = gaiaTicket();
+    chunkSource().removeTicketAtLevel(ticket.getType(), chunkPos, ticket.getTicketLevel());
   }
 
   @Override

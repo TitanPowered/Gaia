@@ -38,7 +38,7 @@ public final class FabricLevel extends VanillaLevel {
   @Override
   public void removeChunkTicket(int x, int z) {
     var chunkPos = new ChunkPos(x, z);
-    ((ServerChunkCacheAccess) chunkSource()).gaia$ticketStorage().removeTicket(new Ticket(gaiaTicketType(), 2), chunkPos);
+    ((ServerChunkCacheAccess) chunkSource()).gaia$ticketStorage().removeTicket(gaiaTicket(), chunkPos);
   }
 
   @Override
