@@ -4,7 +4,7 @@ plugins {
 }
 
 neoForge {
-    neoFormVersion =  libs.versions.neoform.get()
+    neoFormVersion = libs.versions.neoform.get()
 }
 
 dependencies {
