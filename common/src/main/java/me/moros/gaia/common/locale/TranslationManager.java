@@ -94,7 +94,7 @@ public final class TranslationManager {
   }
 
   private void loadDefaults(TranslationStore.StringBased<MessageFormat> registry) {
-    ResourceBundle bundle = ResourceBundle.getBundle(PATH, DEFAULT_LOCALE, UTF8ResourceBundleControl.get());
+    ResourceBundle bundle = ResourceBundle.getBundle(PATH, DEFAULT_LOCALE, UTF8ResourceBundleControl.utf8ResourceBundleControl());
     registry.registerAll(DEFAULT_LOCALE, bundle, false);
   }
 

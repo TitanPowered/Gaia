@@ -1,11 +1,10 @@
 plugins {
     id("gaia.base-conventions")
-    id("org.spongepowered.gradle.vanilla")
+    id("net.neoforged.moddev")
 }
 
-minecraft {
-    version(libs.versions.minecraft.get())
-    platform(org.spongepowered.gradle.vanilla.repository.MinecraftPlatform.SERVER)
+neoForge {
+    neoFormVersion =  libs.versions.neoform.get()
 }
 
 dependencies {
