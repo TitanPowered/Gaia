@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.fabric.loom)
 }
 
+repositories {
+    maven("https://maven.fabricmc.net/")
+}
+
 dependencies {
     minecraft(libs.fabric.minecraft)
     mappings(loom.officialMojangMappings())

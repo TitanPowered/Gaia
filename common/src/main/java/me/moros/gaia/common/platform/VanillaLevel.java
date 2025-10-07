@@ -39,7 +39,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 @SuppressWarnings("resource")
 public abstract class VanillaLevel implements Level {
-  private static final TicketType GAIA_TICKET_TYPE = new TicketType(TicketType.NO_TIMEOUT, false, TicketType.TicketUse.LOADING);
+  private static final TicketType GAIA_TICKET_TYPE = new TicketType(TicketType.NO_TIMEOUT, TicketType.FLAG_LOADING);
   private static final int GAIA_TICKET_LEVEL = ChunkLevel.byStatus(ChunkStatus.FULL);
 
   private final ServerLevel handle;

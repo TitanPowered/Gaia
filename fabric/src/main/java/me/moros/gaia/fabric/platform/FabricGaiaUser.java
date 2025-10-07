@@ -30,6 +30,7 @@ import me.moros.math.Vector3d;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -58,7 +59,7 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
 
     @Override
     public void teleport(Key worldKey, Point point) {
-      for (ServerLevel level : player.getServer().getAllLevels()) {
+      for (ServerLevel level : player.level().getServer().getAllLevels()) {
         if (worldKey.equals(level.dimension().location())) {
           player.teleportTo(level, point.x(), point.y(), point.z(), Set.of(), point.yaw(), point.pitch(), true);
           return;

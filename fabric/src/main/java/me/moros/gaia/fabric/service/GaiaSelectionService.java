@@ -51,7 +51,7 @@ public final class GaiaSelectionService extends AbstractSelectionService {
   }
 
   private boolean canInteract(Player player, Level world, InteractionHand hand) {
-    if (hand == InteractionHand.OFF_HAND || world.isClientSide) {
+    if (hand == InteractionHand.OFF_HAND || world.isClientSide()) {
       return false;
     }
     if (!player.getItemInHand(InteractionHand.MAIN_HAND).is(Items.WOODEN_AXE)) {
