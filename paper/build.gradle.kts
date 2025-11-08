@@ -27,9 +27,9 @@ tasks {
         }
     }
     named<Copy>("processResources") {
-        filesMatching("paper-plugin.yml") {
-            expand(mapOf("version" to project.version, "mcVersion" to libs.versions.minecraft.get()))
-        }
+        expandProperties("paper-plugin.yml",
+            mapOf("version" to project.version, "mcVersion" to libs.versions.minecraft.get())
+        )
     }
 }
 

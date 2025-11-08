@@ -21,10 +21,15 @@ val runtimeDownload: Configuration by configurations.creating {
 tasks {
     shadowJar {
         configurations = listOf(project.configurations.getByName("gaiaImplementation"))
-        archiveClassifier.set("")
-        archiveBaseName.set(project.name)
+        archiveClassifier = ""
+        mergeServiceFiles()
+        filesMatching("META-INF/services/**") {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
+        val licenseName = "LICENSE_${rootProject.name.uppercase()}"
         from("$rootDir/LICENSE") {
-            rename { "META-INF/${it}_${rootProject.name.uppercase()}" }
+            into("META-INF")
+            rename { licenseName }
         }
         dependencies {
             reloc("org.bstats", "bstats")
@@ -33,9 +38,9 @@ tasks {
             exclude { it.moduleName.contains("geantyref") }
         }
     }
-    val copyJar = register("copyJar", CopyFile::class) {
-        fileToCopy.set(platformExt.productionJar)
-        destination.set(platformExt.productionJar.flatMap { rootProject.layout.buildDirectory.file(it.asFile.name) })
+    val copyJar = register<CopyFile>("copyJar") {
+        fileToCopy = platformExt.productionJar
+        destination = platformExt.productionJar.flatMap { rootProject.layout.buildDirectory.file(it.asFile.name) }
         dependsOn(jar)
     }
     assemble {
