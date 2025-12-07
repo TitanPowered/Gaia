@@ -7,10 +7,6 @@ plugins {
     signing
 }
 
-java {
-    if (!isSnapshot()) { withJavadocJar() }
-    withSourcesJar()
-}
 mavenPublishing {
     pom {
         name = project.name

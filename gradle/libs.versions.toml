@@ -9,8 +9,8 @@ configurate = "4.2.0"
 cloud = "2.0.0"
 cloud-minecraft = "2.0.0-SNAPSHOT"
 cloud-minecraft-modded = "2.0.0-SNAPSHOT"
-worldedit = "7.3.17-SNAPSHOT"
-paper-api = "1.21.9-R0.1-SNAPSHOT"
+worldedit = "7.3.17"
+paper-api = "1.21.10-R0.1-SNAPSHOT"
 minecraft = "1.21.10"
 fabric-loom = "1.13.3"
 fabric-api = "0.138.0+1.21.10"
@@ -43,7 +43,7 @@ eventbus = { module = "com.seiama:event-api", version = "1.0.0-SNAPSHOT" }
 linbus = { module = "org.enginehub.lin-bus:lin-bus-tree", version = "0.2.1-SNAPSHOT" }
 worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = "worldedit" }
 worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.ref = "worldedit" }
-worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.21.9", version.ref = "worldedit" }
+worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc1.21.10", version.ref = "worldedit" }
 
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.1.0" }
 
@@ -51,7 +51,7 @@ fabric-minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" 
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 
-junit-bom = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform = { module = "org.junit.platform:junit-platform-launcher" }
 
@@ -63,7 +63,6 @@ minotaur = { module = "com.modrinth.minotaur:Minotaur", version = "2.8.10" }
 checker = { module = "org.checkerframework:checkerframework-gradle-plugin", version = "0.6.61" }
 
 [bundles]
-junit = ["junit-bom", "junit-jupiter"]
 cloud = ["cloud-core", "cloud-minecraft"]
 configurate = ["configurate-core", "configurate-hocon", "configurate-gson"]
 configurate-loaders = [ "configurate-hocon", "configurate-gson"]

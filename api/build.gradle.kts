@@ -2,10 +2,13 @@ plugins {
     id("gaia.publish-conventions")
 }
 
+version = apiVersion()
+
 dependencies {
     api(libs.math.core)
     compileOnlyApi(libs.adventure)
-    testImplementation(libs.bundles.junit)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform)
 }
 
