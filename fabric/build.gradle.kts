@@ -12,7 +12,12 @@ dependencies {
     mappings(loom.officialMojangMappings())
     modImplementation(libs.fabric.api)
     modImplementation(libs.fabric.loader)
-    modCompileOnly(libs.worldedit.fabric)
+    modCompileOnly(libs.worldedit.fabric) {
+        // TODO remove exclusions when worldedit updates constraints
+        exclude(module = "gson")
+        exclude(module = "guava")
+        exclude(module = "fastutil")
+    }
 
     modImplementation(libs.adventure.fabric)
     include(libs.adventure.fabric)

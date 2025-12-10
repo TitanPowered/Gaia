@@ -30,8 +30,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.block.Block;
@@ -110,8 +110,8 @@ final class BlockStateCodec implements SimpleCodec<BlockState> {
     if (!nbt.contains("Name")) {
       return null;
     } else {
-      ResourceLocation rsl = nbt.getString("Name").map(ResourceLocation::tryParse).orElse(null);
-      Block block = rsl == null ? null : BuiltInRegistries.BLOCK.getValue(ResourceKey.create(Registries.BLOCK, rsl));
+      Identifier id = nbt.getString("Name").map(Identifier::tryParse).orElse(null);
+      Block block = id == null ? null : BuiltInRegistries.BLOCK.getValue(ResourceKey.create(Registries.BLOCK, id));
       if (block == null) {
         return null;
       }

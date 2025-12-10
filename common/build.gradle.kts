@@ -14,5 +14,10 @@ dependencies {
     implementation(libs.linbus)
     compileOnly(libs.bundles.configurate)
     compileOnly(libs.bundles.cloud)
-    compileOnly(libs.worldedit.core)
+    compileOnly(libs.worldedit.core) {
+        // TODO remove exclusions when worldedit updates constraints
+        exclude(module = "gson")
+        exclude(module = "guava")
+        exclude(module = "fastutil")
+    }
 }

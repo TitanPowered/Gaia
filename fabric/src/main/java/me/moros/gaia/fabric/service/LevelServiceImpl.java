@@ -41,7 +41,7 @@ public record LevelServiceImpl(Logger logger, MinecraftServer server) implements
 
   private @Nullable ServerLevel match(Key worldKey) {
     for (ServerLevel level : server.getAllLevels()) {
-      if (worldKey.equals(level.dimension().location())) {
+      if (worldKey.equals(level.dimension().identifier())) {
         return level;
       }
     }

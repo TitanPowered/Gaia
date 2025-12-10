@@ -17,7 +17,12 @@ dependencies {
     gaiaImplementation(libs.cloud.paper)
     gaiaImplementation(libs.cloud.minecraft)
     runtimeDownload(libs.bundles.configurate.loaders)
-    compileOnly(libs.worldedit.bukkit)
+    compileOnly(libs.worldedit.bukkit) {
+        // TODO remove exclusions when worldedit updates constraints
+        exclude(module = "gson")
+        exclude(module = "guava")
+        exclude(module = "fastutil")
+    }
 }
 
 tasks {

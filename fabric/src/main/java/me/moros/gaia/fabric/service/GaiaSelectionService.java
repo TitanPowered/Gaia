@@ -68,7 +68,7 @@ public final class GaiaSelectionService extends AbstractSelectionService {
   private InteractionResult onLeftClickBlock(Player player, Level world, InteractionHand hand, BlockPos blockPos, Direction direction) {
     if (canInteract(player, world, hand)) {
       UUID uuid = player.getUUID();
-      Key level = world.dimension().location();
+      Key level = world.dimension().identifier();
       var pos = Vector3i.of(blockPos.getX(), blockPos.getY(), blockPos.getZ());
       registerClick(uuid, level, pos);
       Message.SELECTION_FIRST.send((ServerPlayer) player, pos.toString());
@@ -80,7 +80,7 @@ public final class GaiaSelectionService extends AbstractSelectionService {
   private InteractionResult onRightClickBlock(Player player, Level world, InteractionHand hand, BlockHitResult blockHitResult) {
     if (canInteract(player, world, hand)) {
       UUID uuid = player.getUUID();
-      Key level = world.dimension().location();
+      Key level = world.dimension().identifier();
       var blockPos = blockHitResult.getBlockPos();
       var pos = Vector3i.of(blockPos.getX(), blockPos.getY(), blockPos.getZ());
       registerInteraction(uuid, level, pos);

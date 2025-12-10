@@ -60,7 +60,7 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
     @Override
     public void teleport(Key worldKey, Point point) {
       for (ServerLevel level : player.level().getServer().getAllLevels()) {
-        if (worldKey.equals(level.dimension().location())) {
+        if (worldKey.equals(level.dimension().identifier())) {
           player.teleportTo(level, point.x(), point.y(), point.z(), Set.of(), point.yaw(), point.pitch(), true);
           return;
         }
@@ -69,7 +69,7 @@ public class FabricGaiaUser extends AbstractUser<CommandSourceStack> {
 
     @Override
     public Optional<Key> level() {
-      return Optional.of(player.level().dimension().location());
+      return Optional.of(player.level().dimension().identifier());
     }
 
     @Override

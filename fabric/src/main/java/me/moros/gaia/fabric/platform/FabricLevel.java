@@ -47,6 +47,6 @@ public final class FabricLevel extends VanillaLevel {
 
   @Override
   public @NonNull Key key() {
-    return handle().dimension().location();
+    return handle().dimension().identifier();
   }
 }
