@@ -1,6 +1,6 @@
 [versions]
 tasker = "2.0.0"
-math = "3.0.0"
+math = "4.0.0"
 junit = "6.0.1"
 shadow = "9.3.0"
 adventure = "4.26.1"
