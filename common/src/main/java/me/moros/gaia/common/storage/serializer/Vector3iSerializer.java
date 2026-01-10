@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
 
 import me.moros.gaia.api.util.ChunkUtil;
 import me.moros.math.Vector3i;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;

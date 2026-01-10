@@ -25,8 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.checkerframework.checker.index.qual.Positive;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class TextUtil {
   private TextUtil() {
@@ -73,7 +72,7 @@ public final class TextUtil {
     }
   }
 
-  public static String formatDuration(@Positive long deltaTime) {
+  public static String formatDuration(long deltaTime) {
     Duration duration = Duration.ofMillis(deltaTime);
     List<String> parts = new ArrayList<>();
     long days = duration.toDaysPart();

@@ -21,7 +21,7 @@ package me.moros.gaia.api.service;
 
 import me.moros.gaia.api.platform.Level;
 import net.kyori.adventure.key.Key;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface LevelService {
   @Nullable Level findLevel(Key level);

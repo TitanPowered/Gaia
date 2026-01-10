@@ -26,9 +26,7 @@ import me.moros.gaia.common.platform.VanillaLevel;
 import me.moros.gaia.fabric.mixin.accessor.ServerChunkCacheAccess;
 import net.kyori.adventure.key.Key;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.Ticket;
 import net.minecraft.world.level.ChunkPos;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class FabricLevel extends VanillaLevel {
   public FabricLevel(ServerLevel handle) {
@@ -46,7 +44,7 @@ public final class FabricLevel extends VanillaLevel {
   }
 
   @Override
-  public @NonNull Key key() {
+  public Key key() {
     return handle().dimension().identifier();
   }
 }

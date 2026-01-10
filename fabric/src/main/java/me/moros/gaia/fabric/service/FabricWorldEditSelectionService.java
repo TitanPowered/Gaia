@@ -26,7 +26,7 @@ import me.moros.gaia.common.service.WorldEditSelectionService;
 import net.kyori.adventure.identity.Identity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.PlayerList;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class FabricWorldEditSelectionService extends WorldEditSelectionService {
   private final PlayerList playerList;

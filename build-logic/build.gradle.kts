@@ -12,7 +12,6 @@ dependencies {
     implementation(libs.maven.publish)
     implementation(libs.moddevgradle)
     implementation(libs.minotaur)
-    implementation(libs.checker)
 }
 
 kotlin {

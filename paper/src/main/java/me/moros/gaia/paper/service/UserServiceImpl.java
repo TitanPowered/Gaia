@@ -29,7 +29,7 @@ import me.moros.gaia.api.service.UserService;
 import me.moros.gaia.paper.platform.BukkitGaiaUser;
 import org.bukkit.Server;
 import org.bukkit.entity.Entity;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record UserServiceImpl(Supplier<Gaia> supplier, Server server) implements UserService {
   @Override

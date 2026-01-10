@@ -30,7 +30,7 @@ import me.moros.gaia.api.service.SelectionService;
 import me.moros.math.Vector3i;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.key.Key;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractSelectionService implements SelectionService {
   private final Map<UUID, Selection> cache;

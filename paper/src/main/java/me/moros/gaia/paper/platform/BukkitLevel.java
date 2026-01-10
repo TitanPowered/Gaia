@@ -34,7 +34,6 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class BukkitLevel extends VanillaLevel {
   private final World bukkitWorld;
@@ -47,7 +46,7 @@ public final class BukkitLevel extends VanillaLevel {
   }
 
   @Override
-  public @NonNull Key key() {
+  public Key key() {
     return bukkitWorld.key();
   }
 

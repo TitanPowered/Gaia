@@ -20,10 +20,7 @@
 /**
  * Base package for Gaia paper implementation.
  */
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.PARAMETER)
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.RETURN)
+@NullMarked
 package me.moros.gaia.paper;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.framework.qual.DefaultQualifier;
-import org.checkerframework.framework.qual.TypeUseLocation;
+import org.jspecify.annotations.NullMarked;

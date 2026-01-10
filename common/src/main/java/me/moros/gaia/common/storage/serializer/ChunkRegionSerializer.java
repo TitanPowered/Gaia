@@ -25,7 +25,7 @@ import java.util.Locale;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.arena.region.Region;
 import me.moros.math.Vector3i;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 

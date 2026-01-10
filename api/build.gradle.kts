@@ -5,6 +5,7 @@ plugins {
 version = apiVersion()
 
 dependencies {
+    api(libs.jspecify)
     api(libs.math.core)
     compileOnlyApi(libs.adventure)
     testImplementation(platform(libs.junit.bom))

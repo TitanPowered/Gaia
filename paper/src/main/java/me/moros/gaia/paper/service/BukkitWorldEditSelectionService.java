@@ -25,7 +25,7 @@ import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.common.service.WorldEditSelectionService;
 import net.kyori.adventure.identity.Identity;
 import org.bukkit.Bukkit;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class BukkitWorldEditSelectionService extends WorldEditSelectionService {
   @Override

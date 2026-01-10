@@ -29,7 +29,7 @@ import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.api.service.UserService;
 import me.moros.gaia.fabric.platform.FabricGaiaUser;
 import net.minecraft.server.players.PlayerList;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record UserServiceImpl(Supplier<Gaia> supplier, PlayerList playerList) implements UserService {
   @Override

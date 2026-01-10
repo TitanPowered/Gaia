@@ -25,7 +25,7 @@ import me.moros.gaia.fabric.platform.FabricLevel;
 import net.kyori.adventure.key.Key;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 public record LevelServiceImpl(Logger logger, MinecraftServer server) implements LevelService {

@@ -12,8 +12,8 @@ module me.moros.gaia {
   exports me.moros.gaia.api.util.supplier;
 
   requires transitive me.moros.math;
+  requires static org.jspecify;
+  requires static net.kyori.examination.api;
   requires static transitive net.kyori.adventure;
   requires static transitive net.kyori.adventure.key;
-  requires static net.kyori.examination.api;
-  requires static org.checkerframework.checker.qual;
 }

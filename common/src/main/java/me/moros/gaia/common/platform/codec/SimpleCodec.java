@@ -19,7 +19,7 @@
 
 package me.moros.gaia.common.platform.codec;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface SimpleCodec<R> {
   int dataVersion();

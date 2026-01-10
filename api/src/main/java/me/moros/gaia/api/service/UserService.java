@@ -23,7 +23,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import me.moros.gaia.api.platform.GaiaUser;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface UserService {
   @Nullable GaiaUser findUser(UUID uuid);

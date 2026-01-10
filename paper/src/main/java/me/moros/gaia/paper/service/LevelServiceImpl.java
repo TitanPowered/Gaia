@@ -25,7 +25,7 @@ import me.moros.gaia.paper.platform.BukkitLevel;
 import me.moros.gaia.paper.platform.RegionExecutor;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 public record LevelServiceImpl(RegionExecutor executor, Logger logger) implements LevelService {

@@ -20,7 +20,7 @@
 package me.moros.gaia.common.config;
 
 import me.moros.gaia.api.util.LightFixer;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 

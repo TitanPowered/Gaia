@@ -29,7 +29,7 @@ import me.moros.gaia.api.arena.region.Region;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.api.service.SelectionService;
 import me.moros.math.Vector3i;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public abstract class WorldEditSelectionService implements SelectionService {
   @Override
