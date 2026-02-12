@@ -33,7 +33,7 @@ tasks {
         }
         dependencies {
             reloc("org.bstats", "bstats")
-            reloc("com.seiama.event", "eventbus")
+            reloc("com.sasorio.event", "eventbus")
             reloc("org.enginehub.linbus", "linbus")
             exclude { it.moduleName.contains("geantyref") }
         }

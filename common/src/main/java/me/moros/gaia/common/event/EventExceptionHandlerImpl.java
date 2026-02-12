@@ -19,9 +19,9 @@
 
 package me.moros.gaia.common.event;
 
-import com.seiama.event.EventSubscription;
-import com.seiama.event.bus.EventBus;
-import com.seiama.event.bus.EventBus.EventExceptionHandler;
+import com.sasorio.event.EventSubscription;
+import com.sasorio.event.bus.EventBus;
+import com.sasorio.event.bus.EventBus.EventExceptionHandler;
 import org.slf4j.Logger;
 
 record EventExceptionHandlerImpl(Logger logger) implements EventExceptionHandler {

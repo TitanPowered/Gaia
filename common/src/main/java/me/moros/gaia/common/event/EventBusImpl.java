@@ -21,11 +21,11 @@ package me.moros.gaia.common.event;
 
 import java.util.function.Consumer;
 
-import com.seiama.event.Cancellable;
-import com.seiama.event.EventConfig;
-import com.seiama.event.bus.SimpleEventBus;
-import com.seiama.event.registry.EventRegistry;
-import com.seiama.event.registry.SimpleEventRegistry;
+import com.sasorio.event.Cancellable;
+import com.sasorio.event.EventConfig;
+import com.sasorio.event.bus.SimpleEventBus;
+import com.sasorio.event.registry.EventRegistry;
+import com.sasorio.event.registry.SimpleEventRegistry;
 import me.moros.gaia.api.arena.Arena;
 import me.moros.gaia.api.arena.region.ChunkRegion;
 import me.moros.gaia.api.event.ArenaAnalyzeEvent;
@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 
 public class EventBusImpl implements EventBus {
   private final EventRegistry<GaiaEvent> eventRegistry;
-  private final com.seiama.event.bus.EventBus<GaiaEvent> eventBus;
+  private final com.sasorio.event.bus.EventBus<GaiaEvent> eventBus;
   private boolean closed = false;
 
   public EventBusImpl(Logger logger) {

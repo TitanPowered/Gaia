@@ -39,7 +39,7 @@ configurate-gson = { module = "org.spongepowered:configurate-gson", version.ref 
 
 adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
 adventure-fabric = { module = "net.kyori:adventure-platform-fabric", version.ref = "adventure-fabric" }
-eventbus = { module = "com.seiama:event-api", version = "1.0.0-SNAPSHOT" }
+eventbus = { module = "com.sasorio:event-api", version = "1.0.0" }
 
 linbus = { module = "org.enginehub.lin-bus:lin-bus-tree", version = "0.2.1-SNAPSHOT" }
 worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = "worldedit" }
