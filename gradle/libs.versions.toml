@@ -71,7 +71,7 @@ configurate-loaders = [ "configurate-hocon", "configurate-gson"]
 
 [plugins]
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
-fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
+fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }
 paperweight-userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.19" }
 hangar = { id = "io.papermc.hangar-publish-plugin", version = "0.1.4" }
 run-paper = { id = "xyz.jpenilla.run-paper", version = "3.0.2" }
