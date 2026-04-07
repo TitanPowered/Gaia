@@ -1,20 +1,20 @@
 [versions]
-tasker = "2.0.0"
+tasker = "2.1.0"
 math = "4.0.0"
 junit = "6.0.3"
-shadow = "9.4.0"
+shadow = "9.4.1"
 adventure = "4.26.1"
 adventure-fabric = "6.8.0"
 configurate = "4.2.0"
 cloud = "2.0.0"
 cloud-minecraft = "2.0.0-SNAPSHOT"
 cloud-minecraft-modded = "2.0.0-SNAPSHOT"
-worldedit = "7.4.1"
+worldedit = "7.4.2"
 paper-api = "1.21.11-R0.1-SNAPSHOT"
 minecraft = "1.21.11"
-fabric-loom = "1.15.5"
+fabric-loom = "1.16.1"
 fabric-api = "0.141.3+1.21.11"
-fabric-loader = "0.18.5"
+fabric-loader = "0.18.6"
 jspecify = "1.0.0"
 moddevgradle = "2.0.141"
 neoform = "1.21.11-20251209.172050"
@@ -72,6 +72,6 @@ configurate-loaders = [ "configurate-hocon", "configurate-gson"]
 [plugins]
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
 fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }
-paperweight-userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.19" }
+paperweight-userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.21" }
 hangar = { id = "io.papermc.hangar-publish-plugin", version = "0.1.4" }
 run-paper = { id = "xyz.jpenilla.run-paper", version = "3.0.2" }
