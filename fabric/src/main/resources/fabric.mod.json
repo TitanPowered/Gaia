@@ -23,8 +23,8 @@
     "gaia-fabric.mixins.json"
   ],
   "depends": {
-    "fabric": "*",
-    "fabricloader": ">=0.16.0",
+    "fabric-api": "*",
+    "fabricloader": ">=0.18.5",
     "minecraft": "~${mcVersion}",
     "cloud": "*",
     "adventure-platform-fabric": "*"

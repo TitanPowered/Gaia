@@ -9,14 +9,13 @@ repositories {
 
 dependencies {
     minecraft(libs.fabric.minecraft)
-    mappings(loom.officialMojangMappings())
-    modImplementation(libs.fabric.api)
-    modImplementation(libs.fabric.loader)
-    modCompileOnly(libs.worldedit.fabric)
+    implementation(libs.fabric.api)
+    implementation(libs.fabric.loader)
+    compileOnly(libs.worldedit.fabric)
 
-    modImplementation(libs.adventure.fabric)
+    implementation(libs.adventure.fabric)
     include(libs.adventure.fabric)
-    modImplementation(libs.cloud.fabric)
+    implementation(libs.cloud.fabric)
     include(libs.cloud.fabric)
 
     implementation(libs.cloud.minecraft)
@@ -38,17 +37,13 @@ tasks {
             mapOf("version" to project.version, "mcVersion" to libs.versions.minecraft.get())
         )
     }
-    remapJar {
-        val shadowJar = getByName<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar")
-        dependsOn(shadowJar)
-        inputFile.set(shadowJar.archiveFile)
-        addNestedDependencies.set(true)
-        archiveFileName.set("${project.name}-mc${libs.versions.minecraft.get()}-${project.version}.jar")
+    shadowJar {
+        archiveFileName = "${project.name}-mc${libs.versions.minecraft.get()}-${project.version}.jar"
     }
 }
 
 gaiaPlatform {
-    productionJar.set(tasks.remapJar.flatMap { it.archiveFile })
+    productionJar.set(tasks.shadowJar.flatMap { it.archiveFile })
 }
 
 modrinth {

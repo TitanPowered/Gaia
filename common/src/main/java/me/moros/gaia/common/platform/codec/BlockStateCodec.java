@@ -22,6 +22,7 @@ package me.moros.gaia.common.platform.codec;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.mojang.serialization.Dynamic;
 import me.moros.gaia.api.util.supplier.Suppliers;
@@ -42,8 +43,6 @@ import net.minecraft.world.level.block.state.properties.Property;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.stream.Collectors.joining;
 
 final class BlockStateCodec implements SimpleCodec<BlockState> {
   static final SimpleCodec<BlockState> INSTANCE = new BlockStateCodec();
@@ -137,22 +136,12 @@ final class BlockStateCodec implements SimpleCodec<BlockState> {
       .orElse(state);
   }
 
-  private static String propertyMapper(Map.Entry<Property<?>, Comparable<?>> entry) {
-    Property<?> property = entry.getKey();
-    return property.getName() + "=" + getName(property, entry.getValue());
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T extends Comparable<T>> String getName(Property<T> property, Comparable<?> value) {
-    return property.getName((T) value);
-  }
-
   private static String convertToString(BlockState state) {
     StringBuilder sb = new StringBuilder();
     sb.append(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
-    if (!state.getValues().isEmpty()) {
+    if (!state.isSingletonState()) {
       sb.append('[');
-      sb.append(state.getValues().entrySet().stream().map(BlockStateCodec::propertyMapper).collect(joining(",")));
+      sb.append(state.getValues().map(Property.Value::toString).collect(Collectors.joining(",")));
       sb.append(']');
     }
     return sb.toString();

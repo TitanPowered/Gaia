@@ -84,7 +84,7 @@ public final class BukkitLevel extends VanillaLevel {
   }
 
   private boolean filter(ServerChunkCache chunkSource, ChunkPos pos) {
-    ChunkAccess chunk = (ChunkAccess) chunkSource.getChunkForLighting(pos.x, pos.z);
+    ChunkAccess chunk = (ChunkAccess) chunkSource.getChunkForLighting(pos.x(), pos.z());
     return chunk != null && chunk.isLightCorrect() && chunk.getPersistedStatus().isOrAfter(ChunkStatus.LIGHT);
   }
 }
