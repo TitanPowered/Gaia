@@ -11,18 +11,13 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle(libs.versions.paper.api)
-    gaiaImplementation(projects.gaiaCommon)
-    gaiaImplementation(libs.bstats.bukkit)
-    gaiaImplementation(libs.tasker.paper)
-    gaiaImplementation(libs.cloud.paper)
-    gaiaImplementation(libs.cloud.minecraft)
+    implementation(projects.gaiaCommon)
+    implementation(libs.bstats.bukkit)
+    implementation(libs.tasker.paper)
+    implementation(libs.cloud.paper)
+    implementation(libs.cloud.minecraft)
     runtimeDownload(libs.bundles.configurate.loaders)
-    compileOnly(libs.worldedit.bukkit) {
-        // TODO remove exclusions when worldedit updates constraints
-        exclude(module = "gson")
-        exclude(module = "guava")
-        exclude(module = "fastutil")
-    }
+    compileOnly(libs.worldedit.bukkit)
 }
 
 tasks {
@@ -52,12 +47,8 @@ sourceSets.main {
     }
 }
 
-paperweight {
-    reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
-}
-
 gaiaPlatform {
-    productionJar.set(tasks.shadowJar.flatMap { it.archiveFile })
+    productionJar = tasks.shadowJar.flatMap { it.archiveFile }
 }
 
 hangarPublish.publications.register("plugin") {

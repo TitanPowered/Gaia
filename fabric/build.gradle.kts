@@ -11,7 +11,7 @@ dependencies {
     minecraft(libs.fabric.minecraft)
     implementation(libs.fabric.api)
     implementation(libs.fabric.loader)
-    compileOnly(libs.worldedit.fabric)
+    compileOnly(libs.worldedit.coremc)
 
     implementation(libs.adventure.fabric)
     include(libs.adventure.fabric)
@@ -23,8 +23,8 @@ dependencies {
     implementation(libs.bundles.configurate)
     include(libs.bundles.configurate)
 
-    gaiaImplementation(projects.gaiaCommon)
-    gaiaImplementation(libs.tasker.fabric)
+    shadow(projects.gaiaCommon)
+    shadow(libs.tasker.fabric)
 }
 
 loom {
@@ -32,18 +32,26 @@ loom {
 }
 
 tasks {
+    shadowJar {
+        val processedFabricModJson = layout.buildDirectory.file("resources/main/fabric.mod.json").get().asFile.absoluteFile
+        eachFile {
+            if (path == "fabric.mod.json" && file.absoluteFile == processedFabricModJson) {
+                exclude()
+            }
+        }
+        from(zipTree(jar.flatMap { it.archiveFile }))
+        configurations = listOf(project.configurations.shadow.get())
+        archiveFileName = "${project.name}-mc${libs.versions.minecraft.get()}-${project.version}.jar"
+    }
     named<Copy>("processResources") {
         expandProperties("fabric.mod.json",
             mapOf("version" to project.version, "mcVersion" to libs.versions.minecraft.get())
         )
     }
-    shadowJar {
-        archiveFileName = "${project.name}-mc${libs.versions.minecraft.get()}-${project.version}.jar"
-    }
 }
 
 gaiaPlatform {
-    productionJar.set(tasks.shadowJar.flatMap { it.archiveFile })
+    productionJar = tasks.shadowJar.flatMap { it.archiveFile }
 }
 
 modrinth {

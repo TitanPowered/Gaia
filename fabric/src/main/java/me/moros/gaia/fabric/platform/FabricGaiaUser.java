@@ -30,7 +30,6 @@ import me.moros.math.Vector3d;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 

@@ -5,11 +5,6 @@ plugins {
 
 val platformExt = extensions.create("gaiaPlatform", GaiaPlatformExtension::class)
 
-configurations.create("gaiaImplementation")
-configurations.implementation {
-    extendsFrom(configurations.getByName("gaiaImplementation"))
-}
-
 val runtimeDownload: Configuration by configurations.creating {
     isCanBeResolved = true
     isCanBeConsumed = false
@@ -20,7 +15,6 @@ val runtimeDownload: Configuration by configurations.creating {
 
 tasks {
     shadowJar {
-        configurations = listOf(project.configurations.getByName("gaiaImplementation"))
         archiveClassifier = ""
         mergeServiceFiles()
         filesMatching("META-INF/services/**") {
@@ -31,11 +25,14 @@ tasks {
             into("META-INF")
             rename { licenseName }
         }
+        val excluded = setOf("geantyref", "jspecify")
         dependencies {
+            exclude {
+                excluded.contains(it.moduleName)
+            }
             reloc("org.bstats", "bstats")
             reloc("com.sasorio.event", "eventbus")
             reloc("org.enginehub.linbus", "linbus")
-            exclude { it.moduleName.contains("geantyref") }
         }
     }
     val copyJar = register<CopyFile>("copyJar") {

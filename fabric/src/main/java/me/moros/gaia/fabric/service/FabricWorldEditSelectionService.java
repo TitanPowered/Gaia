@@ -19,8 +19,11 @@
 
 package me.moros.gaia.fabric.service;
 
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.coremc.CoreMcAdapter;
+import com.sk89q.worldedit.coremc.internal.CoreMcPlatform;
 import com.sk89q.worldedit.entity.Player;
-import com.sk89q.worldedit.fabric.FabricAdapter;
+import com.sk89q.worldedit.extension.platform.Capability;
 import me.moros.gaia.api.platform.GaiaUser;
 import me.moros.gaia.common.service.WorldEditSelectionService;
 import net.kyori.adventure.identity.Identity;
@@ -30,13 +33,17 @@ import org.jspecify.annotations.Nullable;
 
 public final class FabricWorldEditSelectionService extends WorldEditSelectionService {
   private final PlayerList playerList;
+  private final CoreMcAdapter adapter;
 
   public FabricWorldEditSelectionService(MinecraftServer server) {
     this.playerList = server.getPlayerList();
+    this.adapter = WorldEdit.getInstance().getPlatformManager().getPreferred(Capability.WORLD_EDITING).value()
+      .filter(CoreMcPlatform.class::isInstance).map(CoreMcPlatform.class::cast)
+      .map(CoreMcPlatform::getAdapter).orElseThrow();
   }
 
   @Override
   protected @Nullable Player adapt(GaiaUser user) {
-    return user.get(Identity.UUID).map(playerList::getPlayer).map(FabricAdapter::adaptPlayer).orElse(null);
+    return user.get(Identity.UUID).map(playerList::getPlayer).map(adapter::fromNativePlayer).orElse(null);
   }
 }

@@ -27,10 +27,8 @@ import me.moros.gaia.api.platform.Level;
 import me.moros.gaia.api.util.ChunkUtil;
 import me.moros.gaia.common.util.IndexedIterator;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ChunkLevel;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.Ticket;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,7 +38,6 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 @SuppressWarnings("resource")
 public abstract class VanillaLevel implements Level {
   private static final TicketType GAIA_TICKET_TYPE = new TicketType(TicketType.NO_TIMEOUT, TicketType.FLAG_LOADING);
-  private static final int GAIA_TICKET_LEVEL = ChunkLevel.byStatus(ChunkStatus.FULL);
 
   private final ServerLevel handle;
 
@@ -108,11 +105,13 @@ public abstract class VanillaLevel implements Level {
   @Override
   public void addChunkTicket(int x, int z) {
     var chunkPos = new ChunkPos(x, z);
-    chunkSource().addTicket(gaiaTicket(), chunkPos);
+    chunkSource().addTicketWithRadius(GAIA_TICKET_TYPE, chunkPos, 0);
   }
 
-  protected Ticket gaiaTicket() {
-    return new Ticket(GAIA_TICKET_TYPE, GAIA_TICKET_LEVEL);
+  @Override
+  public void removeChunkTicket(int x, int z) {
+    var chunkPos = new ChunkPos(x, z);
+    chunkSource().removeTicketWithRadius(GAIA_TICKET_TYPE, chunkPos, 0);
   }
 
   protected ServerChunkCache chunkSource() {

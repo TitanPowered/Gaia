@@ -4,17 +4,17 @@ math = "4.0.0"
 junit = "6.0.3"
 shadow = "9.4.1"
 adventure = "4.26.1"
-adventure-fabric = "6.9.0-SNAPSHOT"
+adventure-fabric = "6.9.0"
 configurate = "4.2.0"
 cloud = "2.0.0"
 cloud-minecraft = "2.0.0-SNAPSHOT"
 cloud-minecraft-modded = "2.0.0-SNAPSHOT"
 worldedit = "7.4.3-SNAPSHOT"
-paper-api = "26.1.1.build.+"
-minecraft = "26.1.1"
+paper-api = "26.1.2.build.+"
+minecraft = "26.1.2"
 fabric-loom = "1.16.1"
-fabric-api = "0.145.4+26.1.1"
-fabric-loader = "0.19.0"
+fabric-api = "0.146.1+26.1.2"
+fabric-loader = "0.19.2"
 jspecify = "1.0.0"
 moddevgradle = "2.0.141"
 neoform = "26.1.1-1"
@@ -44,7 +44,7 @@ eventbus = { module = "com.sasorio:event-api", version = "1.0.0" }
 linbus = { module = "org.enginehub.lin-bus:lin-bus-tree", version = "0.2.1-SNAPSHOT" }
 worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = "worldedit" }
 worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.ref = "worldedit" }
-worldedit-fabric = { module = "com.sk89q.worldedit:worldedit-fabric-mc26.1", version.ref = "worldedit" }
+worldedit-coremc = { module = "com.sk89q.worldedit:worldedit-core-mc-mc26.1", version.ref = "worldedit" }
 
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.2.1" }
 

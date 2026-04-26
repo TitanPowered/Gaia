@@ -23,20 +23,12 @@ import java.util.Collection;
 
 import me.moros.gaia.api.chunk.ChunkPosition;
 import me.moros.gaia.common.platform.VanillaLevel;
-import me.moros.gaia.fabric.mixin.accessor.ServerChunkCacheAccess;
 import net.kyori.adventure.key.Key;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 
 public final class FabricLevel extends VanillaLevel {
   public FabricLevel(ServerLevel handle) {
     super(handle);
-  }
-
-  @Override
-  public void removeChunkTicket(int x, int z) {
-    var chunkPos = new ChunkPos(x, z);
-    ((ServerChunkCacheAccess) chunkSource()).gaia$ticketStorage().removeTicket(gaiaTicket(), chunkPos);
   }
 
   @Override
