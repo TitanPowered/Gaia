@@ -17,7 +17,7 @@ fabric-api = "0.146.1+26.1.2"
 fabric-loader = "0.19.2"
 jspecify = "1.0.0"
 moddevgradle = "2.0.141"
-neoform = "26.1.1-1"
+neoform = "26.1.2-1"
 
 [libraries]
 tasker-core = { module = "me.moros:tasker-core", version.ref = "tasker" }
@@ -44,7 +44,7 @@ eventbus = { module = "com.sasorio:event-api", version = "1.0.0" }
 linbus = { module = "org.enginehub.lin-bus:lin-bus-tree", version = "0.2.1-SNAPSHOT" }
 worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = "worldedit" }
 worldedit-bukkit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.ref = "worldedit" }
-worldedit-coremc = { module = "com.sk89q.worldedit:worldedit-core-mc-mc26.1", version.ref = "worldedit" }
+worldedit-coremc = { module = "com.sk89q.worldedit:worldedit-core-mc-mc26.1.2", version.ref = "worldedit" }
 
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version = "3.2.1" }
 
