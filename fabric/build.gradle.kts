@@ -5,6 +5,9 @@ plugins {
 
 repositories {
     maven("https://maven.fabricmc.net/")
+    maven("https://repo.moros.me/snapshots/") {
+        mavenContent { includeGroup("org.incendo") }
+    }
 }
 
 dependencies {

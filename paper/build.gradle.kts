@@ -7,6 +7,9 @@ plugins {
 
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.moros.me/snapshots/") {
+        mavenContent { includeGroup("org.incendo") }
+    }
 }
 
 dependencies {

@@ -7,6 +7,12 @@ neoForge {
     neoFormVersion = libs.versions.neoform.get()
 }
 
+repositories {
+    maven("https://repo.moros.me/snapshots/") {
+        mavenContent { includeGroup("org.incendo") }
+    }
+}
+
 dependencies {
     api(projects.gaiaApi)
     api(libs.tasker.core)

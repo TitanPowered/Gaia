@@ -13,7 +13,5 @@ module me.moros.gaia {
 
   requires transitive me.moros.math;
   requires static org.jspecify;
-  requires static net.kyori.examination.api;
-  requires static transitive net.kyori.adventure;
-  requires static transitive net.kyori.adventure.key;
+  requires static transitive net.kyori.adventure.api;
 }
