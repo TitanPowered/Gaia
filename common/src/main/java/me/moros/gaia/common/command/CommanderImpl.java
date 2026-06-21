@@ -48,7 +48,7 @@ record CommanderImpl(CommandManager<GaiaUser> manager, Gaia plugin, Logger logge
 
   @Override
   public Command.Builder<GaiaUser> rootBuilder() {
-    return manager().commandBuilder("gaia", RichDescription.of(Message.BASE_CMD_DESC.build()), "g");
+    return manager().commandBuilder("gaia", RichDescription.of(Message.BASE_CMD_DESC.build()));
   }
 
   @Override
