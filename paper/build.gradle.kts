@@ -25,9 +25,7 @@ dependencies {
 
 tasks {
     shadowJar {
-        dependencies {
-            reloc("org.incendo.cloud", "cloud")
-        }
+        reloc("org.incendo.cloud", "cloud")
     }
     named<Copy>("processResources") {
         expandProperties("paper-plugin.yml",
