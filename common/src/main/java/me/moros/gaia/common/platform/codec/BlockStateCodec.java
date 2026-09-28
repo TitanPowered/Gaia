@@ -31,6 +31,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.datafix.DataFixers;
@@ -39,12 +40,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class BlockStateCodec implements SimpleCodec<BlockState> {
+  private static final int BLOCK_STATE_FIELD_RENAME_VERSION = 5009;
+
   static final SimpleCodec<BlockState> INSTANCE = new BlockStateCodec();
 
   private final int dataVersion;
@@ -79,20 +83,24 @@ final class BlockStateCodec implements SimpleCodec<BlockState> {
   }
 
   private @Nullable BlockState calculateBlockState(String data, int srcVersion) {
-    CompoundTag nbt = stateToNBT(data);
+    CompoundTag nbt = stateToNBT(data, srcVersion);
     CompoundTag result = (CompoundTag) DataFixers.getDataFixer()
       .update(References.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, nbt), srcVersion, dataVersion)
       .getValue();
     return nbtToState(result);
   }
 
-  private CompoundTag stateToNBT(String blockState) {
+  private CompoundTag stateToNBT(String blockState, int srcVersion) {
+    boolean modernNames = srcVersion >= BLOCK_STATE_FIELD_RENAME_VERSION;
+    String idKey = modernNames ? StateHolder.ID_TAG : NbtUtils.LEGACY_BLOCK_STATE_ID_TAG;
+    String propertiesKey = modernNames ? StateHolder.PROPERTIES_TAG : NbtUtils.LEGACY_BLOCKSTATE_PROPERTY_TAG;
+
     int propIdx = blockState.indexOf('[');
     CompoundTag tag = new CompoundTag();
     if (propIdx < 0) {
-      tag.putString("Name", blockState);
+      tag.putString(idKey, blockState);
     } else {
-      tag.putString("Name", blockState.substring(0, propIdx));
+      tag.putString(idKey, blockState.substring(0, propIdx));
       CompoundTag propTag = new CompoundTag();
       String props = blockState.substring(propIdx + 1, blockState.length() - 1);
       String[] propArr = props.split(",");
@@ -100,22 +108,22 @@ final class BlockStateCodec implements SimpleCodec<BlockState> {
         final String[] split = pair.split("=");
         propTag.putString(split[0], split[1]);
       }
-      tag.put("Properties", propTag);
+      tag.put(propertiesKey, propTag);
     }
     return tag;
   }
 
   private @Nullable BlockState nbtToState(CompoundTag nbt) {
-    if (!nbt.contains("Name")) {
+    if (nbt.isEmpty()) {
       return null;
     } else {
-      Identifier id = nbt.getString("Name").map(Identifier::tryParse).orElse(null);
+      Identifier id = nbt.getString(StateHolder.ID_TAG).map(Identifier::tryParse).orElse(null);
       Block block = id == null ? null : BuiltInRegistries.BLOCK.getValue(ResourceKey.create(Registries.BLOCK, id));
       if (block == null) {
         return null;
       }
       BlockState blockState = block.defaultBlockState();
-      CompoundTag compoundTag = nbt.getCompound("Properties").orElse(null);
+      CompoundTag compoundTag = nbt.getCompound(StateHolder.PROPERTIES_TAG).orElse(null);
       if (compoundTag != null) {
         StateDefinition<Block, BlockState> stateDefinition = block.getStateDefinition();
         for (String propertyName : compoundTag.keySet()) {
